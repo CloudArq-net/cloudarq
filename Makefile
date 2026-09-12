@@ -2,7 +2,7 @@ SHELL := bash
 GO    ?= go
 PKG   := ./...
 
-.PHONY: all build test vet purity determinism cover css check clean
+.PHONY: all build test vet purity determinism cover css check preflight clean
 
 all: check
 
@@ -45,6 +45,10 @@ css:
 
 check: build vet test purity determinism cover css
 	@echo "all checks green"
+
+## preflight: run before EVERY push. A commit is recoverable; a push is not.
+preflight: check
+	@./scripts/preflight.sh
 
 clean:
 	rm -f coverage.out

@@ -214,6 +214,34 @@ error codes without text. An empty state teaches: *"no external principals found
 
 ---
 
+## Two people, one working tree
+
+More than one contributor may have the repository open at once. The tree is shared state and
+`git` has no locking, so the discipline is ownership, not politeness.
+
+**Ownership while a task is in flight**
+
+| Path | Owner |
+|---|---|
+| `cmd/`, `internal/`, `test/`, `go.mod`, `go.sum` | whoever holds the current spec |
+| `specs/`, `LOG.md`, `docs/` | whoever is writing process or briefs |
+
+**Rules, in order of how badly breaking them hurts**
+
+1. **Never run a tree-mutating git command on work you do not own.** `stash`, `checkout`,
+   `reset`, `clean`, `rebase`, `restore`, and `commit --amend` all silently move or delete
+   someone else's uncommitted files. There is no undo for `stash` that fails to pop.
+2. **Never `git add -A` while another task is in flight.** Stage the paths you own, by name.
+   A blanket add sweeps the other contributor's half-finished work into your commit.
+3. **Read `git status` before you stage anything.** If it shows files you do not own, leave
+   them alone and say so.
+4. **Read-only is always safe.** `log`, `diff`, `show`, `status`, `ls-files` never mutate.
+
+If you need the tree clean and it is not — because a test needs an isolated state, say — do not
+stash. Ask, or copy the repository elsewhere and work there.
+
+---
+
 ## The log
 
 Every session appends to `LOG.md` before it ends. One block per unit of work: what was done, why,
