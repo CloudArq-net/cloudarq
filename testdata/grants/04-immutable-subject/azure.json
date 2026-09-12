@@ -1,0 +1,10 @@
+{
+  "@odata.type": "#microsoft.graph.federatedIdentityCredential",
+  "name": "github-infra-main-immutable",
+  "issuer": "https://token.actions.githubusercontent.com",
+  "subject": "repo:acme@123456/infra@456789:ref:refs/heads/main",
+  "audiences": [
+    "api://AzureADTokenExchange"
+  ],
+  "description": "the immutable subject format"
+}

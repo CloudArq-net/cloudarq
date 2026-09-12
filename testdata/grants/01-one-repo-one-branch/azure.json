@@ -1,0 +1,10 @@
+{
+  "@odata.type": "#microsoft.graph.federatedIdentityCredential",
+  "name": "github-infra-main",
+  "issuer": "https://token.actions.githubusercontent.com",
+  "subject": "repo:acme/infra:ref:refs/heads/main",
+  "audiences": [
+    "api://AzureADTokenExchange"
+  ],
+  "description": "one repo, one branch"
+}

@@ -8,6 +8,7 @@ package arch
 import (
 	"encoding/json"
 	"os/exec"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -17,6 +18,7 @@ import (
 var pureRoots = []string{
 	"github.com/CloudArq-net/cloudarq/internal/eval/...",
 	"github.com/CloudArq-net/cloudarq/internal/parse/...",
+	"github.com/CloudArq-net/cloudarq/internal/trust/...",
 }
 
 // forbidden lists import paths that make a package non-deterministic or
@@ -42,9 +44,23 @@ var forbiddenPrefixes = []string{
 	"github.com/google/go-github",
 }
 
+// selfContained are standard packages the walk does not descend into. Each
+// reaches os or syscall internally, none performs IO on the caller's behalf
+// unless handed a file or a connection, and each is needed by the pure
+// layers: JSON for policy documents and evidence, fmt for error wrapping,
+// the digest and the timestamp type in evidence. Anything else that reaches
+// a forbidden package, standard or third-party, is reported with the path
+// that reaches it.
+var selfContained = map[string]bool{
+	"encoding/json": true,
+	"fmt":           true,
+	"crypto/sha256": true,
+	"time":          true,
+}
+
 type pkg struct {
 	ImportPath string   `json:"ImportPath"`
-	Deps       []string `json:"Deps"`
+	Imports    []string `json:"Imports"`
 }
 
 const modulePrefix = "github.com/CloudArq-net/cloudarq/"
@@ -56,26 +72,22 @@ func TestPureLayersHaveNoIO(t *testing.T) {
 		if err != nil {
 			t.Fatalf("go list %s: %v", root, err)
 		}
+		imports := map[string][]string{}
+		var firstParty []string
 		dec := json.NewDecoder(strings.NewReader(string(out)))
 		for dec.More() {
 			var p pkg
 			if err := dec.Decode(&p); err != nil {
 				t.Fatalf("decode: %v", err)
 			}
-			if !strings.HasPrefix(p.ImportPath, modulePrefix) {
-				continue
+			imports[p.ImportPath] = p.Imports
+			if strings.HasPrefix(p.ImportPath, modulePrefix) {
+				firstParty = append(firstParty, p.ImportPath)
 			}
+		}
+		for _, p := range firstParty {
 			examined++
-			for _, dep := range p.Deps {
-				if why, bad := forbidden[dep]; bad {
-					t.Errorf("%s imports %q: %s\n  see docs/ENGINEERING.md section 1", p.ImportPath, dep, why)
-				}
-				for _, pre := range forbiddenPrefixes {
-					if strings.HasPrefix(dep, pre) {
-						t.Errorf("%s imports %q: cloud SDK in a pure package\n  see docs/ENGINEERING.md section 1", p.ImportPath, dep)
-					}
-				}
-			}
+			walk(t, p, imports, []string{p}, map[string]bool{})
 		}
 	}
 
@@ -88,6 +100,31 @@ func TestPureLayersHaveNoIO(t *testing.T) {
 			"and this test is proving nothing", modulePrefix)
 	}
 	t.Logf("examined %d first-party packages", examined)
+}
+
+// walk follows direct imports from pkg, reporting every forbidden package it
+// reaches together with the path that reaches it, and stopping at the
+// self-contained standard packages.
+func walk(t *testing.T, pkg string, imports map[string][]string, path []string, seen map[string]bool) {
+	for _, dep := range imports[pkg] {
+		if seen[dep] {
+			continue
+		}
+		seen[dep] = true
+		trail := strings.Join(append(slices.Clone(path), dep), " -> ")
+		if why, bad := forbidden[dep]; bad {
+			t.Errorf("%s: %s\n  see docs/ENGINEERING.md section 1", trail, why)
+			continue
+		}
+		if slices.ContainsFunc(forbiddenPrefixes, func(pre string) bool { return strings.HasPrefix(dep, pre) }) {
+			t.Errorf("%s: cloud SDK in a pure package\n  see docs/ENGINEERING.md section 1", trail)
+			continue
+		}
+		if selfContained[dep] {
+			continue
+		}
+		walk(t, dep, imports, append(slices.Clone(path), dep), seen)
+	}
 }
 
 // TestControlPlaneHoldsNoCredentials is the schema guard promised in docs/ENGINEERING.md

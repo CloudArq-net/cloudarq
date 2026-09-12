@@ -1,0 +1,14 @@
+{
+  "@odata.type": "#microsoft.graph.federatedIdentityCredential",
+  "name": "github-infra-by-id",
+  "issuer": "https://token.actions.githubusercontent.com",
+  "subject": null,
+  "audiences": [
+    "api://AzureADTokenExchange"
+  ],
+  "claimsMatchingExpression": {
+    "value": "claims['sub'] matches '*' and claims['repository_id'] eq '456789'",
+    "languageVersion": 1
+  },
+  "description": "constrained on repository_id rather than sub"
+}
