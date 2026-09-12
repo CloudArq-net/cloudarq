@@ -49,7 +49,9 @@ func TestGlobRegexMetacharactersAreLiteral(t *testing.T) {
 		{"^a", []string{"a"}},
 		{"a$", []string{"a"}},
 		{".*", []string{"", "abc", "a.b"}},
-		{`\*`, []string{"*", "x", `\x`}},
+		// StringLike has no escape mechanism: the backslash is a literal and
+		// the star is still a wildcard.
+		{`\*`, []string{"*", "x", ""}},
 	}
 	for _, c := range cases {
 		g := Glob(c.pattern)
@@ -117,7 +119,7 @@ func TestGlobIsCaseSensitive(t *testing.T) {
 		{"Repo:X", "repo:x"},
 		{"repo:x", "Repo:X"},
 		{"Repo:*", "repo:x"},
-		{"repo:?", "repo:X"},
+		{"Repo:?", "repo:x"},
 	}
 	for _, c := range cases {
 		if Glob(c.pattern).Contains(c.value) {

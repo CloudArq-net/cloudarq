@@ -1,6 +1,9 @@
 package eval
 
-import "strings"
+import (
+	"strconv"
+	"strings"
+)
 
 // glob is a StringSet described by an AWS StringLike pattern.
 //
@@ -49,8 +52,9 @@ func (g glob) IsEmpty() bool { return false }
 // literal or a "?", and therefore rejects the empty string.
 func (g glob) IsTop() bool { return false }
 
-func (g glob) Meet(o StringSet) StringSet { panic("not implemented") }
-func (g glob) Join(o StringSet) StringSet { panic("not implemented") }
+func (g glob) Meet(o StringSet) StringSet { return meet(g, o) }
+func (g glob) Join(o StringSet) StringSet { return join(g, o) }
+func (g glob) String() string             { return "like:" + strconv.Quote(g.pattern) }
 
 // matchSegments reports whether v matches the segments, which are the pieces
 // of a pattern between its stars.

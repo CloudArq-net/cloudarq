@@ -214,6 +214,20 @@ error codes without text. An empty state teaches: *"no external principals found
 
 ---
 
+## The log
+
+Every session appends to `LOG.md` before it ends. One block per unit of work: what was done, why,
+the artifacts, the command that verified it, and what is left open.
+
+**Mistakes get a block of their own, in the same format, unsoftened.** A log that records only
+what went well is a marketing document. Its value appears three weeks later when something breaks
+and the question is what changed — and by then the entry either exists or it does not.
+
+"Verified" means a command was run and its output observed. It does not mean the change looked
+correct.
+
+---
+
 ## Named anti-patterns
 
 So they can be called out by name in review.
