@@ -2,9 +2,12 @@
 // algebra over sets of claim values, in which every finding is computed.
 //
 // A finding is one set difference, the values a condition admits minus the
-// values the author intended, and StringSet is the type both sides are
-// expressed in. Its constructors are Exact, Glob, Any, None and Unknown; Meet
-// and Join are intersection and union. Nothing else lives here. What a cloud
+// values the author intended. Two types express both sides. StringSet is the
+// set of values one claim may take, built from Exact, Glob, Any, None and
+// Unknown, with Meet and Join as intersection and union. AdmittedSet is the
+// set of whole tokens a condition admits: a union of Terms, each Term a
+// conjunction of per-claim StringSets, with Admits to test a token and
+// Excludes to explain a rejection. Nothing else lives here. What a cloud
 // dialect means is the parser's problem, and what an API returned is the
 // collector's, so this package can be tested to exhaustion in isolation.
 //
