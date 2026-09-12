@@ -81,25 +81,36 @@ surfaces long after the commit that caused it.
 
 ---
 
-## 3. `Unknown` is absorbing. This is the safety property.
+## 3. `Unknown` is the top element. This is the safety property.
 
-`StringSet` is `Exact | Glob | Any | None | Unknown`.
+`StringSet` is `Exact | Glob | Any | None | Unknown`. `Unknown` means *a constraint existed and
+could not be evaluated*, so the claim is unconstrained as far as we can prove.
 
-`Unknown` absorbs under **both** `Meet` and `Join`. If any conjunct cannot be evaluated,
-"unevaluated, therefore assumed permissive" reaches the root **by arithmetic**, not because
-someone remembered to propagate it.
+**Absorbing under `Join`.** `Unknown ∨ X = Unknown`, for every `X`. `Join` is the union between
+statements and between the values of one condition; an un-evaluated branch could admit
+anything, so the union could admit anything.
 
-Four enforcement layers, and all four stay:
-1. Algebraic — the lattice itself.
-2. The renderer refuses to print a clean verdict when an `Unknown` is present in the AST.
-3. The control plane returns 422 on a payload claiming `exact` while carrying an `Unknown` —
+**Identity under `Meet`.** `Unknown ∧ X = X`, for every `X`. `Meet` is the intersection between
+conditions in the same statement; an un-evaluated AND-constraint can only ever *narrow* the
+set, so the other operand stays a sound upper bound. Treating it as `Unknown` would be
+over-conservative, and a tool that reports everything as unknown gets uninstalled — which is a
+correctness failure with extra steps.
+
+Inexactness is therefore **not** carried by the lattice. It is recorded per-result on the
+`AdmittedSet`, by the parser, which is the only layer that knows *why* a constraint could not
+be evaluated.
+
+Silence must never read as clean. Four layers enforce it, and all four stay:
+
+1. Any unmodeled construct sets `Exact = false` on the result and attaches a caveat naming it.
+2. The renderer refuses to print a clean verdict on an inexact result.
+3. The control plane returns 422 on a payload claiming `exact` while carrying caveats —
    checked by a different process than the one that computed it.
-4. Severity is computed twice by independent paths; the `Top` (worst) result is reported.
+4. Severity is computed twice by independent paths; the worse result is reported.
 
-**Silence must never read as clean.** This is the single most important correctness property
-in the codebase.
-
----
+`IsEmpty()` returns true only when emptiness is **proven**. Whenever it cannot be decided it
+returns false. Getting this backwards makes the tool report a dangerous policy as admitting
+nothing, which is the worst output this program can produce.
 
 ## 4. Evidence or it didn't happen
 
