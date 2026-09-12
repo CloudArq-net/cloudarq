@@ -20,13 +20,19 @@ Five operations fall out of one structure: satisfiability, tautology detection, 
 containment, and a **witness** — a concrete token the deployed condition accepts. The witness is
 the thing a stranger cannot dismiss. Not a severity label; a JWT payload.
 
-### Unknown is absorbing
+### Unknown is the top element
 
-`Unknown` absorbs under **both** `Meet` and `Join`. If any conjunct cannot be evaluated,
-"unevaluated, therefore assumed permissive" reaches the root **by arithmetic**, not because
-someone remembered to propagate it.
+`Unknown` is **absorbing under `Join`** and the **identity under `Meet`**.
 
-Silence must never read as clean. This is the single most important correctness property here.
+`Unknown | X = Unknown`, for every `X`. An un-evaluated alternative can only widen, so it
+reaches the root **by arithmetic** rather than because someone remembered to propagate it.
+
+`Unknown & X = X`, for every `X`. An un-evaluated conjunct can only narrow, so the other
+operand is already a sound upper bound. Making `Unknown` absorbing here would be an
+over-approximation so coarse it destroys every answer, and it is wrong.
+
+Silence must never read as clean. This is the single most important correctness property here,
+and `docs/ENGINEERING.md` §3 is its normative statement.
 
 ## The six AWS traps
 

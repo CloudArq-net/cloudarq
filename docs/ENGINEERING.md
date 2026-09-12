@@ -54,10 +54,20 @@ testdata/subvectors/   Vendored CC0 conformance vectors.
 registry/issuers.yaml  The published registry source.
 ```
 
-**`internal/eval` and `internal/parse` must not import anything that does IO.** There is a
-CI test that walks their import graphs and fails on `net`, `os`, `time`, `math/rand`, or any
-cloud SDK. Cost of breaking it: the evaluator stops being testable, fuzzable and deterministic,
-and you will not notice for six weeks.
+**`internal/eval`, `internal/parse` and `internal/trust` must not import anything that does
+IO.** `test/arch/purity_test.go` enforces it and fails on `net`, `os`, `time`, `math/rand`, or
+any cloud SDK.
+
+**How it walks, and why it is not a naive transitive ban.** First-party packages are followed
+transitively — `eval -> log -> os` is caught, and that has been proven with a throwaway file.
+Standard-library imports are checked directly, with a small allowlist of self-contained packages
+treated as terminal. A blanket transitive rule is unworkable rather than strict: `encoding/json`
+reaches `os` through `fmt`, so the naive version rejects `evidence` and every parser we will ever
+write. The allowlist is the narrowest thing that keeps the rule meaningful, and adding to it is
+a deliberate act that belongs in a commit message.
+
+Cost of breaking it: the evaluator stops being testable, fuzzable and deterministic, and you
+will not notice for six weeks.
 
 Collectors produce `Evidence`. Evaluators are pure functions over `Evidence`. Nothing else
 crosses that line.
