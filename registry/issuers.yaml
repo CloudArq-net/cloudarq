@@ -1,0 +1,168 @@
+# CloudArq issuer registry
+#
+# Every multi-tenant OIDC issuer a cloud provider can federate to, its tenancy model,
+# its subject grammar, and the correct scoping condition in each cloud's dialect.
+#
+# Two fields appear in no other public catalogue and carry most of the weight:
+#   aud_controlled_by     -- if the caller controls `aud`, `aud` is not a boundary
+#   vendor_example_verdict -- whether the vendor's own documented example is safe
+#
+# tenancy_model: shared | per_tenant_host | per_tenant_path
+# An issuer discovered by guessing a path is UNVERIFIED until a bogus tenant returns
+# non-200: GitHub and Vercel reflect arbitrary paths. See control_test on each entry.
+
+schema_version: 1
+generated_by: hand + daily drift CI
+
+issuers:
+  - issuer: https://api.cursor.com
+    vendor: Cursor
+    category: ai-agent-platform
+    tenancy_model: shared
+    tenancy_claim: team_id
+    tenancy_projected_into_sub: opt_in_only
+    sub_grammar:
+      default: "user:<id>|service_account:<id>"    # NOT tenant-scoped
+      projected: "team_id:<id>"                    # only via the sub_claim mint parameter
+    aud_controlled_by: caller
+    token_lifetime_s: 300
+    correct_condition:
+      aws: { StringEquals: { "api.cursor.com:sub": "team_id:<YOUR_TEAM_ID>" } }
+      entra: { subject: "team_id:<YOUR_TEAM_ID>" }
+      gcp: "assertion.sub == 'team_id:<YOUR_TEAM_ID>'"
+    vendor_example_verdict: UNSAFE   # ships StringLike sub = "user:*"
+    vendor_example_note: >
+      The same docs page documents the correct team_id form immediately below.
+      This is a documentation-ergonomics failure, not a vendor that misunderstands
+      the problem. Write it up that way.
+    on_aws_shared_idp_registry: false
+    verified_at: 2026-09-12
+
+  - issuer: https://api2.cursor.sh/cloud-agent/identity
+    vendor: Cursor
+    note: legacy endpoint, still live; a trust policy pinned here remains exploitable
+    tenancy_model: shared
+    tenancy_claim: team_id
+    aud_controlled_by: caller
+    on_aws_shared_idp_registry: false
+    verified_at: 2026-09-12
+
+  - issuer: https://app.devin.ai
+    vendor: Cognition
+    category: ai-agent-platform
+    tenancy_model: shared
+    tenancy_claim: org_id
+    tenancy_projected_into_sub: true
+    sub_grammar: { default: "org_id:<uuid>" }
+    aud_controlled_by: caller
+    vendor_example_verdict: ABSENT   # docs ship no AWS trust policy example at all
+    on_aws_shared_idp_registry: false
+    verified_at: 2026-09-12
+
+  - issuer: https://vstoken.dev.azure.com
+    vendor: Microsoft (Azure DevOps)
+    tenancy_model: shared
+    tenancy_claim: null              # publishes NO tenancy claim whatsoever
+    note: worst-case entry -- nothing to scope on beyond sub
+    on_aws_shared_idp_registry: false
+    verified_at: 2026-09-12
+
+  - issuer: https://oidc.modal.com
+    vendor: Modal
+    category: data-ml-compute
+    tenancy_model: shared
+    tenancy_claim: workspace_id
+    tenancy_projected_into_sub: true
+    sub_grammar:
+      default: "modal:workspace_id:<ws>:environment_name:<env>:app_name:<app>:function_name:<fn>:container_id:<cid>"
+    aud_controlled_by: vendor        # fixed "oidc.modal.com", identical for every customer
+    note: all isolation rests on the sub prefix, because aud is shared
+    vendor_example_verdict: SAFE
+    on_aws_shared_idp_registry: false
+    verified_at: 2026-09-12
+
+  - issuer: https://identity.depot.dev
+    vendor: Depot
+    category: ci-build
+    tenancy_model: shared
+    tenancy_claim: org_id
+    tenancy_projected_into_sub: true
+    sub_grammar:
+      default: "spiffe://identity.depot.dev/org/<orgID>/ci/github/<owner>/<repo>/ref/<ref>/sandbox/<id>"
+    aud_controlled_by: caller
+    token_lifetime_s: 300
+    vendor_example_verdict: SAFE     # best in class: org AND repo scoped
+    on_aws_shared_idp_registry: false
+    verified_at: 2026-09-12
+
+  - issuer: https://app.warp.dev
+    vendor: Warp
+    category: ai-agent-platform
+    tenancy_model: shared
+    tenancy_claim: teams
+    tenancy_projected_into_sub: true
+    sub_grammar:
+      default: "<principal-type>:<principal-id>"
+      aws: "scoped_principal:<team-uid>/<principal-type>:<principal-id>"
+    aud_controlled_by: caller
+    note: only agent platform found shipping a distinct AWS-specific tenant-scoped sub form
+    vendor_example_verdict: SAFE
+    on_aws_shared_idp_registry: false
+    verified_at: 2026-09-12
+
+  - issuer: https://federation.namespaceapis.com
+    vendor: Namespace
+    tenancy_model: shared
+    tenancy_claim: tenant_id
+    tenancy_projected_into_sub: true
+    sub_grammar: { default: "<workspace-id>/..." }   # workspace-id carries a tenant_ prefix
+    aud_controlled_by: vendor
+    vendor_example_verdict: SAFE
+    on_aws_shared_idp_registry: false
+    verified_at: 2026-09-12
+
+  - issuer: https://issuer.enforce.dev
+    vendor: Chainguard
+    tenancy_model: shared
+    tenancy_claim: UNVERIFIED
+    sub_grammar: UNVERIFIED
+    aud_controlled_by: UNVERIFIED
+    note: discovery document confirmed live; grammar not yet confirmed from vendor docs
+    on_aws_shared_idp_registry: false
+    verified_at: 2026-09-12
+
+  - issuer_pattern: https://oidc.circleci.com/org/<org-uuid>
+    vendor: CircleCI
+    tenancy_model: per_tenant_path
+    control_test:
+      result: FAILED
+      detail: >
+        Any well-formed UUID returns HTTP 200 with a full discovery document and a
+        live JWKS, and the kid is IDENTICAL across different bogus org UUIDs. Only
+        UUID syntax is validated. CircleCI is a reflector, like GitHub. Per-tenancy
+        is a documented architectural property, NOT verifiable by probing.
+    verified_at: 2026-09-12
+
+  - issuer_pattern: https://app.harness.io/ng/api/oidc/account/<ACCOUNT_ID>
+    vendor: Harness
+    tenancy_model: per_tenant_path
+    control_test:
+      result: PASSED
+      detail: well-formed but non-existent account IDs return HTTP 401
+    known_defect: >
+      The discovery document advertises jwks_uri as ".../.wellknown/jwks" -- a
+      non-standard path missing the hyphen. Strict OIDC clients that normalise the
+      path to /.well-known/jwks receive HTTP 400 and fail to fetch keys.
+    verified_at: 2026-09-12
+
+  - issuer_pattern: https://<account>.app.spacelift.io
+    vendor: Spacelift
+    tenancy_model: per_tenant_host
+    control_test: { result: PASSED, detail: 'bogus subdomain returns HTTP 403 "Account not found"' }
+    verified_at: 2026-09-12
+
+  - issuer_pattern: https://api.bitbucket.org/2.0/workspaces/<ws>/pipelines-config/identity/oidc
+    vendor: Atlassian Bitbucket
+    tenancy_model: per_tenant_path
+    control_test: { result: PASSED, detail: bogus workspace returns HTTP 404 }
+    verified_at: 2026-09-12
