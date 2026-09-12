@@ -42,6 +42,11 @@ func Glob(pattern string) StringSet {
 	return glob{pattern: pattern, segments: segments}
 }
 
+// Contains matches rune by rune, so "?" consumes one character rather than
+// one byte of a multi-byte character. A byte that is not valid UTF-8 decodes
+// as U+FFFD on both sides, so a pattern holding such a byte admits any such
+// byte at that position: over-admission, the safe direction, on input no
+// cloud API produces.
 func (g glob) Contains(v string) bool { return matchSegments(g.segments, []rune(v)) }
 
 // IsEmpty is false: every pattern has a witness, obtained by deleting each "*"
@@ -54,7 +59,7 @@ func (g glob) IsTop() bool { return false }
 
 func (g glob) Meet(o StringSet) StringSet { return meet(g, o) }
 func (g glob) Join(o StringSet) StringSet { return join(g, o) }
-func (g glob) String() string             { return "like:" + strconv.Quote(g.pattern) }
+func (g glob) String() string             { return "like:" + strconv.QuoteToASCII(g.pattern) }
 
 // matchSegments reports whether v matches the segments, which are the pieces
 // of a pattern between its stars.

@@ -52,6 +52,19 @@ func TestGlobRegexMetacharactersAreLiteral(t *testing.T) {
 		// StringLike has no escape mechanism: the backslash is a literal and
 		// the star is still a wildcard.
 		{`\*`, []string{"*", "x", ""}},
+		// The rows above without a metacharacter normalise to Exact and are
+		// compared byte for byte, which proves nothing about the matcher.
+		// These carry a wildcard so that the matcher itself sees each
+		// metacharacter.
+		{"(a)*", []string{"", "a", "aa"}},
+		{"[a]*", []string{"a", "aaa"}},
+		{"a|b*", []string{"a", "b", "bx"}},
+		{"a+*", []string{"a", "aa"}},
+		{"^a*", []string{"a", "ab"}},
+		{"a$*", []string{"a", "ax"}},
+		{`a\*`, []string{"a", "ax"}},
+		{"*.", []string{"", "a"}},
+		{"?+", []string{"+", "a", "aa"}},
 	}
 	for _, c := range cases {
 		g := Glob(c.pattern)

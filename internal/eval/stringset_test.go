@@ -252,7 +252,8 @@ func TestStringIsStable(t *testing.T) {
 
 // TestStringForms pins the rendering, because golden files and finding IDs
 // are content-addressed on it. Values and patterns are quoted so that no two
-// distinct sets share a rendering.
+// distinct sets share a rendering, and non-ASCII is escaped so that the
+// rendering cannot change when a Go release updates its Unicode tables.
 func TestStringForms(t *testing.T) {
 	cases := []struct {
 		s    StringSet
@@ -269,6 +270,10 @@ func TestStringForms(t *testing.T) {
 		{Glob("a*").Meet(Glob("*b")), `(like:"*b" & like:"a*")`},
 		{Glob("a*").Meet(Glob("*b")).Join(Exact("c")), `("c" | (like:"*b" & like:"a*"))`},
 		{Exact(`a"b`), `"a\"b"`},
+		{Exact("café"), `"caf\` + `u00e9"`},
+		{Glob("caf*é"), `like:"caf*\` + `u00e9"`},
+		{Unknown("é"), `?("\` + `u00e9")`},
+		{Exact("\xff"), `"\xff"`},
 	}
 	for _, c := range cases {
 		if got := c.s.String(); got != c.want {

@@ -9,6 +9,11 @@ import (
 // StringSet is a set of possible values for a single claim.
 //
 // Implementations are immutable. Every operation returns a new value.
+//
+// Values are not comparable with ==, because compound sets hold slices and
+// the comparison would panic at runtime. Compare renderings instead: String
+// is canonical, so two sets render identically exactly when they normalised
+// to the same form.
 type StringSet interface {
 	// Contains reports whether v is a member. Exact for every implementation.
 	Contains(v string) bool
@@ -58,10 +63,12 @@ func Reason(s StringSet) string {
 
 // IsUnknown reports whether s is an Unknown, or was derived from one.
 //
-// Only Join preserves the flag. Meet drops it on purpose: an un-evaluated
-// AND-constraint can only narrow, so the other operand is already the sound
-// upper bound, and the inexactness is recorded per result by the parser, the
-// one layer that knows why evaluation failed.
+// Join always preserves the flag. Meet drops it whenever the other operand
+// narrows, on purpose: an un-evaluated AND-constraint can only narrow, so the
+// other operand is already the sound upper bound, and the inexactness is
+// recorded per result by the parser, the one layer that knows why evaluation
+// failed. The flag survives a Meet only when the other operand is itself
+// everything, because then nothing narrowed.
 func IsUnknown(s StringSet) bool {
 	_, ok := s.(unknown)
 	return ok
@@ -75,7 +82,16 @@ func (e exact) IsEmpty() bool              { return false }
 func (e exact) IsTop() bool                { return false }
 func (e exact) Meet(o StringSet) StringSet { return meet(e, o) }
 func (e exact) Join(o StringSet) StringSet { return join(e, o) }
-func (e exact) String() string             { return strconv.Quote(e.v) }
+
+// String quotes the value, as do the Glob and Unknown renderers, so that
+// String is injective: an Exact whose value starts with "like:" must not
+// render like a Glob, and a value containing " | " must not read as two
+// members of a union. Finding IDs are content-addressed on this text, so two
+// different sets with one rendering would collide. The quoting is ASCII-only
+// because strconv.Quote keeps whichever runes the running Go release's
+// Unicode tables call printable, and an ID must not change with a toolchain
+// upgrade.
+func (e exact) String() string { return strconv.QuoteToASCII(e.v) }
 
 // full is the set of every string.
 type full struct{}
@@ -115,7 +131,7 @@ func (u unknown) Join(o StringSet) StringSet { return join(u, o) }
 func (u unknown) String() string {
 	quoted := make([]string, len(u.reasons))
 	for i, r := range u.reasons {
-		quoted[i] = strconv.Quote(r)
+		quoted[i] = strconv.QuoteToASCII(r)
 	}
 	return "?(" + strings.Join(quoted, ", ") + ")"
 }
