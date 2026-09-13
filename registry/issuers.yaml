@@ -1,168 +1,1452 @@
 # CloudArq issuer registry
 #
-# Every multi-tenant OIDC issuer a cloud provider can federate to, its tenancy model,
-# its subject grammar, and the correct scoping condition in each cloud's dialect.
+# Every OIDC issuer a cloud provider can federate to for workload identity: its tenancy
+# model, its subject grammar, its claim vocabulary, and the correct scoping condition in
+# each cloud's dialect.
 #
-# Two fields appear in no other public catalogue and carry most of the weight:
-#   aud_controlled_by     -- if the caller controls `aud`, `aud` is not a boundary
-#   vendor_example_verdict -- whether the vendor's own documented example is safe
+# Apache-2.0. Machine-readable on purpose -- this file is meant to be depended on, not
+# cited. If you maintain a scanner and want these entries, take them.
 #
-# tenancy_model: shared | per_tenant_host | per_tenant_path
-# An issuer discovered by guessing a path is UNVERIFIED until a bogus tenant returns
-# non-200: GitHub and Vercel reflect arbitrary paths. See control_test on each entry.
-
-schema_version: 1
-generated_by: hand + daily drift CI
-
+# Four fields appear in no other public catalogue and carry most of the weight:
+#
+#   aud_controlled_by       who picks the `aud` value. If it is `workload`, then `aud`
+#                           is NOT a boundary: anyone who can run a job on that platform
+#                           can request a token carrying your audience.
+#   vendor_example_verdict  what the vendor's OWN documented example actually admits.
+#   control_test            what a deliberately bogus tenant returns. An issuer found by
+#                           guessing a path pattern is UNVERIFIED until this is run --
+#                           and a discovery document is not proof a tenant exists. Only
+#                           the JWKS is. AWS serves a complete, well-formed discovery
+#                           document for a UUID that was invented at random.
+#   immutable_id_claims     claims carrying numeric IDs rather than names. An issuer with
+#                           none has only name-based subjects, so every trust policy
+#                           written against it is recyclable after a rename or a delete.
+#
+# tenancy_model: shared | per_tenant_host | per_tenant_path | unverified
+# Every `ok` status below was fetched live with curl on the date in verified_at.
+# `unverified` means nobody confirmed it. It never means "absent".
+##
+# Controlled vocabularies:
+#   aud_controlled_by       relying_party | issuer | workload | unverified
+#   vendor_example_verdict  scoped | admits_whole_org | admits_any_repo |
+#                           admits_any_principal | no_subject_constraint | unverified
+#   discovery_status        ok | not_found | error | unverified
+#   jwks_status             ok | error | unverified
+#   category                ci | iac | runtime | cloud | ai-agent-platform | platform
+#
+schema_version: 2
+census_date: '2026-09-13'
 issuers:
-  - issuer: https://api.cursor.com
-    vendor: Cursor
-    category: ai-agent-platform
-    tenancy_model: shared
-    tenancy_claim: team_id
-    tenancy_projected_into_sub: opt_in_only
-    sub_grammar:
-      default: "user:<id>|service_account:<id>"    # NOT tenant-scoped
-      projected: "team_id:<id>"                    # only via the sub_claim mint parameter
-    aud_controlled_by: caller
-    token_lifetime_s: 300
-    correct_condition:
-      aws: { StringEquals: { "api.cursor.com:sub": "team_id:<YOUR_TEAM_ID>" } }
-      entra: { subject: "team_id:<YOUR_TEAM_ID>" }
-      gcp: "assertion.sub == 'team_id:<YOUR_TEAM_ID>'"
-    vendor_example_verdict: UNSAFE   # ships StringLike sub = "user:*"
-    vendor_example_note: >
-      The same docs page documents the correct team_id form immediately below.
-      This is a documentation-ergonomics failure, not a vendor that misunderstands
-      the problem. Write it up that way.
-    on_aws_shared_idp_registry: false
-    verified_at: 2026-09-12
+- name: Atlassian Bitbucket
+  vendor: Atlassian Bitbucket
+  category: ci
+  issuer_pattern: https://api.bitbucket.org/2.0/workspaces/<ws>/pipelines-config/identity/oidc
+  tenancy_model: per_tenant_path
+  control_test:
+    result: PASSED
+    detail: bogus workspace returns HTTP 404
+  discovery_status: unverified
+  jwks_status: unverified
+  aud_controlled_by: unverified
+  vendor_example_verdict: unverified
+  verified_at: 2026-09-12
+  source: ai-agent census 2026-09-12
+- name: Bitbucket Pipelines
+  category: ci
+  issuer: https://api.bitbucket.org/2.0/workspaces/<workspace>/pipelines-config/identity/oidc
+  tenancy_model: per_tenant_path
+  discovery_url: https://api.bitbucket.org/2.0/workspaces/<workspace>/pipelines-config/identity/oidc/.well-known/openid-configuration
+  discovery_status: unverified
+  jwks_uri: unverified
+  jwks_status: unverified
+  subject_format: <repository_uuid>[:<environment_uuid>]:<step_uuid>
+  subject_examples:
+  - '{REPOSITORY_UUID}:{STEP_UUID}'
+  - '{REPOSITORY_UUID}:{ENVIRONMENT_UUID}:{STEP_UUID}'
+  claims: []
+  immutable_id_claims:
+  - repository_uuid
+  - environment_uuid
+  - step_uuid
+  - workspace_uuid
+  aud_controlled_by: issuer
+  aud_default: ari:cloud:bitbucket::workspace/<workspace_uuid>
+  aud_evidence: Atlassian docs give the audience as "ari:cloud:bitbucket::workspace/{UUID}" - derived
+    from the workspace, not chosen by the pipeline. I found no documented way for a pipeline step to override
+    it.
+  vendor_example_verdict: admits_any_repo
+  vendor_example: "\"Condition\": {\n  \"StringLike\": {\n    \"api.bitbucket.org/2.0/workspaces/{WORKSPACE}/pipelines-config/identity/oidc:sub\"\
+    : \"{REPO_UUID}:{*}\"\n  }\n}\n"
+  vendor_example_note: Atlassian labels this "A basic trust relationship allowing any repository in your
+    workspace". It pins a repo UUID and wildcards the rest, so it admits any step and any deployment environment
+    of that repo. No aud condition is present in the quoted example, though the audience is workspace-pinned
+    anyway.
+  self_hosted_variant: n/a - Bitbucket Cloud only. Bitbucket Data Center OIDC not verified.
+  docs_url: https://support.atlassian.com/bitbucket-cloud/docs/deploy-on-aws-using-bitbucket-pipelines-openid-connect/
+  verified_at: '2026-09-13'
+  notes: 'TENANCY CONTROL TEST PASSED. A bogus workspace slug ("foo") and a bogus workspace UUID both
+    return HTTP 404 {"type": "error", "error": {"message": "Resource not found"}}. I could not fetch a
+    positive discovery document because that requires naming a real workspace, so discovery_status stays
+    `unverified` rather than being guessed from the 404 shape. Best-designed subject format in this census:
+    every component is an immutable UUID, so no Bitbucket trust policy is name-recyclable.'
+  source: wif census 2026-09-13
+- name: Buildkite
+  category: ci
+  issuer: https://agent.buildkite.com
+  tenancy_model: shared
+  discovery_url: https://agent.buildkite.com/.well-known/openid-configuration
+  discovery_status: ok
+  jwks_uri: https://agent.buildkite.com/.well-known/jwks
+  jwks_status: ok
+  subject_format: organization:<org_slug>:pipeline:<pipeline_slug>:ref:<ref>:commit:<commit>:step:<step_key>
+  subject_examples:
+  - organization:acme-inc:pipeline:my-pipeline:ref:refs/heads/main:commit:abc123:step:deploy
+  claims:
+  - sub
+  - aud
+  - exp
+  - iat
+  - iss
+  - nbf
+  - jti
+  - organization_slug
+  - pipeline_slug
+  - build_number
+  - build_branch
+  - build_tag
+  - build_commit
+  - step_key
+  - job_id
+  - agent_id
+  - build_source
+  - runner_environment
+  - organization_id
+  - pipeline_id
+  - build_id
+  - cluster_id
+  - cluster_name
+  - queue_id
+  - queue_key
+  immutable_id_claims:
+  - organization_id
+  - pipeline_id
+  - build_id
+  - job_id
+  - agent_id
+  - cluster_id
+  - queue_id
+  aud_controlled_by: workload
+  aud_default: https://buildkite.com/<ORGANIZATION_SLUG>
+  aud_evidence: 'buildkite-agent oidc request-token: "--audience string  The audience that will consume
+    the OIDC token. The API will choose a default audience if it is omitted." The pipeline step supplies
+    the value.'
+  vendor_example_verdict: unverified
+  vendor_example_note: No AWS trust policy example was present on the OIDC overview page I fetched; I
+    did not locate a vendor AWS example to quote, so I am not rendering a verdict.
+  self_hosted_variant: Tokens are requested by the agent but signed centrally by agent.buildkite.com even
+    for self-hosted agents, so the issuer does not change. (Inferred from the single shared issuer in
+    the discovery doc; not explicitly confirmed in docs.)
+  docs_url: https://buildkite.com/docs/agent/v3/cli-oidc
+  verified_at: '2026-09-13'
+  notes: 'Notable: `--subject-claim` lets a pipeline override the token subject with "An immutable claim
+    to use as the token''s subject (e.g. pipeline_id, cluster_id)", so the sub format is not fixed. `--aws-session-tag`
+    maps claims to AWS session tags.'
+  source: wif census 2026-09-13
+- name: CircleCI
+  vendor: CircleCI
+  category: ci
+  issuer_pattern: https://oidc.circleci.com/org/<org-uuid>
+  tenancy_model: per_tenant_path
+  control_test:
+    result: FAILED
+    detail: 'Any well-formed UUID returns HTTP 200 with a full discovery document and a live JWKS, and
+      the kid is IDENTICAL across different bogus org UUIDs. Only UUID syntax is validated. CircleCI is
+      a reflector, like GitHub. Per-tenancy is a documented architectural property, NOT verifiable by
+      probing.
 
-  - issuer: https://api2.cursor.sh/cloud-agent/identity
-    vendor: Cursor
-    note: legacy endpoint, still live; a trust policy pinned here remains exploitable
-    tenancy_model: shared
-    tenancy_claim: team_id
-    aud_controlled_by: caller
-    on_aws_shared_idp_registry: false
-    verified_at: 2026-09-12
+      '
+  discovery_status: unverified
+  jwks_status: unverified
+  aud_controlled_by: unverified
+  vendor_example_verdict: unverified
+  verified_at: 2026-09-12
+  source: ai-agent census 2026-09-12
+- name: CircleCI
+  category: ci
+  issuer: https://oidc.circleci.com/org/<organization_id>
+  tenancy_model: per_tenant_path
+  discovery_url: https://oidc.circleci.com/org/<organization_id>/.well-known/openid-configuration
+  discovery_status: ok
+  jwks_uri: https://oidc.circleci.com/org/<organization_id>/.well-known/jwks-pub.json
+  jwks_status: ok
+  subject_format: org/<organization_id>/project/<project_id>/user/<user_id>
+  subject_examples:
+  - org/<organization_id>/project/<project-id>/user/<user_id>
+  - org/<organization_id>/project/<project-id>/user/<user_id>/vcs-origin/<vcs_origin>/vcs-ref/<vcs_ref>
+  claims:
+  - aud
+  - sub
+  - iss
+  - iat
+  - exp
+  - oidc.circleci.com/context-ids
+  - oidc.circleci.com/job-id
+  - oidc.circleci.com/org-id
+  - oidc.circleci.com/pipeline-definition-id
+  - oidc.circleci.com/pipeline-id
+  - oidc.circleci.com/project-id
+  - oidc.circleci.com/ssh-rerun
+  - oidc.circleci.com/vcs-ref
+  - oidc.circleci.com/vcs-origin
+  - oidc.circleci.com/workflow-id
+  immutable_id_claims:
+  - oidc.circleci.com/org-id
+  - oidc.circleci.com/project-id
+  - oidc.circleci.com/job-id
+  - oidc.circleci.com/pipeline-id
+  - oidc.circleci.com/workflow-id
+  - oidc.circleci.com/pipeline-definition-id
+  aud_controlled_by: workload
+  aud_default: the organization ID (a UUID)
+  aud_evidence: 'CircleCI docs: aud "By default, this is `ORGANIZATION_ID`, a string containing a UUID
+    that identifies the job''s project''s organization." The default is org-scoped, but the docs also
+    describe custom claim generation that lets a job set the audience, so the issuer does not pin it.'
+  vendor_example_verdict: no_subject_constraint
+  vendor_example: "\"Condition\": {\n  \"StringEquals\": {\n    \"oidc.circleci.com/org/<organization_id>:aud\"\
+    : \"<organization_id>\",\n    \"oidc.circleci.com/org/<organization_id>:oidc.circleci.com/project-id\"\
+    : \"<project-id>\"\n  }\n}\n"
+  vendor_example_note: CircleCI's own AWS example contains NO `sub` condition at all. It constrains aud
+    and the project-id custom claim, so it admits every job of that project regardless of user, branch
+    or VCS ref. Because project-id is an immutable UUID this is at least rename-proof, but any contributor
+    able to run any job in that project gets the role.
+  self_hosted_variant: n/a - CircleCI server self-hosted OIDC not verified.
+  docs_url: https://circleci.com/docs/openid-connect-tokens/
+  verified_at: '2026-09-13'
+  notes: 'TENANCY CONTROL TEST FAILED - see findings. A deliberately bogus org UUID (00000000-0000-0000-0000-000000000000)
+    returns HTTP 200 for BOTH the discovery document (echoing the bogus UUID as `issuer`) AND the JWKS,
+    which serves a key byte-identical to the root https://oidc.circleci.com JWKS (kid MRvUxaues...). A
+    non-UUID returns 400 "invalid org id: must be a uuid" - only the FORMAT is checked. All CircleCI orgs
+    are signed by one shared key; the per-org issuer URL is a namespacing convention, not a cryptographic
+    tenancy boundary.'
+  source: wif census 2026-09-13
+- name: Codeberg (Forgejo)
+  category: ci
+  issuer: https://codeberg.org
+  tenancy_model: shared
+  discovery_url: https://codeberg.org/.well-known/openid-configuration
+  discovery_status: ok
+  jwks_uri: https://codeberg.org/login/oauth/keys
+  jwks_status: ok
+  subject_format: unverified
+  subject_examples: []
+  claims:
+  - aud
+  - exp
+  - iat
+  - iss
+  - sub
+  - name
+  - preferred_username
+  - profile
+  - picture
+  - website
+  - locale
+  - updated_at
+  - email
+  - email_verified
+  - groups
+  immutable_id_claims: []
+  aud_controlled_by: unverified
+  aud_default: unverified
+  aud_evidence: Not established.
+  vendor_example_verdict: unverified
+  self_hosted_variant: Forgejo is self-hostable; issuer is the instance origin.
+  docs_url: https://codeberg.org/.well-known/openid-configuration
+  verified_at: '2026-09-13'
+  notes: 'Same caveat as Gitea: this is a human-SSO OIDC provider. Included for completeness of the Forgejo/Gitea
+    family, not as a confirmed workload-identity issuer.'
+  source: wif census 2026-09-13
+- name: Codefresh
+  category: ci
+  issuer: https://oidc.codefresh.io
+  tenancy_model: shared
+  discovery_url: https://oidc.codefresh.io/.well-known/openid-configuration
+  discovery_status: ok
+  jwks_uri: https://oidc.codefresh.io/jwks
+  jwks_status: ok
+  subject_format: account:<accountId>:pipeline:<pipelineId>:scm_repo_url:<scmRepoUrl>:scm_user_name:<scmUserName>:scm_ref:<ref>
+  subject_examples:
+  - account:5f30eb00t788899:pipeline:64de5cd47626b3a:scm_repo_url:...:scm_user_name:...:scm_ref:...
+  claims:
+  - sub
+  - account_id
+  - account_name
+  - pipeline_id
+  - pipeline_name
+  - workflow_id
+  - runner_environment
+  - platform_url
+  - initiator
+  - scm_user_name
+  - scm_repo_url
+  - scm_ref
+  - scm_pull_request_target_branch
+  - sid
+  - auth_time
+  - iss
+  immutable_id_claims:
+  - account_id
+  - pipeline_id
+  - workflow_id
+  aud_controlled_by: issuer
+  aud_default: https://g.codefresh.io (SaaS); the instance URL on-premises
+  aud_evidence: 'Codefresh docs: the audience is "For SaaS, https://g.codefresh.io. For on-premises, this
+    is the URL of your Codefresh instance."'
+  vendor_example_verdict: scoped
+  vendor_example: "\"Condition\": {\n    \"StringEquals\": {\n        \"oidc.codefresh.io:aud\": \"https://g.codefresh.io\"\
+    \n    },\n    \"StringLike\": {\n        \"oidc.codefresh.io:sub\": \"account:5f30eb00t788899:pipeline:64de5cd47626b3a:*\"\
+    \n    }\n}\n"
+  vendor_example_note: 'Pinned to a specific account AND pipeline by immutable ID, wildcarding only the
+    scm fields - correctly scoped. BUT the aud condition is worthless: https://g.codefresh.io is the SAME
+    audience for every Codefresh SaaS tenant, so `aud` provides zero cross-tenant isolation here. All
+    separation rests on the account_id prefix inside `sub`.'
+  self_hosted_variant: On-premises Codefresh uses the instance URL as the audience; issuer for on-prem
+    not verified.
+  docs_url: https://codefresh.io/docs/docs/integrations/oidc-pipelines/
+  verified_at: '2026-09-13'
+  notes: Discovery doc omits `aud`, `exp`, `iat`, `nbf` and `jti` from claims_supported even though tokens
+    plainly carry them - claims_supported is incomplete here, so I merged the vendor doc list. The `sub`
+    leads with account_id, which is what makes it multi-tenant-safe.
+  source: wif census 2026-09-13
+- name: Depot
+  vendor: Depot
+  category: ci
+  issuer: https://identity.depot.dev
+  tenancy_model: shared
+  tenancy_claim: org_id
+  tenancy_projected_into_sub: true
+  discovery_status: unverified
+  jwks_status: unverified
+  sub_grammar:
+    default: spiffe://identity.depot.dev/org/<orgID>/ci/github/<owner>/<repo>/ref/<ref>/sandbox/<id>
+  token_lifetime_s: 300
+  aud_controlled_by: workload
+  vendor_example_verdict: scoped
+  on_aws_shared_idp_registry: false
+  verified_at: 2026-09-12
+  source: ai-agent census 2026-09-12
+- name: GitHub Actions
+  category: ci
+  issuer: https://token.actions.githubusercontent.com
+  tenancy_model: shared
+  discovery_url: https://token.actions.githubusercontent.com/.well-known/openid-configuration
+  discovery_status: ok
+  jwks_uri: https://token.actions.githubusercontent.com/.well-known/jwks
+  jwks_status: ok
+  subject_format: repo:<owner>/<repo>:<context>
+  subject_examples:
+  - repo:octo-org/octo-repo:ref:refs/heads/octo-branch
+  - repo:octo-org/octo-repo:environment:Production
+  - repo:octo-org/octo-repo:pull_request
+  claims:
+  - sub
+  - aud
+  - exp
+  - iat
+  - iss
+  - jti
+  - nbf
+  - ref
+  - sha
+  - repository
+  - repository_id
+  - repository_owner
+  - repository_owner_id
+  - enterprise
+  - enterprise_id
+  - run_id
+  - run_number
+  - run_attempt
+  - actor
+  - actor_id
+  - workflow
+  - workflow_ref
+  - workflow_sha
+  - head_ref
+  - base_ref
+  - event_name
+  - ref_type
+  - ref_protected
+  - environment
+  - environment_node_id
+  - job_workflow_ref
+  - job_workflow_sha
+  - repository_visibility
+  - runner_environment
+  - issuer_scope
+  - check_run_id
+  immutable_id_claims:
+  - repository_id
+  - repository_owner_id
+  - actor_id
+  - enterprise_id
+  - environment_node_id
+  aud_controlled_by: workload
+  aud_default: the URL of the repository owner (e.g. https://github.com/<org>)
+  aud_evidence: 'GitHub docs, "OpenID Connect reference": aud is "By default, this is the URL of the repository
+    owner, such as the organization that owns the repository." and "You can customize values for `audience`
+    claims." A workflow requests a token from ACTIONS_ID_TOKEN_REQUEST_URL with an `audience` query parameter,
+    or via core.getIDToken(audience). The issuer does not constrain the value.'
+  vendor_example_verdict: scoped
+  vendor_example: "\"Condition\": {\n    \"StringLike\": {\n        \"token.actions.githubusercontent.com:sub\"\
+    : \"repo:octo-org/octo-repo:*\"\n    },\n    \"StringEquals\": {\n        \"token.actions.githubusercontent.com:aud\"\
+    : \"sts.amazonaws.com\"\n    }\n}\n"
+  vendor_example_note: 'Pinned to one repository, so not org-wide. But the `*` admits ANY ref, ANY branch,
+    ANY environment and pull_request contexts of that repo - i.e. anyone who can push a branch to that
+    repo. The same page also shows a correctly pinned StringEquals variant on a specific ref. The `aud`
+    condition adds nothing: any repo on GitHub can request aud=sts.amazonaws.com.'
+  self_hosted_variant: 'GitHub Enterprise Server issues from the appliance: provider URL "https://HOSTNAME/_services/token".
+    Per-instance issuer, self-signed trust chain.'
+  docs_url: https://docs.github.com/en/actions/reference/security/oidc
+  verified_at: '2026-09-13'
+  notes: Discovery + JWKS fetched live. claims list taken verbatim from claims_supported. Note GCP's setup
+    docs use issuer-uri "https://token.actions.githubusercontent.com/" WITH a trailing slash while the
+    actual iss claim has none.
+  source: wif census 2026-09-13
+- name: GitHub Enterprise Server (self-hosted)
+  category: ci
+  issuer: https://<hostname>/_services/token
+  tenancy_model: per_tenant_host
+  discovery_url: https://<hostname>/_services/token/.well-known/openid-configuration
+  discovery_status: unverified
+  jwks_uri: unverified
+  jwks_status: unverified
+  subject_format: repo:<owner>/<repo>:<context>
+  subject_examples: []
+  claims: []
+  immutable_id_claims: []
+  aud_controlled_by: workload
+  aud_default: unverified
+  aud_evidence: Not separately verified for GHES; GHES runs the same Actions token service, but I did
+    not fetch a GHES instance to confirm.
+  vendor_example_verdict: unverified
+  self_hosted_variant: This IS the self-hosted variant. Issuer is the appliance hostname under /_services/token.
+  docs_url: https://docs.github.com/en/enterprise-server@3.17/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws
+  verified_at: '2026-09-13'
+  notes: 'Issuer SHAPE confirmed from GitHub''s GHES docs ("For the provider URL: Use https://HOSTNAME/_services/token").
+    No live endpoint exists to fetch - every GHES is private infrastructure. Deliberately left unverified
+    rather than guessed.'
+  source: wif census 2026-09-13
+- name: GitLab self-managed
+  category: ci
+  issuer: https://<gitlab-host>
+  tenancy_model: per_tenant_host
+  discovery_url: https://<gitlab-host>/.well-known/openid-configuration
+  discovery_status: unverified
+  jwks_uri: https://<gitlab-host>/oauth/discovery/keys
+  jwks_status: unverified
+  subject_format: project_path:<group>/<project>:ref_type:<type>:ref:<branch>
+  subject_examples: []
+  claims: []
+  immutable_id_claims:
+  - project_id
+  - namespace_id
+  - user_id
+  aud_controlled_by: workload
+  aud_default: none - required in .gitlab-ci.yml
+  aud_evidence: Same id_tokens mechanism as gitlab.com.
+  vendor_example_verdict: unverified
+  self_hosted_variant: This IS the self-hosted variant.
+  docs_url: https://docs.gitlab.com/ci/secrets/id_token_authentication/
+  verified_at: '2026-09-13'
+  notes: 'Issuer shape confirmed from vendor docs (''iss: Issuer of the token, which is the domain of
+    the GitLab instance'', example payload shows "iss": "https://gitlab.example.com"). Not fetched - no
+    public instance probed. project_id/namespace_id are per-instance counters, so they are NOT globally
+    unique across instances.'
+  source: wif census 2026-09-13
+- name: GitLab.com
+  category: ci
+  issuer: https://gitlab.com
+  tenancy_model: shared
+  discovery_url: https://gitlab.com/.well-known/openid-configuration
+  discovery_status: ok
+  jwks_uri: https://gitlab.com/oauth/discovery/keys
+  jwks_status: ok
+  subject_format: project_path:<group>/<project>:ref_type:<type>:ref:<branch>
+  subject_examples:
+  - project_path:mygroup/myproject:ref_type:branch:ref:main
+  claims:
+  - iss
+  - sub
+  - aud
+  - exp
+  - nbf
+  - iat
+  - jti
+  - project_id
+  - project_path
+  - namespace_id
+  - namespace_path
+  - user_id
+  - user_login
+  - user_email
+  - pipeline_id
+  - pipeline_source
+  - job_id
+  - ref
+  - ref_type
+  - ref_protected
+  - environment
+  - environment_protected
+  - deployment_tier
+  - runner_id
+  - runner_environment
+  - sha
+  - ci_config_ref_uri
+  - ci_config_sha
+  - groups_direct
+  - user_access_level
+  immutable_id_claims:
+  - project_id
+  - namespace_id
+  - user_id
+  - pipeline_id
+  - job_id
+  - runner_id
+  aud_controlled_by: workload
+  aud_default: none - `aud` is required in the id_tokens block of .gitlab-ci.yml
+  aud_evidence: "GitLab docs: aud is \"Intended audience for the token... Specified in the ID tokens configuration.\"\
+    \ The .gitlab-ci.yml author writes it:\n  job_with_id_tokens:\n    id_tokens:\n      FIRST_ID_TOKEN:\n\
+    \        aud: https://first.service.com\nAny project on gitlab.com can name any audience."
+  vendor_example_verdict: scoped
+  vendor_example: "\"Condition\": {\n  \"StringEquals\": {\n    \"gitlab.com:sub\": \"project_path:mygroup/myproject:ref_type:branch:ref:main\"\
+    ,\n    \"gitlab.com:namespace_id\": \"12345\",\n    \"gitlab.com:project_id\": \"67890\"\n  }\n}\n"
+  vendor_example_note: The best vendor example in this census. No wildcard; pins group, project AND branch,
+    and additionally pins the immutable numeric namespace_id and project_id, so the policy survives a
+    project rename and does not follow a recycled path name.
+  self_hosted_variant: Self-managed GitLab issues iss = the instance URL, e.g. https://gitlab.example.com.
+    Same claim vocabulary. Per-instance issuer.
+  docs_url: https://docs.gitlab.com/ci/secrets/id_token_authentication/
+  verified_at: '2026-09-13'
+  notes: iss is the bare instance origin with no path. Claim list from vendor docs table; the live discovery
+    document is GitLab's general OAuth metadata and does not enumerate CI claims.
+  source: wif census 2026-09-13
+- name: Gitea / Forgejo Actions
+  category: ci
+  issuer: https://<instance-host>
+  tenancy_model: per_tenant_host
+  discovery_url: https://gitea.com/.well-known/openid-configuration
+  discovery_status: ok
+  jwks_uri: https://gitea.com/login/oauth/keys
+  jwks_status: ok
+  subject_format: unverified
+  subject_examples: []
+  claims:
+  - aud
+  - exp
+  - iat
+  - iss
+  - sub
+  - name
+  - preferred_username
+  - profile
+  - picture
+  - website
+  - locale
+  - updated_at
+  - email
+  - email_verified
+  - groups
+  immutable_id_claims: []
+  aud_controlled_by: unverified
+  aud_default: unverified
+  aud_evidence: Not established for the Actions workflow-token path.
+  vendor_example_verdict: unverified
+  self_hosted_variant: Every Gitea/Forgejo instance is its own issuer at its own origin.
+  docs_url: https://gitea.com/.well-known/openid-configuration
+  verified_at: '2026-09-13'
+  notes: 'IMPORTANT CAVEAT: the discovery documents I fetched from gitea.com and codeberg.org (Forgejo)
+    are USER-LOGIN OIDC providers - the claims are name/email/groups, i.e. a human SSO vocabulary, not
+    a CI workload vocabulary. This is NOT evidence that Gitea Actions mints workload-identity tokens for
+    cloud federation. Verified as an OIDC issuer; unverified as a workload-identity-federation issuer.
+    Do not conflate the two.'
+  source: wif census 2026-09-13
+- name: Harness
+  vendor: Harness
+  category: ci
+  issuer_pattern: https://app.harness.io/ng/api/oidc/account/<ACCOUNT_ID>
+  tenancy_model: per_tenant_path
+  control_test:
+    result: PASSED
+    detail: well-formed but non-existent account IDs return HTTP 401
+  discovery_status: unverified
+  jwks_status: unverified
+  aud_controlled_by: unverified
+  vendor_example_verdict: unverified
+  known_defect: 'The discovery document advertises jwks_uri as ".../.wellknown/jwks" -- a non-standard
+    path missing the hyphen. Strict OIDC clients that normalise the path to /.well-known/jwks receive
+    HTTP 400 and fail to fetch keys.
 
-  - issuer: https://app.devin.ai
-    vendor: Cognition
-    category: ai-agent-platform
-    tenancy_model: shared
-    tenancy_claim: org_id
-    tenancy_projected_into_sub: true
-    sub_grammar: { default: "org_id:<uuid>" }
-    aud_controlled_by: caller
-    vendor_example_verdict: ABSENT   # docs ship no AWS trust policy example at all
-    on_aws_shared_idp_registry: false
-    verified_at: 2026-09-12
+    '
+  verified_at: 2026-09-12
+  source: ai-agent census 2026-09-12
+- name: Harness
+  category: ci
+  issuer: unverified
+  tenancy_model: unverified
+  discovery_url: https://app.harness.io/ng/api/oidc/account/<account_id>/.well-known/openid-configuration
+  discovery_status: error
+  jwks_uri: unverified
+  jwks_status: unverified
+  subject_format: unverified
+  subject_examples: []
+  claims: []
+  immutable_id_claims: []
+  aud_controlled_by: unverified
+  aud_default: unverified
+  aud_evidence: Not established - could not reach an unauthenticated metadata document.
+  vendor_example_verdict: unverified
+  self_hosted_variant: unverified
+  docs_url: https://developer.harness.io/docs/platform/reference-architectures/aws-oidc-role-connector/
+  verified_at: '2026-09-13'
+  notes: Both https://app.harness.io/.well-known/openid-configuration and the per-account path returned
+    HTTP 401 with a "Harness Redirect" HTML login page. The documentation URL returned by search 404s.
+    Harness OIDC almost certainly exists (their docs describe AWS and GCP WIF) but I could not verify
+    the issuer string, discovery document or JWKS without authenticating, which is out of scope. Deliberately
+    left unverified.
+  source: both
+- name: Jenkins (OpenID Connect Provider plugin)
+  category: ci
+  issuer: https://<jenkins-url>/oidc
+  tenancy_model: per_tenant_host
+  discovery_url: https://<jenkins-url>/oidc/.well-known/openid-configuration
+  discovery_status: unverified
+  jwks_uri: unverified
+  jwks_status: unverified
+  subject_format: unverified
+  subject_examples: []
+  claims: []
+  immutable_id_claims: []
+  aud_controlled_by: unverified
+  aud_default: unverified
+  aud_evidence: Not verified - no public instance fetched.
+  vendor_example_verdict: unverified
+  self_hosted_variant: Jenkins is self-hosted by definition; issuer is the controller URL.
+  docs_url: unverified
+  verified_at: '2026-09-13'
+  notes: Jenkins OIDC is provided by a community plugin and every issuer is a private controller URL.
+    No public endpoint exists to fetch and I did not verify the plugin's exact path prefix or claim vocabulary.
+    Entirely unverified - listed only so consumers know it belongs in the taxonomy.
+  source: wif census 2026-09-13
+- name: Microsoft (Azure DevOps)
+  vendor: Microsoft (Azure DevOps)
+  category: ci
+  issuer: https://vstoken.dev.azure.com
+  tenancy_model: shared
+  tenancy_claim: null
+  discovery_url: https://vstoken.dev.azure.com/.well-known/openid-configuration
+  discovery_status: ok
+  jwks_uri: https://vstoken.dev.azure.com/.well-known/jwks
+  jwks_status: ok
+  subject_format: sc://<organization>/<project>/<service-connection-name>
+  subject_examples: []
+  claims:
+  - sub
+  - aud
+  - exp
+  - iat
+  - iss
+  - nbf
+  immutable_id_claims: []
+  aud_controlled_by: relying_party
+  aud_default: api://AzureADTokenExchange
+  aud_evidence: 'Entra docs: "audiences lists the audiences that can appear in the external token. Required...
+    The recommended value is ''api://AzureADTokenExchange''." The relying party (the Entra federated identity
+    credential) declares the accepted audience.'
+  vendor_example_verdict: unverified
+  self_hosted_variant: Azure DevOps Server (on-prem) not verified.
+  on_aws_shared_idp_registry: false
+  docs_url: https://learn.microsoft.com/en-us/azure/devops/pipelines/library/connect-to-azure?view=azure-devops
+  verified_at: 2026-09-12
+  notes: worst-case entry -- nothing to scope on beyond sub
+  source: both
+- name: Namespace
+  vendor: Namespace
+  category: ci
+  issuer: https://federation.namespaceapis.com
+  tenancy_model: shared
+  tenancy_claim: tenant_id
+  tenancy_projected_into_sub: true
+  discovery_status: unverified
+  jwks_status: unverified
+  sub_grammar:
+    default: <workspace-id>/...
+  aud_controlled_by: issuer
+  vendor_example_verdict: scoped
+  on_aws_shared_idp_registry: false
+  verified_at: 2026-09-12
+  source: ai-agent census 2026-09-12
+- name: Semaphore
+  category: ci
+  issuer: https://<organization>.semaphoreci.com
+  tenancy_model: per_tenant_host
+  discovery_url: https://<organization>.semaphoreci.com/.well-known/openid-configuration
+  discovery_status: unverified
+  jwks_uri: unverified
+  jwks_status: unverified
+  subject_format: org:<org>:project:<project_id>:repo:<repo>:ref_type:<type>:ref:<ref>
+  subject_examples:
+  - org:my-org:project:936a5312-a3b8-4921-8b3f-2cec8baac574:repo:web:ref_type:branch:ref:refs/heads/main
+  claims: []
+  immutable_id_claims:
+  - project_id
+  aud_controlled_by: issuer
+  aud_default: https://<organization>.semaphoreci.com
+  aud_evidence: 'Semaphore''s AWS example conditions on "my-org.semaphoreci.com:aud": "https://my-org.semaphoreci.com"
+    - the org URL. I found no documented job-side override, but I did not confirm the absence of one,
+    so treat `issuer` as probable not proven.'
+  vendor_example_verdict: scoped
+  vendor_example: "\"Condition\": {\n    \"StringEquals\": {\n        \"my-org.semaphoreci.com:aud\":\
+    \ \"https://my-org.semaphoreci.com\",\n        \"my-org.semaphoreci.com:sub\": \"org:my-org:project:936a5312-a3b8-4921-8b3f-2cec8baac574:repo:web:ref_type:branch:ref:refs/heads/main\"\
+    \n    }\n}\n"
+  vendor_example_note: Fully pinned with StringEquals down to the branch, and the project is an immutable
+    UUID. Correctly scoped.
+  self_hosted_variant: unverified
+  docs_url: https://docs.semaphore.io/using-semaphore/openid
+  verified_at: '2026-09-13'
+  notes: TENANCY CONTROL TEST INCONCLUSIVE - and this is the important part. A bogus org (xyzzy-bogus.semaphoreci.com)
+    returns HTTP **200**, but the body is a 74 KB HTML marketing page, not a discovery document. So the
+    "bogus tenant returns non-200" test does NOT hold for Semaphore; the correct discriminator is content-type,
+    not status code. I did not enumerate real org names to obtain a positive fetch, so discovery stays
+    unverified.
+  source: wif census 2026-09-13
+- name: HCP Terraform (Terraform Cloud)
+  category: iac
+  issuer: https://app.terraform.io
+  tenancy_model: shared
+  discovery_url: https://app.terraform.io/.well-known/openid-configuration
+  discovery_status: ok
+  jwks_uri: https://app.terraform.io/.well-known/jwks
+  jwks_status: ok
+  subject_format: organization:<org>:project:<project>:workspace:<workspace>:run_phase:<phase>
+  subject_examples:
+  - organization:my-organization-name:project:Default Project:workspace:my-workspace-name:run_phase:apply
+  claims:
+  - sub
+  - aud
+  - exp
+  - iat
+  - iss
+  - jti
+  - nbf
+  - ref
+  - terraform_run_phase
+  - terraform_workspace_id
+  - terraform_workspace_name
+  - terraform_organization_id
+  - terraform_organization_name
+  - terraform_project_id
+  - terraform_project_name
+  - terraform_run_id
+  - terraform_full_workspace
+  immutable_id_claims:
+  - terraform_workspace_id
+  - terraform_organization_id
+  - terraform_project_id
+  - terraform_run_id
+  aud_controlled_by: workload
+  aud_default: aws.workload.identity
+  aud_evidence: 'HashiCorp docs: aud is "Intended audience for the JWT. For example, aws.workload.identity
+    for AWS. This can be customized." and TFC_AWS_WORKLOAD_IDENTITY_AUDIENCE "Will be used as the `aud`
+    claim for the identity token. Defaults to aws.workload.identity." A workspace variable sets it, so
+    the workspace (the workload) chooses.'
+  vendor_example_verdict: scoped
+  vendor_example: "\"Condition\": {\n    \"StringEquals\": {\n        \"SITE_ADDRESS:aud\": \"AUDIENCE_VALUE\"\
+    ,\n        \"SITE_ADDRESS:sub\": \"organization:ORG_NAME:project:PROJECT_NAME:workspace:WORKSPACE_NAME:run_phase:RUN_PHASE\"\
+    \n    }\n}\n"
+  vendor_example_note: 'StringEquals on a fully qualified subject - org, project, workspace and run phase
+    all pinned, no wildcards. HashiCorp additionally writes that operators "should always check, at minimum,
+    the audience and the name of the organization in order to prevent unauthorized access." Correctly
+    scoped. Caveat: the subject uses NAMES, not the immutable *_id claims, so it is recyclable if a workspace
+    or org name is released.'
+  self_hosted_variant: 'Terraform Enterprise uses the instance URL as issuer: "Full URL of HCP Terraform
+    or the Terraform Enterprise instance which signed the JWT." Hence https://<tfe-host>.'
+  docs_url: https://developer.hashicorp.com/terraform/cloud-docs/workspaces/dynamic-provider-credentials/workload-identity-tokens
+  verified_at: '2026-09-13'
+  notes: The default audience aws.workload.identity is shared by every HCP Terraform customer, so like
+    Codefresh the aud condition gives no cross-tenant isolation at its default value.
+  source: wif census 2026-09-13
+- name: Pulumi Cloud
+  category: iac
+  issuer: https://api.pulumi.com/oidc
+  tenancy_model: shared
+  discovery_url: https://api.pulumi.com/oidc/.well-known/openid-configuration
+  discovery_status: ok
+  jwks_uri: https://api.pulumi.com/oidc/.well-known/jwks
+  jwks_status: ok
+  subject_format: pulumi:deploy:org:<org>:project:<project>:stack:<stack>:operation:<kind>:scope:write
+  subject_examples:
+  - pulumi:deploy:org:my-org:project:my-project:stack:prod:operation:update:scope:write
+  claims:
+  - sub
+  - aud
+  - iat
+  - iss
+  - jti
+  - nbf
+  claims_vendor_documented:
+  - stackId
+  - operation
+  - org
+  - project
+  - stack
+  - deployment
+  - scope
+  immutable_id_claims:
+  - stackId
+  - deployment
+  aud_controlled_by: issuer
+  aud_default: the Pulumi organization name
+  aud_evidence: 'Pulumi docs: the audience is "The name of the organization associated with the deployment."
+    Organization-derived, not caller-chosen.'
+  vendor_example_verdict: unverified
+  self_hosted_variant: Pulumi self-hosted issuer not verified.
+  docs_url: https://www.pulumi.com/docs/pulumi-cloud/oidc/provider/
+  verified_at: '2026-09-13'
+  notes: The live discovery document advertises only the six standard claims and omits every Pulumi-specific
+    claim the docs describe - claims_supported is materially incomplete. I have kept the fetched list
+    and the vendor list in separate fields rather than merging them. aud = the org NAME (not an ID), so
+    it is recyclable if an org name is released.
+  source: wif census 2026-09-13
+- name: Scalr
+  category: iac
+  issuer: https://scalr.io
+  tenancy_model: shared
+  discovery_url: https://scalr.io/.well-known/openid-configuration
+  discovery_status: ok
+  jwks_uri: https://scalr.io/.well-known/jwks
+  jwks_status: ok
+  subject_format: unverified
+  subject_examples: []
+  claims:
+  - sub
+  - aud
+  - exp
+  - iat
+  - iss
+  - jti
+  - nbf
+  - ref
+  - scalr_run_phase
+  - scalr_workspace_id
+  - scalr_workspace_name
+  - scalr_environment_id
+  - scalr_environment_name
+  - scalr_account_id
+  - scalr_account_name
+  - scalr_run_id
+  - scalr_tags
+  immutable_id_claims:
+  - scalr_workspace_id
+  - scalr_environment_id
+  - scalr_account_id
+  - scalr_run_id
+  aud_controlled_by: unverified
+  aud_default: unverified
+  aud_evidence: Not established - I did not locate a Scalr doc page stating the aud rule.
+  vendor_example_verdict: unverified
+  self_hosted_variant: unverified
+  docs_url: https://scalr.io/.well-known/openid-configuration
+  verified_at: '2026-09-13'
+  notes: 'SURPRISE - Scalr is NOT per-tenant despite per-account subdomains. A deliberately bogus subdomain
+    (xyzzy-bogus.scalr.io) returns HTTP 200 with a valid discovery document whose issuer is the GLOBAL
+    "https://scalr.io", byte-identical to the apex. Wildcard DNS and a wildcard cert serve the same single-issuer
+    document on every subdomain. So the tenancy control test is not applicable: there is one issuer for
+    all Scalr accounts, and tenant separation rests entirely on the scalr_account_id claim inside the
+    token. Anyone configuring an IAM OIDC provider for Scalr must condition on scalr_account_id.'
+  source: wif census 2026-09-13
+- name: Spacelift
+  vendor: Spacelift
+  category: iac
+  issuer: https://<account>.app.spacelift.io
+  issuer_pattern: https://<account>.app.spacelift.io
+  tenancy_model: per_tenant_host
+  control_test:
+    result: PASSED
+    detail: bogus subdomain returns HTTP 403 "Account not found"
+  discovery_url: https://demo.app.spacelift.io/.well-known/openid-configuration
+  discovery_status: ok
+  jwks_uri: https://demo.app.spacelift.io/.well-known/jwks
+  jwks_status: ok
+  subject_format: space:<space_id>:(stack|module):<stack_id|module_id>:run_type:<run_type>:scope:<read|write>
+  subject_examples:
+  - space:root:stack:my-stack:run_type:TRACKED:scope:write
+  claims:
+  - aud
+  - callerId
+  - callerType
+  - exp
+  - iat
+  - iss
+  - jti
+  - nbf
+  - runId
+  - runType
+  - scope
+  - spaceId
+  - spacePath
+  - sub
+  immutable_id_claims:
+  - runId
+  - callerId
+  aud_controlled_by: issuer
+  aud_default: <account>.app.spacelift.io
+  aud_evidence: 'Spacelift docs: aud is "The audience of the token. This is the hostname of your Spacelift
+    account, for example demo.app.spacelift.io." Account-derived, not run-chosen.'
+  vendor_example_verdict: admits_whole_org
+  vendor_example: "\"Condition\": {\n    \"StringLike\": {\n        \"yourSpaceliftDomain:sub\": \"space:production-*:stack:*:run_type:*:scope:*\"\
+    \n    }\n}\n"
+  vendor_example_note: The documented pattern wildcards stack, run_type and scope, and prefix-matches
+    the space. It admits ANY stack in any space whose ID starts with "production-", under any run type,
+    including scope:write. Note also `space:production-*` matches "production-test" and anything else
+    sharing the prefix.
+  self_hosted_variant: n/a - Spacelift is SaaS; self-hosted worker pools do not change the issuer.
+  docs_url: https://docs.spacelift.io/integrations/cloud-providers/oidc/
+  verified_at: 2026-09-12
+  notes: TENANCY CONTROL TEST PASSED. A bogus account (thisorgdoesnotexist-xyzzy.app.spacelift.io) returns
+    HTTP 403 {"errors":[{"message":"Account not found"}]} while demo.app.spacelift.io returns a valid
+    discovery document. Spacelift is one of only two per-tenant issuers whose aud is pinned by the issuer
+    to a tenant-unique value - that makes aud a real control here.
+  source: both
+- name: Terraform Enterprise (self-hosted)
+  category: iac
+  issuer: https://<tfe-hostname>
+  tenancy_model: per_tenant_host
+  discovery_url: https://<tfe-hostname>/.well-known/openid-configuration
+  discovery_status: unverified
+  jwks_uri: https://<tfe-hostname>/.well-known/jwks
+  jwks_status: unverified
+  subject_format: organization:<org>:project:<project>:workspace:<workspace>:run_phase:<phase>
+  subject_examples: []
+  claims: []
+  immutable_id_claims:
+  - terraform_workspace_id
+  - terraform_organization_id
+  - terraform_project_id
+  aud_controlled_by: workload
+  aud_default: aws.workload.identity
+  aud_evidence: Same TFC_AWS_WORKLOAD_IDENTITY_AUDIENCE mechanism as HCP Terraform.
+  vendor_example_verdict: unverified
+  self_hosted_variant: This IS the self-hosted variant.
+  docs_url: https://developer.hashicorp.com/terraform/cloud-docs/workspaces/dynamic-provider-credentials/workload-identity-tokens
+  verified_at: '2026-09-13'
+  notes: Issuer shape confirmed from vendor docs ("Full URL of ... the Terraform Enterprise instance which
+    signed the JWT") but no instance fetched. Path shape for the discovery endpoint assumed to mirror
+    app.terraform.io and is therefore marked unverified.
+  source: wif census 2026-09-13
+- name: env0
+  category: iac
+  issuer: https://login.app.env0.com/
+  tenancy_model: shared
+  discovery_url: https://login.app.env0.com/.well-known/openid-configuration
+  discovery_status: ok
+  jwks_uri: https://login.app.env0.com/.well-known/jwks.json
+  jwks_status: unverified
+  subject_format: unverified
+  subject_examples: []
+  claims: []
+  immutable_id_claims: []
+  aud_controlled_by: unverified
+  aud_default: unverified
+  aud_evidence: Not established.
+  vendor_example_verdict: unverified
+  self_hosted_variant: unverified
+  docs_url: unverified
+  verified_at: '2026-09-13'
+  notes: CAUTION - this is probably the WRONG issuer for workload identity federation. login.app.env0.com
+    is an Auth0 tenant serving env0's human login (issuer has a trailing slash, advertises authorization_endpoint/mfa_challenge_endpoint/registration_endpoint).
+    That is a user-SSO provider, not a deployment-token issuer. I did not find and verify env0's workload-identity
+    issuer. Listed as unverified rather than publishing the Auth0 endpoint as if it were the federation
+    issuer.
+  source: wif census 2026-09-13
+- name: Amazon EKS (Kubernetes service account issuer / IRSA)
+  category: runtime
+  issuer: https://oidc.eks.<region>.amazonaws.com/id/<cluster_oidc_id>
+  tenancy_model: per_tenant_host
+  discovery_url: https://oidc.eks.<region>.amazonaws.com/id/<cluster_oidc_id>/.well-known/openid-configuration
+  discovery_status: unverified
+  jwks_uri: https://oidc.eks.<region>.amazonaws.com/id/<cluster_oidc_id>/keys
+  jwks_status: unverified
+  subject_format: system:serviceaccount:<namespace>:<serviceaccount_name>
+  subject_examples:
+  - system:serviceaccount:default:my-service-account
+  claims:
+  - iss
+  - sub
+  - aud
+  - exp
+  - iat
+  - kubernetes.io
+  immutable_id_claims: []
+  aud_controlled_by: relying_party
+  aud_default: sts.amazonaws.com
+  aud_evidence: 'AWS EKS docs give the audience as sts.amazonaws.com and the trust policy conditions on
+    "$oidc_provider:aud": "sts.amazonaws.com". AWS requires this fixed value for AssumeRoleWithWebIdentity
+    via IRSA; the pod does not choose it.'
+  vendor_example_verdict: scoped
+  vendor_example: "\"Condition\": {\n    \"StringEquals\": {\n        \"oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE:sub\"\
+    : \"system:serviceaccount:default:my-service-account\",\n        \"oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE:aud\"\
+    : \"sts.amazonaws.com\"\n    }\n}\n"
+  vendor_example_note: StringEquals on both sub and aud, pinned to one namespace and one service account
+    name. Correctly scoped. The residual risk is not the example but the subject vocabulary - see immutable_id_claims
+    (empty).
+  self_hosted_variant: Self-managed Kubernetes can publish its own issuer (any HTTPS URL serving /.well-known/openid-configuration
+    and a JWKS) via --service-account-issuer; commonly an S3/GCS bucket or a public URL. Shape is operator-chosen.
+  docs_url: https://docs.aws.amazon.com/eks/latest/userguide/associate-service-account-role.html
+  verified_at: '2026-09-13'
+  notes: 'TENANCY CONTROL TEST PASSED. A bogus cluster id returns HTTP 404 {"id": "...","message": "ID
+    is not found"}. I did not fetch a positive document because that requires naming a real cluster, so
+    discovery_status is `unverified`, not `ok`. CRITICAL: `sub` carries NO immutable identifier - it is
+    namespace name + service account name. Delete a service account and recreate one with the same name
+    in the same namespace and it silently re-inherits every IAM role trusting that subject. The projected
+    token does carry kubernetes.io.serviceaccount.uid, but AWS trust policies cannot condition on nested
+    claims, so in practice every IRSA trust policy is name-based and recyclable.'
+  source: wif census 2026-09-13
+- name: Azure Kubernetes Service (AKS workload identity)
+  category: runtime
+  issuer: https://<region>.oic.prod-aks.azure.com/<tenant_id>/<cluster_uuid>/
+  tenancy_model: per_tenant_host
+  discovery_url: https://<region>.oic.prod-aks.azure.com/<tenant_id>/<cluster_uuid>/.well-known/openid-configuration
+  discovery_status: unverified
+  jwks_uri: unverified
+  jwks_status: unverified
+  subject_format: system:serviceaccount:<namespace>:<serviceaccount_name>
+  subject_examples: []
+  claims:
+  - iss
+  - sub
+  - aud
+  - exp
+  - iat
+  immutable_id_claims: []
+  aud_controlled_by: relying_party
+  aud_default: api://AzureADTokenExchange
+  aud_evidence: Entra federated identity credentials declare the accepted audience; docs state "The recommended
+    value is 'api://AzureADTokenExchange'." Set on the Entra side.
+  vendor_example_verdict: unverified
+  self_hosted_variant: n/a - managed control plane.
+  docs_url: unverified
+  verified_at: '2026-09-13'
+  notes: TENANCY CONTROL TEST PASSED. A bogus tenant/cluster UUID pair returns HTTP 404 WebContentNotFound.
+    Issuer shape not confirmed against a positive fetch, so discovery_status is unverified. Same name-based
+    `sub` problem as EKS.
+  source: wif census 2026-09-13
+- name: Cloudflare Access
+  category: runtime
+  issuer: https://<team-name>.cloudflareaccess.com
+  tenancy_model: per_tenant_host
+  discovery_url: https://<team-name>.cloudflareaccess.com/cdn-cgi/access/sso/oidc/.well-known/openid-configuration
+  discovery_status: unverified
+  jwks_uri: https://<team-name>.cloudflareaccess.com/cdn-cgi/access/certs
+  jwks_status: unverified
+  subject_format: unverified
+  subject_examples: []
+  claims: []
+  immutable_id_claims: []
+  aud_controlled_by: unverified
+  aud_default: the Access application AUD tag (a per-application hex identifier) - shape known from Cloudflare's
+    model but not confirmed from a page I fetched
+  aud_evidence: Not established from a fetched document.
+  vendor_example_verdict: unverified
+  self_hosted_variant: n/a - SaaS.
+  docs_url: unverified
+  verified_at: '2026-09-13'
+  notes: TENANCY CONTROL TEST PASSED. A bogus team name returns HTTP 404 on both /cdn-cgi/access/sso/oidc/.well-known/openid-configuration
+    (empty body) and /cdn-cgi/access/certs (Cloudflare Access error page). I could not obtain a positive
+    fetch without naming a real team, so both statuses stay unverified. Cloudflare Access primarily issues
+    tokens for HUMAN access to applications; its use as a workload-identity issuer into clouds is not
+    established here.
+  source: wif census 2026-09-13
+- name: Google Kubernetes Engine (GKE)
+  category: runtime
+  issuer: https://container.googleapis.com/v1/projects/<project>/locations/<location>/clusters/<cluster>
+  tenancy_model: per_tenant_path
+  discovery_url: https://container.googleapis.com/v1/projects/<project>/locations/<location>/clusters/<cluster>/.well-known/openid-configuration
+  discovery_status: unverified
+  jwks_uri: unverified
+  jwks_status: unverified
+  subject_format: system:serviceaccount:<namespace>:<serviceaccount_name>
+  subject_examples: []
+  claims: []
+  immutable_id_claims: []
+  aud_controlled_by: unverified
+  aud_default: unverified
+  aud_evidence: Not established in this pass.
+  vendor_example_verdict: unverified
+  self_hosted_variant: n/a
+  docs_url: unverified
+  verified_at: '2026-09-13'
+  notes: TENANCY CONTROL TEST PASSED (in a fashion). A bogus project returns HTTP 403 PERMISSION_DENIED
+    "Permission denied on resource project bogus-xyzzy-proj" rather than 404 - so a non-existent tenant
+    is distinguishable, but by an authorization error. GKE Workload Identity normally federates in-project
+    without an explicit OIDC provider; the container.googleapis.com issuer matters mainly for federating
+    a GKE cluster into AWS or Azure. Not verified positively.
+  source: wif census 2026-09-13
+- name: HashiCorp Vault (as an OIDC provider)
+  category: runtime
+  issuer: https://<vault-addr>/v1/identity/oidc/provider/<provider_name>
+  tenancy_model: per_tenant_host
+  discovery_url: https://<vault-addr>/v1/identity/oidc/provider/<provider_name>/.well-known/openid-configuration
+  discovery_status: unverified
+  jwks_uri: https://<vault-addr>/v1/identity/oidc/provider/<provider_name>/.well-known/keys
+  jwks_status: unverified
+  subject_format: unverified
+  subject_examples: []
+  claims: []
+  immutable_id_claims: []
+  aud_controlled_by: unverified
+  aud_default: unverified
+  aud_evidence: Not established. Vault OIDC clients have a client_id which conventionally becomes the
+    audience, but I did not verify this against a fetched page statement.
+  vendor_example_verdict: unverified
+  self_hosted_variant: Vault is self-hosted; "Each Vault namespace has a default OIDC provider and key",
+    so the issuer is per-namespace as well as per-instance.
+  docs_url: https://developer.hashicorp.com/vault/docs/secrets/identity/oidc-provider
+  verified_at: '2026-09-13'
+  notes: Issuer path shape confirmed from HashiCorp docs (example given as http://127.0.0.1:8200/v1/identity/oidc/provider/default).
+    Per-namespace AND per-provider, so a single Vault can host many issuers. No public instance to fetch.
+    sub construction and audience rule not verified.
+  source: wif census 2026-09-13
+- name: Modal
+  vendor: Modal
+  category: runtime
+  issuer: https://oidc.modal.com
+  tenancy_model: shared
+  tenancy_claim: workspace_id
+  tenancy_projected_into_sub: true
+  discovery_status: unverified
+  jwks_status: unverified
+  sub_grammar:
+    default: modal:workspace_id:<ws>:environment_name:<env>:app_name:<app>:function_name:<fn>:container_id:<cid>
+  aud_controlled_by: issuer
+  vendor_example_verdict: scoped
+  on_aws_shared_idp_registry: false
+  verified_at: 2026-09-12
+  notes: all isolation rests on the sub prefix, because aud is shared
+  source: ai-agent census 2026-09-12
+- name: SPIFFE / SPIRE (OIDC Discovery Provider)
+  category: runtime
+  issuer: https://<oidc-discovery-host>
+  tenancy_model: per_tenant_host
+  discovery_url: https://<oidc-discovery-host>/.well-known/openid-configuration
+  discovery_status: unverified
+  jwks_uri: https://<oidc-discovery-host>/keys
+  jwks_status: unverified
+  subject_format: spiffe://<trust-domain>/<workload-path>
+  subject_examples:
+  - spiffe://example.org/ns/default/sa/default
+  claims:
+  - iss
+  - sub
+  - aud
+  - exp
+  - iat
+  immutable_id_claims: []
+  aud_controlled_by: workload
+  aud_default: none - the audience is a required argument when fetching a JWT-SVID
+  aud_evidence: A JWT-SVID is minted for an explicitly requested audience (the SPIFFE Workload API requires
+    an audience parameter); SPIRE's AWS example uses an arbitrary operator-chosen value "mys3". The workload
+    names the audience.
+  vendor_example_verdict: scoped
+  vendor_example: "\"Condition\": {\n  \"StringEquals\": {\n    \"oidc-discovery.example.org:aud\": \"\
+    mys3\",\n    \"oidc-discovery.example.org:sub\": \"spiffe://example.org/ns/default/sa/default\"\n\
+    \  }\n}\n"
+  vendor_example_note: StringEquals on a single fully qualified SPIFFE ID and a single audience. Correctly
+    scoped. Note the audience "mys3" is operator-chosen and carries no tenancy meaning.
+  self_hosted_variant: SPIRE is self-hosted by definition; the issuer is whatever host the OIDC Discovery
+    Provider is published on, and the trust domain is operator-chosen.
+  docs_url: https://spiffe.io/docs/latest/keyless/oidc-federation-aws/
+  verified_at: '2026-09-13'
+  notes: 'No public endpoint to fetch - every SPIRE deployment is private. Shape and example taken from
+    spiffe.io docs. A SPIFFE ID is a path, not an ID: trust domains and workload paths are operator-chosen
+    names and fully recyclable.'
+  source: wif census 2026-09-13
+- name: Teleport
+  category: runtime
+  issuer: https://<cluster-name>.teleport.sh
+  tenancy_model: per_tenant_host
+  discovery_url: https://<cluster-name>.teleport.sh/.well-known/openid-configuration
+  discovery_status: unverified
+  jwks_uri: https://<cluster-name>.teleport.sh/.well-known/jwks.json
+  jwks_status: unverified
+  subject_format: unverified
+  subject_examples: []
+  claims: []
+  immutable_id_claims: []
+  aud_controlled_by: unverified
+  aud_default: unverified
+  aud_evidence: Not established.
+  vendor_example_verdict: unverified
+  self_hosted_variant: Self-hosted Teleport uses the proxy service public address as issuer.
+  docs_url: unverified
+  verified_at: '2026-09-13'
+  notes: 'TENANCY CONTROL TEST PASSED (negatively). A bogus cluster name does not resolve/complete TLS
+    at all - curl: (35) SSL_ERROR_SYSCALL - so non-existent tenants are distinguishable before HTTP. No
+    positive fetch attempted (would require naming a real customer cluster). Teleport Machine ID / workload
+    identity issuer details not verified.'
+  source: wif census 2026-09-13
+- name: AWS (outbound identity federation)
+  category: cloud
+  issuer: https://<tenant_uuid>.tokens.sts.global.api.aws
+  tenancy_model: per_tenant_host
+  discovery_url: https://<tenant_uuid>.tokens.sts.global.api.aws/.well-known/openid-configuration
+  discovery_status: ok
+  jwks_uri: https://<tenant_uuid>.tokens.sts.global.api.aws/.well-known/jwks.json
+  jwks_status: unverified
+  subject_format: <IAM principal ARN>
+  subject_examples:
+  - arn:aws:iam::123456789012:role/DataProcessingRole
+  claims:
+  - sub
+  - iss
+  - aud
+  - exp
+  - iat
+  - jti
+  - https://sts.amazonaws.com/
+  immutable_id_claims: []
+  aud_controlled_by: workload
+  aud_default: none - the audience is a required parameter of the GetWebIdentityToken call
+  aud_evidence: 'AWS IAM docs, "Understanding token claims": aud is "The intended recipient for the token
+    specified in the GetWebIdentityToken request", example "https://api.example.com". The caller names
+    the audience on every request.'
+  vendor_example_verdict: unverified
+  self_hosted_variant: n/a
+  docs_url: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_outbound_token_claims.html
+  verified_at: '2026-09-13'
+  notes: 'YES - AWS IS an OIDC issuer, but NOT at sts.amazonaws.com. https://sts.amazonaws.com/.well-known/openid-configuration
+    returns HTTP 400 {"message":"Invalid endpoint. Expected format: <tenant-id>.tokens.sts.global.api.aws"}.
+    AWS outbound identity federation gives each account an issuer at <tenant_uuid>.tokens.sts.global.api.aws.
+    TENANCY CONTROL TEST FAILED ON DISCOVERY, PASSED ON JWKS - the single most important methodological
+    result in this census. Two UUIDs I invented at random each returned HTTP 200 with a complete, well-formed
+    discovery document echoing my invented UUID as the `issuer`. Their advertised jwks_uri then returned
+    HTTP 400 {"message":"Invalid tenant ID"}. So the discovery document alone is NOT proof a tenant exists;
+    only the JWKS is. Also note the docs'' own example issuer (https://abc123-def456-ghi789-jkl012.tokens.sts.global.api.aws)
+    is not a valid UUID and is rejected by the live service with "Invalid tenant ID. Expected a valid
+    UUID". `sub` is the role ARN, which contains the account ID (immutable) but a role NAME that is recyclable.'
+  source: wif census 2026-09-13
+- name: AWS STS (sts.amazonaws.com)
+  category: cloud
+  issuer: not an OIDC issuer
+  tenancy_model: unverified
+  discovery_url: https://sts.amazonaws.com/.well-known/openid-configuration
+  discovery_status: error
+  jwks_uri: n/a
+  jwks_status: n/a
+  subject_format: n/a
+  subject_examples: []
+  claims: []
+  immutable_id_claims: []
+  aud_controlled_by: relying_party
+  aud_default: sts.amazonaws.com is an AUDIENCE VALUE, not an issuer
+  aud_evidence: sts.amazonaws.com is the audience AWS expects in tokens presented to AssumeRoleWithWebIdentity
+    (see the EKS and GitHub examples in this census).
+  vendor_example_verdict: unverified
+  self_hosted_variant: n/a
+  docs_url: https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html
+  verified_at: '2026-09-13'
+  notes: 'Explicit refutation, because this is a common confusion. sts.amazonaws.com does NOT serve OIDC
+    discovery: HTTP 400 {"message":"Invalid endpoint. Expected format: <tenant-id>.tokens.sts.global.api.aws"}.
+    It is a RELYING PARTY (and an audience string), not an issuer. AWS''s issuer role is the separate
+    outbound-federation entry above.'
+  source: wif census 2026-09-13
+- name: Google (accounts.google.com)
+  category: cloud
+  issuer: https://accounts.google.com
+  tenancy_model: shared
+  discovery_url: https://accounts.google.com/.well-known/openid-configuration
+  discovery_status: ok
+  jwks_uri: https://www.googleapis.com/oauth2/v3/certs
+  jwks_status: ok
+  subject_format: <numeric Google account / service account unique ID>
+  subject_examples: []
+  claims:
+  - iss
+  - sub
+  - aud
+  - exp
+  - iat
+  - azp
+  - email
+  - email_verified
+  - at_hash
+  - hd
+  - name
+  - picture
+  - given_name
+  - family_name
+  - locale
+  immutable_id_claims:
+  - sub
+  aud_controlled_by: workload
+  aud_default: none - the audience is the OAuth client ID or an explicitly requested audience
+  aud_evidence: Not quoted from a fetched page. For Google service account ID tokens the caller supplies
+    the target audience on the token request, but I did not verify a documentation sentence establishing
+    this, so treat `workload` here as PROBABLE, not proven.
+  vendor_example_verdict: admits_whole_org
+  vendor_example: "gcloud iam workload-identity-pools providers create-oidc PROVIDER_ID \\\n    --location=\"\
+    global\" \\\n    --workload-identity-pool=\"POOL_ID\" \\\n    --issuer-uri=\"https://token.actions.githubusercontent.com/\"\
+    \ \\\n    --attribute-mapping=\"MAPPINGS\" \\\n    --attribute-condition=\"CONDITIONS\"\n# recommended\
+    \ condition:\nassertion.repository_owner=='ORGANIZATION'\n"
+  vendor_example_note: 'This verdict is about GCP AS A RELYING PARTY (its documented example for trusting
+    GitHub Actions), not about Google as an issuer. Google''s recommended attribute condition is assertion.repository_owner==''ORGANIZATION''
+    - which admits EVERY repository in that GitHub organisation, including forks pushed by anyone with
+    write access to any repo in it, with google.subject mapped from assertion.sub. Google does warn: "To
+    help protect against spoofing threats, you must use an attribute condition that restricts access to
+    tokens issued by your GitHub organization." Note also the issuer-uri here carries a TRAILING SLASH
+    that the real GitHub iss claim does not have.'
+  self_hosted_variant: n/a
+  docs_url: https://docs.cloud.google.com/iam/docs/workload-identity-federation-with-deployment-pipelines
+  verified_at: '2026-09-13'
+  notes: accounts.google.com is a live, valid OIDC issuer and is accepted by AWS and Azure as a federation
+    source. Its claims vocabulary is a human-identity vocabulary; `sub` is a stable opaque numeric ID,
+    which makes it the one issuer here whose subject is inherently immutable.
+  source: wif census 2026-09-13
+- name: Microsoft Entra ID
+  category: cloud
+  issuer: https://login.microsoftonline.com/<tenant_id>/v2.0
+  tenancy_model: per_tenant_path
+  discovery_url: https://login.microsoftonline.com/<tenant_id>/v2.0/.well-known/openid-configuration
+  discovery_status: ok
+  jwks_uri: https://login.microsoftonline.com/<tenant_id>/discovery/v2.0/keys
+  jwks_status: ok
+  subject_format: <object id of the service principal / managed identity>
+  subject_examples: []
+  claims:
+  - iss
+  - sub
+  - aud
+  - exp
+  - iat
+  - nbf
+  - tid
+  - oid
+  - azp
+  - appid
+  immutable_id_claims:
+  - tid
+  - oid
+  aud_controlled_by: relying_party
+  aud_default: api://AzureADTokenExchange when Entra is the relying party
+  aud_evidence: 'Entra docs: "audiences lists the audiences that can appear in the external token. Required...
+    The recommended value is ''api://AzureADTokenExchange''. It says what Microsoft identity platform
+    must accept in the aud claim in the incoming token."'
+  vendor_example_verdict: scoped
+  vendor_example: "{\n    \"name\": \"Testing\",\n    \"issuer\": \"https://token.actions.githubusercontent.com\"\
+    ,\n    \"subject\": \"repo:octo-org/octo-repo:environment:Production\",\n    \"description\": \"Testing\"\
+    ,\n    \"audiences\": [\n        \"api://AzureADTokenExchange\"\n    ]\n}\n"
+  vendor_example_note: Entra's federated identity credential example pins an exact subject string including
+    the environment. Standard federated identity credentials do not accept wildcards, which forces exact
+    matching - structurally safer than the AWS StringLike pattern.
+  self_hosted_variant: n/a - Entra is SaaS. Sovereign clouds use different login hosts.
+  docs_url: https://learn.microsoft.com/en-us/entra/workload-id/workload-identity-federation-create-trust
+  verified_at: '2026-09-13'
+  notes: 'TENANCY CONTROL TEST PASSED, cleanly. A random well-formed non-existent GUID returns HTTP 400
+    "AADSTS90002: Tenant ''...'' not found", and the all-zero GUID returns "AADSTS900021: ... may not
+    be an empty GUID". A real tenant returns a document whose issuer contains that tenant id. Note the
+    /common and /organizations endpoints return issuer literally as "https://login.microsoftonline.com/{tenantid}/v2.0"
+    - a TEMPLATE string, not a usable issuer. Claims list is the WIF-relevant subset, not exhaustive.'
+  source: wif census 2026-09-13
+- name: Cognition
+  vendor: Cognition
+  category: ai-agent-platform
+  issuer: https://app.devin.ai
+  tenancy_model: shared
+  tenancy_claim: org_id
+  tenancy_projected_into_sub: true
+  discovery_status: unverified
+  jwks_status: unverified
+  sub_grammar:
+    default: org_id:<uuid>
+  aud_controlled_by: workload
+  vendor_example_verdict: no_subject_constraint
+  on_aws_shared_idp_registry: false
+  verified_at: 2026-09-12
+  source: ai-agent census 2026-09-12
+- name: Cursor
+  vendor: Cursor
+  category: ai-agent-platform
+  issuer: https://api.cursor.com
+  tenancy_model: shared
+  tenancy_claim: team_id
+  tenancy_projected_into_sub: opt_in_only
+  discovery_status: unverified
+  jwks_status: unverified
+  sub_grammar:
+    default: user:<id>|service_account:<id>
+    projected: team_id:<id>
+  token_lifetime_s: 300
+  aud_controlled_by: workload
+  vendor_example_verdict: admits_any_principal
+  vendor_example_note: 'The same docs page documents the correct team_id form immediately below. This
+    is a documentation-ergonomics failure, not a vendor that misunderstands the problem. Write it up that
+    way.
 
-  - issuer: https://vstoken.dev.azure.com
-    vendor: Microsoft (Azure DevOps)
-    tenancy_model: shared
-    tenancy_claim: null              # publishes NO tenancy claim whatsoever
-    note: worst-case entry -- nothing to scope on beyond sub
-    on_aws_shared_idp_registry: false
-    verified_at: 2026-09-12
-
-  - issuer: https://oidc.modal.com
-    vendor: Modal
-    category: data-ml-compute
-    tenancy_model: shared
-    tenancy_claim: workspace_id
-    tenancy_projected_into_sub: true
-    sub_grammar:
-      default: "modal:workspace_id:<ws>:environment_name:<env>:app_name:<app>:function_name:<fn>:container_id:<cid>"
-    aud_controlled_by: vendor        # fixed "oidc.modal.com", identical for every customer
-    note: all isolation rests on the sub prefix, because aud is shared
-    vendor_example_verdict: SAFE
-    on_aws_shared_idp_registry: false
-    verified_at: 2026-09-12
-
-  - issuer: https://identity.depot.dev
-    vendor: Depot
-    category: ci-build
-    tenancy_model: shared
-    tenancy_claim: org_id
-    tenancy_projected_into_sub: true
-    sub_grammar:
-      default: "spiffe://identity.depot.dev/org/<orgID>/ci/github/<owner>/<repo>/ref/<ref>/sandbox/<id>"
-    aud_controlled_by: caller
-    token_lifetime_s: 300
-    vendor_example_verdict: SAFE     # best in class: org AND repo scoped
-    on_aws_shared_idp_registry: false
-    verified_at: 2026-09-12
-
-  - issuer: https://app.warp.dev
-    vendor: Warp
-    category: ai-agent-platform
-    tenancy_model: shared
-    tenancy_claim: teams
-    tenancy_projected_into_sub: true
-    sub_grammar:
-      default: "<principal-type>:<principal-id>"
-      aws: "scoped_principal:<team-uid>/<principal-type>:<principal-id>"
-    aud_controlled_by: caller
-    note: only agent platform found shipping a distinct AWS-specific tenant-scoped sub form
-    vendor_example_verdict: SAFE
-    on_aws_shared_idp_registry: false
-    verified_at: 2026-09-12
-
-  - issuer: https://federation.namespaceapis.com
-    vendor: Namespace
-    tenancy_model: shared
-    tenancy_claim: tenant_id
-    tenancy_projected_into_sub: true
-    sub_grammar: { default: "<workspace-id>/..." }   # workspace-id carries a tenant_ prefix
-    aud_controlled_by: vendor
-    vendor_example_verdict: SAFE
-    on_aws_shared_idp_registry: false
-    verified_at: 2026-09-12
-
-  - issuer: https://issuer.enforce.dev
-    vendor: Chainguard
-    tenancy_model: shared
-    tenancy_claim: UNVERIFIED
-    sub_grammar: UNVERIFIED
-    aud_controlled_by: UNVERIFIED
-    note: discovery document confirmed live; grammar not yet confirmed from vendor docs
-    on_aws_shared_idp_registry: false
-    verified_at: 2026-09-12
-
-  - issuer_pattern: https://oidc.circleci.com/org/<org-uuid>
-    vendor: CircleCI
-    tenancy_model: per_tenant_path
-    control_test:
-      result: FAILED
-      detail: >
-        Any well-formed UUID returns HTTP 200 with a full discovery document and a
-        live JWKS, and the kid is IDENTICAL across different bogus org UUIDs. Only
-        UUID syntax is validated. CircleCI is a reflector, like GitHub. Per-tenancy
-        is a documented architectural property, NOT verifiable by probing.
-    verified_at: 2026-09-12
-
-  - issuer_pattern: https://app.harness.io/ng/api/oidc/account/<ACCOUNT_ID>
-    vendor: Harness
-    tenancy_model: per_tenant_path
-    control_test:
-      result: PASSED
-      detail: well-formed but non-existent account IDs return HTTP 401
-    known_defect: >
-      The discovery document advertises jwks_uri as ".../.wellknown/jwks" -- a
-      non-standard path missing the hyphen. Strict OIDC clients that normalise the
-      path to /.well-known/jwks receive HTTP 400 and fail to fetch keys.
-    verified_at: 2026-09-12
-
-  - issuer_pattern: https://<account>.app.spacelift.io
-    vendor: Spacelift
-    tenancy_model: per_tenant_host
-    control_test: { result: PASSED, detail: 'bogus subdomain returns HTTP 403 "Account not found"' }
-    verified_at: 2026-09-12
-
-  - issuer_pattern: https://api.bitbucket.org/2.0/workspaces/<ws>/pipelines-config/identity/oidc
-    vendor: Atlassian Bitbucket
-    tenancy_model: per_tenant_path
-    control_test: { result: PASSED, detail: bogus workspace returns HTTP 404 }
-    verified_at: 2026-09-12
+    '
+  correct_condition:
+    aws:
+      StringEquals:
+        api.cursor.com:sub: team_id:<YOUR_TEAM_ID>
+    entra:
+      subject: team_id:<YOUR_TEAM_ID>
+    gcp: assertion.sub == 'team_id:<YOUR_TEAM_ID>'
+  on_aws_shared_idp_registry: false
+  verified_at: 2026-09-12
+  source: ai-agent census 2026-09-12
+- name: Cursor
+  vendor: Cursor
+  category: ai-agent-platform
+  issuer: https://api2.cursor.sh/cloud-agent/identity
+  tenancy_model: shared
+  tenancy_claim: team_id
+  discovery_status: unverified
+  jwks_status: unverified
+  aud_controlled_by: workload
+  vendor_example_verdict: unverified
+  on_aws_shared_idp_registry: false
+  verified_at: 2026-09-12
+  notes: legacy endpoint, still live; a trust policy pinned here remains exploitable
+  source: ai-agent census 2026-09-12
+- name: Warp
+  vendor: Warp
+  category: ai-agent-platform
+  issuer: https://app.warp.dev
+  tenancy_model: shared
+  tenancy_claim: teams
+  tenancy_projected_into_sub: true
+  discovery_status: unverified
+  jwks_status: unverified
+  sub_grammar:
+    default: <principal-type>:<principal-id>
+    aws: scoped_principal:<team-uid>/<principal-type>:<principal-id>
+  aud_controlled_by: workload
+  vendor_example_verdict: scoped
+  on_aws_shared_idp_registry: false
+  verified_at: 2026-09-12
+  notes: only agent platform found shipping a distinct AWS-specific tenant-scoped sub form
+  source: ai-agent census 2026-09-12
+- name: Chainguard
+  vendor: Chainguard
+  category: platform
+  issuer: https://issuer.enforce.dev
+  tenancy_model: shared
+  tenancy_claim: UNVERIFIED
+  discovery_status: unverified
+  jwks_status: unverified
+  sub_grammar: UNVERIFIED
+  aud_controlled_by: unverified
+  vendor_example_verdict: unverified
+  on_aws_shared_idp_registry: false
+  verified_at: 2026-09-12
+  notes: discovery document confirmed live; grammar not yet confirmed from vendor docs
+  source: ai-agent census 2026-09-12
