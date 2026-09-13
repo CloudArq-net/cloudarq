@@ -37,20 +37,6 @@
 schema_version: 2
 census_date: '2026-09-13'
 issuers:
-- name: Atlassian Bitbucket
-  vendor: Atlassian Bitbucket
-  category: ci
-  issuer_pattern: https://api.bitbucket.org/2.0/workspaces/<ws>/pipelines-config/identity/oidc
-  tenancy_model: per_tenant_path
-  control_test:
-    result: PASSED
-    detail: bogus workspace returns HTTP 404
-  discovery_status: unverified
-  jwks_status: unverified
-  aud_controlled_by: unverified
-  vendor_example_verdict: unverified
-  verified_at: 2026-09-12
-  source: ai-agent census 2026-09-12
 - name: Bitbucket Pipelines
   category: ci
   issuer: https://api.bitbucket.org/2.0/workspaces/<workspace>/pipelines-config/identity/oidc
@@ -90,6 +76,10 @@ issuers:
     `unverified` rather than being guessed from the 404 shape. Best-designed subject format in this census:
     every component is an immutable UUID, so no Bitbucket trust policy is name-recyclable.'
   source: wif census 2026-09-13
+  vendor: Atlassian Bitbucket
+  issuer_pattern: https://api.bitbucket.org/2.0/workspaces/<ws>/pipelines-config/identity/oidc
+  control_test: PASSED — bogus workspace returns HTTP 404
+  control_test_result: passed
 - name: Buildkite
   category: ci
   issuer: https://agent.buildkite.com
@@ -152,25 +142,33 @@ issuers:
     to use as the token''s subject (e.g. pipeline_id, cluster_id)", so the sub format is not fixed. `--aws-session-tag`
     maps claims to AWS session tags.'
   source: wif census 2026-09-13
-- name: CircleCI
-  vendor: CircleCI
-  category: ci
-  issuer_pattern: https://oidc.circleci.com/org/<org-uuid>
-  tenancy_model: per_tenant_path
-  control_test:
-    result: FAILED
-    detail: 'Any well-formed UUID returns HTTP 200 with a full discovery document and a live JWKS, and
-      the kid is IDENTICAL across different bogus org UUIDs. Only UUID syntax is validated. CircleCI is
-      a reflector, like GitHub. Per-tenancy is a documented architectural property, NOT verifiable by
-      probing.
-
-      '
-  discovery_status: unverified
-  jwks_status: unverified
-  aud_controlled_by: unverified
-  vendor_example_verdict: unverified
-  verified_at: 2026-09-12
-  source: ai-agent census 2026-09-12
+  claims_advertised:
+  - agent_id
+  - aud
+  - build_branch
+  - build_commit
+  - build_id
+  - build_number
+  - build_source
+  - build_tag
+  - cluster_id
+  - cluster_name
+  - exp
+  - iat
+  - iss
+  - job_id
+  - jti
+  - nbf
+  - organization_id
+  - organization_slug
+  - pipeline_id
+  - pipeline_slug
+  - queue_id
+  - queue_key
+  - runner_environment
+  - step_key
+  - sub
+  claims_advertised_fetched_at: '2026-09-13'
 - name: CircleCI
   category: ci
   issuer: https://oidc.circleci.com/org/<organization_id>
@@ -229,6 +227,13 @@ issuers:
     are signed by one shared key; the per-org issuer URL is a namespacing convention, not a cryptographic
     tenancy boundary.'
   source: wif census 2026-09-13
+  vendor: CircleCI
+  issuer_pattern: https://oidc.circleci.com/org/<org-uuid>
+  control_test: FAILED — Any well-formed UUID returns HTTP 200 with a full discovery document and a live
+    JWKS, and the kid is IDENTICAL across different bogus org UUIDs. Only UUID syntax is validated. CircleCI
+    is a reflector, like GitHub. Per-tenancy is a documented architectural property, NOT verifiable by
+    probing.
+  control_test_result: failed
 - name: Codeberg (Forgejo)
   category: ci
   issuer: https://codeberg.org
@@ -266,6 +271,23 @@ issuers:
   notes: 'Same caveat as Gitea: this is a human-SSO OIDC provider. Included for completeness of the Forgejo/Gitea
     family, not as a confirmed workload-identity issuer.'
   source: wif census 2026-09-13
+  claims_advertised:
+  - aud
+  - email
+  - email_verified
+  - exp
+  - groups
+  - iat
+  - iss
+  - locale
+  - name
+  - picture
+  - preferred_username
+  - profile
+  - sub
+  - updated_at
+  - website
+  claims_advertised_fetched_at: '2026-09-13'
 - name: Codefresh
   category: ci
   issuer: https://oidc.codefresh.io
@@ -318,6 +340,24 @@ issuers:
     plainly carry them - claims_supported is incomplete here, so I merged the vendor doc list. The `sub`
     leads with account_id, which is what makes it multi-tenant-safe.
   source: wif census 2026-09-13
+  claims_advertised:
+  - account_id
+  - account_name
+  - auth_time
+  - initiator
+  - iss
+  - pipeline_id
+  - pipeline_name
+  - platform_url
+  - runner_environment
+  - scm_pull_request_target_branch
+  - scm_ref
+  - scm_repo_url
+  - scm_user_name
+  - sid
+  - sub
+  - workflow_id
+  claims_advertised_fetched_at: '2026-09-13'
 - name: Depot
   vendor: Depot
   category: ci
@@ -413,6 +453,44 @@ issuers:
     docs use issuer-uri "https://token.actions.githubusercontent.com/" WITH a trailing slash while the
     actual iss claim has none.
   source: wif census 2026-09-13
+  claims_advertised:
+  - actor
+  - actor_id
+  - aud
+  - base_ref
+  - check_run_id
+  - enterprise
+  - enterprise_id
+  - environment
+  - environment_node_id
+  - event_name
+  - exp
+  - head_ref
+  - iat
+  - iss
+  - issuer_scope
+  - job_workflow_ref
+  - job_workflow_sha
+  - jti
+  - nbf
+  - ref
+  - ref_protected
+  - ref_type
+  - repository
+  - repository_id
+  - repository_owner
+  - repository_owner_id
+  - repository_visibility
+  - run_attempt
+  - run_id
+  - run_number
+  - runner_environment
+  - sha
+  - sub
+  - workflow
+  - workflow_ref
+  - workflow_sha
+  claims_advertised_fetched_at: '2026-09-13'
 - name: GitHub Enterprise Server (self-hosted)
   category: ci
   issuer: https://<hostname>/_services/token
@@ -531,6 +609,35 @@ issuers:
   notes: iss is the bare instance origin with no path. Claim list from vendor docs table; the live discovery
     document is GitLab's general OAuth metadata and does not enumerate CI claims.
   source: wif census 2026-09-13
+  claims_advertised:
+  - aud
+  - ci_config_ref_uri
+  - email
+  - email_verified
+  - environment
+  - exp
+  - family_name
+  - given_name
+  - groups
+  - groups_direct
+  - https://gitlab.org/claims/groups/developer
+  - https://gitlab.org/claims/groups/maintainer
+  - https://gitlab.org/claims/groups/owner
+  - iat
+  - iss
+  - jti
+  - name
+  - nickname
+  - picture
+  - preferred_username
+  - profile
+  - project_path
+  - ref_path
+  - sha
+  - sub
+  - sub_legacy
+  - website
+  claims_advertised_fetched_at: '2026-09-13'
 - name: Gitea / Forgejo Actions
   category: ci
   issuer: https://<instance-host>
@@ -571,14 +678,29 @@ issuers:
     cloud federation. Verified as an OIDC issuer; unverified as a workload-identity-federation issuer.
     Do not conflate the two.'
   source: wif census 2026-09-13
+  claims_advertised:
+  - aud
+  - email
+  - email_verified
+  - exp
+  - groups
+  - iat
+  - iss
+  - locale
+  - name
+  - picture
+  - preferred_username
+  - profile
+  - sub
+  - updated_at
+  - website
+  claims_advertised_fetched_at: '2026-09-13'
 - name: Harness
   vendor: Harness
   category: ci
   issuer_pattern: https://app.harness.io/ng/api/oidc/account/<ACCOUNT_ID>
   tenancy_model: per_tenant_path
-  control_test:
-    result: PASSED
-    detail: well-formed but non-existent account IDs return HTTP 401
+  control_test: PASSED — well-formed but non-existent account IDs return HTTP 401
   discovery_status: unverified
   jwks_status: unverified
   aud_controlled_by: unverified
@@ -590,6 +712,7 @@ issuers:
     '
   verified_at: 2026-09-12
   source: ai-agent census 2026-09-12
+  control_test_result: passed
 - name: Harness
   category: ci
   issuer: unverified
@@ -670,6 +793,14 @@ issuers:
   verified_at: 2026-09-12
   notes: worst-case entry -- nothing to scope on beyond sub
   source: both
+  claims_advertised:
+  - aud
+  - exp
+  - iat
+  - iss
+  - nbf
+  - sub
+  claims_advertised_fetched_at: '2026-09-13'
 - name: Namespace
   vendor: Namespace
   category: ci
@@ -776,6 +907,25 @@ issuers:
   notes: The default audience aws.workload.identity is shared by every HCP Terraform customer, so like
     Codefresh the aud condition gives no cross-tenant isolation at its default value.
   source: wif census 2026-09-13
+  claims_advertised:
+  - aud
+  - exp
+  - iat
+  - iss
+  - jti
+  - nbf
+  - ref
+  - sub
+  - terraform_full_workspace
+  - terraform_organization_id
+  - terraform_organization_name
+  - terraform_project_id
+  - terraform_project_name
+  - terraform_run_id
+  - terraform_run_phase
+  - terraform_workspace_id
+  - terraform_workspace_name
+  claims_advertised_fetched_at: '2026-09-13'
 - name: Pulumi Cloud
   category: iac
   issuer: https://api.pulumi.com/oidc
@@ -818,6 +968,14 @@ issuers:
     and the vendor list in separate fields rather than merging them. aud = the org NAME (not an ID), so
     it is recyclable if an org name is released.
   source: wif census 2026-09-13
+  claims_advertised:
+  - aud
+  - iat
+  - iss
+  - jti
+  - nbf
+  - sub
+  claims_advertised_fetched_at: '2026-09-13'
 - name: Scalr
   category: iac
   issuer: https://scalr.io
@@ -865,15 +1023,32 @@ issuers:
     all Scalr accounts, and tenant separation rests entirely on the scalr_account_id claim inside the
     token. Anyone configuring an IAM OIDC provider for Scalr must condition on scalr_account_id.'
   source: wif census 2026-09-13
+  claims_advertised:
+  - aud
+  - exp
+  - iat
+  - iss
+  - jti
+  - nbf
+  - ref
+  - scalr_account_id
+  - scalr_account_name
+  - scalr_environment_id
+  - scalr_environment_name
+  - scalr_run_id
+  - scalr_run_phase
+  - scalr_tags
+  - scalr_workspace_id
+  - scalr_workspace_name
+  - sub
+  claims_advertised_fetched_at: '2026-09-13'
 - name: Spacelift
   vendor: Spacelift
   category: iac
   issuer: https://<account>.app.spacelift.io
   issuer_pattern: https://<account>.app.spacelift.io
   tenancy_model: per_tenant_host
-  control_test:
-    result: PASSED
-    detail: bogus subdomain returns HTTP 403 "Account not found"
+  control_test: PASSED — bogus subdomain returns HTTP 403 "Account not found"
   discovery_url: https://demo.app.spacelift.io/.well-known/openid-configuration
   discovery_status: ok
   jwks_uri: https://demo.app.spacelift.io/.well-known/jwks
@@ -918,6 +1093,23 @@ issuers:
     discovery document. Spacelift is one of only two per-tenant issuers whose aud is pinned by the issuer
     to a tenant-unique value - that makes aud a real control here.
   source: both
+  control_test_result: passed
+  claims_advertised:
+  - aud
+  - callerId
+  - callerType
+  - exp
+  - iat
+  - iss
+  - jti
+  - nbf
+  - runId
+  - runType
+  - scope
+  - spaceId
+  - spacePath
+  - sub
+  claims_advertised_fetched_at: '2026-09-13'
 - name: Terraform Enterprise (self-hosted)
   category: iac
   issuer: https://<tfe-hostname>
@@ -969,6 +1161,24 @@ issuers:
     issuer. Listed as unverified rather than publishing the Auth0 endpoint as if it were the federation
     issuer.
   source: wif census 2026-09-13
+  claims_advertised:
+  - aud
+  - auth_time
+  - created_at
+  - email
+  - email_verified
+  - exp
+  - family_name
+  - given_name
+  - iat
+  - identities
+  - iss
+  - name
+  - nickname
+  - phone_number
+  - picture
+  - sub
+  claims_advertised_fetched_at: '2026-09-13'
 - name: Amazon EKS (Kubernetes service account issuer / IRSA)
   category: runtime
   issuer: https://oidc.eks.<region>.amazonaws.com/id/<cluster_oidc_id>
@@ -1312,6 +1522,19 @@ issuers:
     source. Its claims vocabulary is a human-identity vocabulary; `sub` is a stable opaque numeric ID,
     which makes it the one issuer here whose subject is inherently immutable.
   source: wif census 2026-09-13
+  claims_advertised:
+  - aud
+  - email
+  - email_verified
+  - exp
+  - family_name
+  - given_name
+  - iat
+  - iss
+  - name
+  - picture
+  - sub
+  claims_advertised_fetched_at: '2026-09-13'
 - name: Microsoft Entra ID
   category: cloud
   issuer: https://login.microsoftonline.com/<tenant_id>/v2.0
@@ -1443,10 +1666,10 @@ issuers:
   tenancy_claim: UNVERIFIED
   discovery_status: unverified
   jwks_status: unverified
-  sub_grammar: UNVERIFIED
   aud_controlled_by: unverified
   vendor_example_verdict: unverified
   on_aws_shared_idp_registry: false
   verified_at: 2026-09-12
   notes: discovery document confirmed live; grammar not yet confirmed from vendor docs
   source: ai-agent census 2026-09-12
+  subject_format: unverified
