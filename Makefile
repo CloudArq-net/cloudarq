@@ -28,7 +28,8 @@ determinism:
 	  $(GO) test ./internal/... -count=1 -run TestDeterminism >/dev/null || exit 1; \
 	done; echo "determinism: 20/20 fresh processes agree"
 
-## cover:
+# Every package in PURE_PKGS must be at 100% statement coverage.
+cover:
 	@rm -f coverage.out
 	@fail=0; for pkg in $(PURE_PKGS); do \
 	  $(GO) test ./internal/$$pkg/... -coverprofile=cover.$$pkg.out -covermode=atomic >/dev/null 2>&1 || true; \

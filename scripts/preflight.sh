@@ -31,7 +31,35 @@ scan "github token"          'gh[pousr]_[A-Za-z0-9]{20,}'
 scan "private key block"     'BEGIN [A-Z ]*PRIVATE KEY'
 scan "slack token"           'xox[abprs]-[A-Za-z0-9-]{10,}'
 scan "generic assignment"    '(api[_-]?key|secret|passwd|password|token)[[:space:]]*[:=][[:space:]]*["'"'"'][^"'"'"']{12,}'
-scan "production host"       '89\.167\.75\.180'
+# Any routable IPv4 literal. Deliberately NOT the production address itself:
+# a scanner that contains the string it scans for publishes that string to
+# everyone who reads the scanner, which is the whole point of the file being
+# public. Matching the shape catches the current host and every future one,
+# and leaks nothing. Documentation, private, loopback and link-local ranges
+# are excluded because those are safe to write down on purpose.
+# Any routable IPv4 literal in the tree.
+#
+# Deliberately NOT a match on the production address itself. A scanner that
+# contains the string it is scanning for publishes that string to everyone who
+# reads the scanner, and this file is meant to be public. Matching the SHAPE
+# catches the current host and every future one and leaks nothing.
+#
+# Two stages, because ERE has no negative lookahead: pull every IPv4 literal out
+# with -o, then drop the ranges that are safe to write down on purpose -- RFC
+# 5737 documentation, RFC 1918 private, loopback, link-local and broadcast.
+ran=$((ran + 1))
+ip_raw=$(git ls-files -z | xargs -0 grep -noIE '([0-9]{1,3}\.){3}[0-9]{1,3}' 2>/dev/null)
+ip_rc=$?
+if [ $ip_rc -eq 2 ]; then
+  say "routable ip literal" "SCAN ERROR — not a pass"; fail=1
+else
+  ip_hits=$(printf '%s\n' "$ip_raw" | grep -v '^$' | grep -vE ':(0\.0\.0\.0|255\.255\.255\.255|127\.[0-9]+\.[0-9]+\.[0-9]+|10\.[0-9]+\.[0-9]+\.[0-9]+|192\.168\.[0-9]+\.[0-9]+|169\.254\.[0-9]+\.[0-9]+|192\.0\.2\.[0-9]+|198\.51\.100\.[0-9]+|203\.0\.113\.[0-9]+|172\.(1[6-9]|2[0-9]|3[01])\.[0-9]+\.[0-9]+)$' || true)
+  if [ -n "$ip_hits" ]; then
+    say "routable ip literal" "FOUND:"; printf '%s\n' "$ip_hits" | sed 's/^/    /'; fail=1
+  else
+    say "routable ip literal" "pass"
+  fi
+fi
 
 ran=$((ran + 1))
 if git ls-files | grep -qE '(^|/)\.env($|\.)' ; then
