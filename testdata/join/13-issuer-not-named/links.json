@@ -1,0 +1,91 @@
+[
+  {
+    "kind": "counterparty-fan-out",
+    "grants": [
+      {
+        "target": {
+          "kind": "application",
+          "id": "6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d"
+        },
+        "issuer": "https://token.actions.githubusercontent.com",
+        "effect": "Allow",
+        "admits": "{aud=\"api://AzureADTokenExchange\", repository_id=\"456789\", sub=like:\"repo:acme/infra:*\"}",
+        "caveats": []
+      },
+      {
+        "target": {
+          "kind": "role",
+          "id": "arn:aws:iam::111111111111:role/deploy"
+        },
+        "issuer": "",
+        "effect": "Allow",
+        "admits": "{}",
+        "caveats": [
+          {
+            "claim": "",
+            "reason": "the statement applies to every principal, and which identity providers' tokens that admits through sts:AssumeRoleWithWebIdentity or sts:AssumeRoleWithSAML is not known",
+            "source": "statement[0].Principal"
+          }
+        ]
+      }
+    ],
+    "subject": {
+      "issuer": "https://token.actions.githubusercontent.com",
+      "overlap": "{repository_id=\"456789\", sub=like:\"repo:acme/infra:*\"}",
+      "witness": {
+        "repository_id": "456789",
+        "sub": "repo:acme/infra:"
+      }
+    },
+    "confidence": "indeterminate",
+    "reason": "which issuers' tokens role arn:aws:iam::111111111111:role/deploy admits is not known; the identities admitted by role arn:aws:iam::111111111111:role/deploy are an upper bound (the statement applies to every principal, and which identity providers' tokens that admits through sts:AssumeRoleWithWebIdentity or sts:AssumeRoleWithSAML is not known at statement[0].Principal)",
+    "sentence": "Identities admitted by application 6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d may also be admitted by role arn:aws:iam::111111111111:role/deploy from https://token.actions.githubusercontent.com; which issuers' tokens role arn:aws:iam::111111111111:role/deploy admits is not known; the identities admitted by role arn:aws:iam::111111111111:role/deploy are an upper bound (the statement applies to every principal, and which identity providers' tokens that admits through sts:AssumeRoleWithWebIdentity or sts:AssumeRoleWithSAML is not known at statement[0].Principal).",
+    "provenance": [
+      {
+        "api": "graph:federatedIdentityCredentials.list",
+        "params": "{\"applicationId\":\"6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d\"}",
+        "status": "ok",
+        "bytes": {
+          "value": [
+            {
+              "name": "github-infra",
+              "claimsMatchingExpression": {
+                "value": "claims['sub'] matches 'repo:acme/infra:*' and claims['repository_id'] eq '456789'",
+                "languageVersion": 1
+              },
+              "issuer": "https://token.actions.githubusercontent.com",
+              "audiences": [
+                "api://AzureADTokenExchange"
+              ]
+            }
+          ]
+        },
+        "sha256": "ef7747baa01c6f70c8e337638aaeb64e111f30571e7f9453f8afd66d1217ab6f",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      },
+      {
+        "api": "iam:GetRole",
+        "params": "{\"RoleName\":\"deploy\"}",
+        "status": "ok",
+        "bytes": {
+          "Role": {
+            "Arn": "arn:aws:iam::111111111111:role/deploy",
+            "RoleName": "deploy",
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": "*",
+                  "Action": "sts:AssumeRoleWithWebIdentity"
+                }
+              ]
+            }
+          }
+        },
+        "sha256": "58fd2d6ab5e975a489bd08f1786535f1737c82b754b81cd1f5929e1ffef6c84d",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      }
+    ]
+  }
+]

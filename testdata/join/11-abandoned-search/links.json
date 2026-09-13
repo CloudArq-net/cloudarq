@@ -1,0 +1,92 @@
+[
+  {
+    "kind": "counterparty-fan-out",
+    "grants": [
+      {
+        "target": {
+          "kind": "application",
+          "id": "6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d"
+        },
+        "issuer": "https://token.actions.githubusercontent.com",
+        "effect": "Allow",
+        "admits": "{aud=\"api://AzureADTokenExchange\", sub=(like:\"*:ref:refs/heads/*\" & like:\"*infra*\" & like:\"repo:*:ref:*\" & like:\"repo:acme/infra:*\")}",
+        "caveats": []
+      },
+      {
+        "target": {
+          "kind": "role",
+          "id": "arn:aws:iam::111111111111:role/deploy"
+        },
+        "issuer": "https://token.actions.githubusercontent.com",
+        "effect": "Allow",
+        "admits": "{aud=\"sts.amazonaws.com\", sub=(like:\"*main*\" & like:\"repo:*/infra:*\" & like:\"repo:acme/*:ref:refs/heads/*\" & like:\"repo:acme/infra:ref:refs/heads/*\")}",
+        "caveats": []
+      }
+    ],
+    "subject": {
+      "issuer": "https://token.actions.githubusercontent.com",
+      "overlap": "{sub=(like:\"*:ref:refs/heads/*\" & like:\"*infra*\" & like:\"*main*\" & like:\"repo:*/infra:*\" & like:\"repo:*:ref:*\" & like:\"repo:acme/*:ref:refs/heads/*\" & like:\"repo:acme/infra:*\" & like:\"repo:acme/infra:ref:refs/heads/*\")}",
+      "witness": null
+    },
+    "confidence": "indeterminate",
+    "reason": "no example identity could be constructed for identities from https://token.actions.githubusercontent.com with sub matching all of *:ref:refs/heads/*, *infra*, *main* and 5 more patterns",
+    "sentence": "Identities admitted by application 6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d may also be admitted by role arn:aws:iam::111111111111:role/deploy from https://token.actions.githubusercontent.com; no example identity could be constructed for identities from https://token.actions.githubusercontent.com with sub matching all of *:ref:refs/heads/*, *infra*, *main* and 5 more patterns.",
+    "provenance": [
+      {
+        "api": "graph:federatedIdentityCredentials.list",
+        "params": "{\"applicationId\":\"6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d\"}",
+        "status": "ok",
+        "bytes": {
+          "value": [
+            {
+              "name": "github-infra",
+              "claimsMatchingExpression": {
+                "value": "claims['sub'] matches 'repo:acme/infra:*' and claims['sub'] matches '*:ref:refs/heads/*' and claims['sub'] matches 'repo:*:ref:*' and claims['sub'] matches '*infra*'",
+                "languageVersion": 1
+              },
+              "issuer": "https://token.actions.githubusercontent.com",
+              "audiences": [
+                "api://AzureADTokenExchange"
+              ]
+            }
+          ]
+        },
+        "sha256": "42c0ec6b222c6ebaa59623fc444807d782dd25a56436c98aa79166673c15ef3e",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      },
+      {
+        "api": "iam:GetRole",
+        "params": "{\"RoleName\":\"deploy\"}",
+        "status": "ok",
+        "bytes": {
+          "Role": {
+            "Arn": "arn:aws:iam::111111111111:role/deploy",
+            "RoleName": "deploy",
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Federated": "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com"
+                  },
+                  "Action": "sts:AssumeRoleWithWebIdentity",
+                  "Condition": {
+                    "StringEquals": {
+                      "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                    },
+                    "StringLike": {
+                      "token.actions.githubusercontent.com:sub": "repo:acme/*:ref:refs/heads/*"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "sha256": "e519582faf382154c6d2e2b5a834a59d32d5a6f3a46637a69fda97e2d972761d",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      }
+    ]
+  }
+]

@@ -1,0 +1,132 @@
+[
+  {
+    "target": {
+      "kind": "role",
+      "id": "arn:aws:iam::111111111111:role/deploy"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": [
+      {
+        "aud": {
+          "exact": "sts.amazonaws.com"
+        }
+      }
+    ],
+    "provenance": [
+      {
+        "api": "iam:GetRole",
+        "params": "{\"RoleName\":\"deploy\"}",
+        "status": "ok",
+        "bytes": {
+          "Role": {
+            "Arn": "arn:aws:iam::111111111111:role/deploy",
+            "RoleName": "deploy",
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Federated": "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com"
+                  },
+                  "Action": "sts:AssumeRoleWithWebIdentity",
+                  "Condition": {
+                    "StringEquals": {
+                      "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "fetched_at": "2026-09-13T00:00:00Z"
+      }
+    ]
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "arn:aws:iam::222222222222:role/deploy"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Unknown",
+    "admits": [
+      {
+        "aud": {
+          "exact": "sts.amazonaws.com"
+        },
+        "sub": {
+          "like": "repo:acme/*"
+        }
+      }
+    ],
+    "provenance": [
+      {
+        "api": "iam:GetRole",
+        "params": "{\"RoleName\":\"deploy\"}",
+        "status": "ok",
+        "bytes": {
+          "Role": {
+            "Arn": "arn:aws:iam::222222222222:role/deploy",
+            "RoleName": "deploy",
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "allow",
+                  "Principal": {
+                    "Federated": "arn:aws:iam::222222222222:oidc-provider/token.actions.githubusercontent.com"
+                  },
+                  "Action": "sts:AssumeRoleWithWebIdentity",
+                  "Condition": {
+                    "StringEquals": {
+                      "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                    },
+                    "StringLike": {
+                      "token.actions.githubusercontent.com:sub": "repo:acme/*"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "fetched_at": "2026-09-13T00:00:00Z"
+      }
+    ]
+  },
+  {
+    "target": {
+      "kind": "service-account",
+      "id": "deploy@acme-prod.iam.gserviceaccount.com"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": [
+      {
+        "aud": {
+          "exact": "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github"
+        }
+      }
+    ],
+    "provenance": [
+      {
+        "api": "iam:workloadIdentityPools.providers.get",
+        "params": "{\"name\":\"projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"}",
+        "status": "ok",
+        "bytes": {
+          "name": "projects/123456789012/locations/global/workloadIdentityPools/github/providers/github",
+          "oidc": {
+            "issuerUri": "https://token.actions.githubusercontent.com",
+            "allowedAudiences": [
+              "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github"
+            ]
+          }
+        },
+        "fetched_at": "2026-09-13T00:00:00Z"
+      }
+    ]
+  }
+]

@@ -17,6 +17,7 @@ import (
 // transitively. They are the packages that must stay deterministic and fuzzable.
 var pureRoots = []string{
 	"github.com/CloudArq-net/cloudarq/internal/eval/...",
+	"github.com/CloudArq-net/cloudarq/internal/join/...",
 	"github.com/CloudArq-net/cloudarq/internal/parse/...",
 	"github.com/CloudArq-net/cloudarq/internal/trust/...",
 }

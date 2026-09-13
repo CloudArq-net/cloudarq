@@ -1,0 +1,269 @@
+[
+  {
+    "kind": "counterparty-fan-out",
+    "grants": [
+      {
+        "target": {
+          "kind": "role",
+          "id": "arn:aws:iam::111111111111:role/deploy"
+        },
+        "issuer": "https://token.actions.githubusercontent.com",
+        "effect": "Allow",
+        "admits": "{aud=\"sts.amazonaws.com\"}",
+        "caveats": []
+      },
+      {
+        "target": {
+          "kind": "role",
+          "id": "arn:aws:iam::222222222222:role/deploy"
+        },
+        "issuer": "https://token.actions.githubusercontent.com",
+        "effect": "Unknown",
+        "admits": "{aud=\"sts.amazonaws.com\", sub=like:\"repo:acme/*\"}",
+        "caveats": []
+      }
+    ],
+    "subject": {
+      "issuer": "https://token.actions.githubusercontent.com",
+      "overlap": "{sub=like:\"repo:acme/*\"}",
+      "witness": {
+        "sub": "repo:acme/"
+      }
+    },
+    "confidence": "indeterminate",
+    "reason": "the effect of the statement granting role arn:aws:iam::222222222222:role/deploy could not be read",
+    "sentence": "Identities admitted by role arn:aws:iam::111111111111:role/deploy may also be admitted by role arn:aws:iam::222222222222:role/deploy from https://token.actions.githubusercontent.com; the effect of the statement granting role arn:aws:iam::222222222222:role/deploy could not be read.",
+    "provenance": [
+      {
+        "api": "iam:GetRole",
+        "params": "{\"RoleName\":\"deploy\"}",
+        "status": "ok",
+        "bytes": {
+          "Role": {
+            "Arn": "arn:aws:iam::222222222222:role/deploy",
+            "RoleName": "deploy",
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "allow",
+                  "Principal": {
+                    "Federated": "arn:aws:iam::222222222222:oidc-provider/token.actions.githubusercontent.com"
+                  },
+                  "Action": "sts:AssumeRoleWithWebIdentity",
+                  "Condition": {
+                    "StringEquals": {
+                      "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                    },
+                    "StringLike": {
+                      "token.actions.githubusercontent.com:sub": "repo:acme/*"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "sha256": "73067fdf9b6cd80a82dc1e437c41d4111d3d2dcca2a3265feb474604a7e17f4e",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      },
+      {
+        "api": "iam:GetRole",
+        "params": "{\"RoleName\":\"deploy\"}",
+        "status": "ok",
+        "bytes": {
+          "Role": {
+            "Arn": "arn:aws:iam::111111111111:role/deploy",
+            "RoleName": "deploy",
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Federated": "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com"
+                  },
+                  "Action": "sts:AssumeRoleWithWebIdentity",
+                  "Condition": {
+                    "StringEquals": {
+                      "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "sha256": "e2a6802dd65b0cf2583574af88d94f2097a12d8aba688ddc738da3a10a816ff8",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      }
+    ]
+  },
+  {
+    "kind": "counterparty-fan-out",
+    "grants": [
+      {
+        "target": {
+          "kind": "role",
+          "id": "arn:aws:iam::111111111111:role/deploy"
+        },
+        "issuer": "https://token.actions.githubusercontent.com",
+        "effect": "Allow",
+        "admits": "{aud=\"sts.amazonaws.com\"}",
+        "caveats": []
+      },
+      {
+        "target": {
+          "kind": "service-account",
+          "id": "deploy@acme-prod.iam.gserviceaccount.com"
+        },
+        "issuer": "https://token.actions.githubusercontent.com",
+        "effect": "Allow",
+        "admits": "{aud=\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"}",
+        "caveats": []
+      }
+    ],
+    "subject": {
+      "issuer": "https://token.actions.githubusercontent.com",
+      "overlap": "{}",
+      "witness": {}
+    },
+    "confidence": "established",
+    "reason": "both admit any identity from https://token.actions.githubusercontent.com",
+    "sentence": "Identities admitted by role arn:aws:iam::111111111111:role/deploy are also admitted by service-account deploy@acme-prod.iam.gserviceaccount.com: both admit any identity from https://token.actions.githubusercontent.com.",
+    "provenance": [
+      {
+        "api": "iam:GetRole",
+        "params": "{\"RoleName\":\"deploy\"}",
+        "status": "ok",
+        "bytes": {
+          "Role": {
+            "Arn": "arn:aws:iam::111111111111:role/deploy",
+            "RoleName": "deploy",
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Federated": "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com"
+                  },
+                  "Action": "sts:AssumeRoleWithWebIdentity",
+                  "Condition": {
+                    "StringEquals": {
+                      "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "sha256": "e2a6802dd65b0cf2583574af88d94f2097a12d8aba688ddc738da3a10a816ff8",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      },
+      {
+        "api": "iam:workloadIdentityPools.providers.get",
+        "params": "{\"name\":\"projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"}",
+        "status": "ok",
+        "bytes": {
+          "name": "projects/123456789012/locations/global/workloadIdentityPools/github/providers/github",
+          "oidc": {
+            "issuerUri": "https://token.actions.githubusercontent.com",
+            "allowedAudiences": [
+              "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github"
+            ]
+          }
+        },
+        "sha256": "04f1332e8bfd2fb66c87a747025e169fb00347bb598c37acd449481154e4d201",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      }
+    ]
+  },
+  {
+    "kind": "counterparty-fan-out",
+    "grants": [
+      {
+        "target": {
+          "kind": "role",
+          "id": "arn:aws:iam::222222222222:role/deploy"
+        },
+        "issuer": "https://token.actions.githubusercontent.com",
+        "effect": "Unknown",
+        "admits": "{aud=\"sts.amazonaws.com\", sub=like:\"repo:acme/*\"}",
+        "caveats": []
+      },
+      {
+        "target": {
+          "kind": "service-account",
+          "id": "deploy@acme-prod.iam.gserviceaccount.com"
+        },
+        "issuer": "https://token.actions.githubusercontent.com",
+        "effect": "Allow",
+        "admits": "{aud=\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"}",
+        "caveats": []
+      }
+    ],
+    "subject": {
+      "issuer": "https://token.actions.githubusercontent.com",
+      "overlap": "{sub=like:\"repo:acme/*\"}",
+      "witness": {
+        "sub": "repo:acme/"
+      }
+    },
+    "confidence": "indeterminate",
+    "reason": "the effect of the statement granting role arn:aws:iam::222222222222:role/deploy could not be read",
+    "sentence": "Identities admitted by role arn:aws:iam::222222222222:role/deploy may also be admitted by service-account deploy@acme-prod.iam.gserviceaccount.com from https://token.actions.githubusercontent.com; the effect of the statement granting role arn:aws:iam::222222222222:role/deploy could not be read.",
+    "provenance": [
+      {
+        "api": "iam:GetRole",
+        "params": "{\"RoleName\":\"deploy\"}",
+        "status": "ok",
+        "bytes": {
+          "Role": {
+            "Arn": "arn:aws:iam::222222222222:role/deploy",
+            "RoleName": "deploy",
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "allow",
+                  "Principal": {
+                    "Federated": "arn:aws:iam::222222222222:oidc-provider/token.actions.githubusercontent.com"
+                  },
+                  "Action": "sts:AssumeRoleWithWebIdentity",
+                  "Condition": {
+                    "StringEquals": {
+                      "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                    },
+                    "StringLike": {
+                      "token.actions.githubusercontent.com:sub": "repo:acme/*"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "sha256": "73067fdf9b6cd80a82dc1e437c41d4111d3d2dcca2a3265feb474604a7e17f4e",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      },
+      {
+        "api": "iam:workloadIdentityPools.providers.get",
+        "params": "{\"name\":\"projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"}",
+        "status": "ok",
+        "bytes": {
+          "name": "projects/123456789012/locations/global/workloadIdentityPools/github/providers/github",
+          "oidc": {
+            "issuerUri": "https://token.actions.githubusercontent.com",
+            "allowedAudiences": [
+              "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github"
+            ]
+          }
+        },
+        "sha256": "04f1332e8bfd2fb66c87a747025e169fb00347bb598c37acd449481154e4d201",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      }
+    ]
+  }
+]

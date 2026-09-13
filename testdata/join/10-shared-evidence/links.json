@@ -1,0 +1,98 @@
+[
+  {
+    "kind": "counterparty-fan-out",
+    "grants": [
+      {
+        "target": {
+          "kind": "role",
+          "id": "arn:aws:iam::111111111111:role/deploy"
+        },
+        "issuer": "https://token.actions.githubusercontent.com",
+        "effect": "Allow",
+        "admits": "{aud=\"sts.amazonaws.com\", sub=like:\"repo:acme/*:ref:refs/heads/main\"}",
+        "caveats": []
+      },
+      {
+        "target": {
+          "kind": "role",
+          "id": "arn:aws:iam::111111111111:role/release"
+        },
+        "issuer": "https://token.actions.githubusercontent.com",
+        "effect": "Allow",
+        "admits": "{aud=\"sts.amazonaws.com\", sub=like:\"repo:acme/infra:*\"}",
+        "caveats": []
+      }
+    ],
+    "subject": {
+      "issuer": "https://token.actions.githubusercontent.com",
+      "overlap": "{sub=(like:\"repo:acme/*:ref:refs/heads/main\" & like:\"repo:acme/infra:*\")}",
+      "witness": {
+        "sub": "repo:acme/infra:ref:refs/heads/main"
+      }
+    },
+    "confidence": "established",
+    "reason": "both admit identities from https://token.actions.githubusercontent.com with sub matching all of repo:acme/*:ref:refs/heads/main and repo:acme/infra:*, for example sub=repo:acme/infra:ref:refs/heads/main",
+    "sentence": "Identities admitted by role arn:aws:iam::111111111111:role/deploy are also admitted by role arn:aws:iam::111111111111:role/release: both admit identities from https://token.actions.githubusercontent.com with sub matching all of repo:acme/*:ref:refs/heads/main and repo:acme/infra:*, for example sub=repo:acme/infra:ref:refs/heads/main.",
+    "provenance": [
+      {
+        "api": "iam:ListRoles",
+        "params": "{}",
+        "status": "ok",
+        "bytes": {
+          "Roles": [
+            {
+              "Arn": "arn:aws:iam::111111111111:role/deploy",
+              "RoleName": "deploy",
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Federated": "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com"
+                    },
+                    "Action": "sts:AssumeRoleWithWebIdentity",
+                    "Condition": {
+                      "StringEquals": {
+                        "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                      },
+                      "StringLike": {
+                        "token.actions.githubusercontent.com:sub": "repo:acme/*:ref:refs/heads/main"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "Arn": "arn:aws:iam::111111111111:role/release",
+              "RoleName": "release",
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Federated": "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com"
+                    },
+                    "Action": "sts:AssumeRoleWithWebIdentity",
+                    "Condition": {
+                      "StringEquals": {
+                        "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                      },
+                      "StringLike": {
+                        "token.actions.githubusercontent.com:sub": "repo:acme/infra:*"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "sha256": "61f1efedd6d1bcfbefb64ebefe41dd084d5a507e82778a7b1d3f10202c7c887a",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      }
+    ]
+  }
+]

@@ -1,0 +1,105 @@
+[
+  {
+    "target": {
+      "kind": "role",
+      "id": "arn:aws:iam::111111111111:role/deploy"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": [
+      {
+        "aud": {
+          "exact": "sts.amazonaws.com"
+        },
+        "sub": {
+          "all_of": [
+            "repo:acme/*:ref:refs/heads/*",
+            "repo:*/infra:*",
+            "*main*",
+            "repo:acme/infra:ref:refs/heads/*"
+          ]
+        }
+      }
+    ],
+    "provenance": [
+      {
+        "api": "iam:GetRole",
+        "params": "{\"RoleName\":\"deploy\"}",
+        "status": "ok",
+        "bytes": {
+          "Role": {
+            "Arn": "arn:aws:iam::111111111111:role/deploy",
+            "RoleName": "deploy",
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Federated": "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com"
+                  },
+                  "Action": "sts:AssumeRoleWithWebIdentity",
+                  "Condition": {
+                    "StringEquals": {
+                      "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                    },
+                    "StringLike": {
+                      "token.actions.githubusercontent.com:sub": "repo:acme/*:ref:refs/heads/*"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "fetched_at": "2026-09-13T00:00:00Z"
+      }
+    ]
+  },
+  {
+    "target": {
+      "kind": "application",
+      "id": "6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": [
+      {
+        "aud": {
+          "exact": "api://AzureADTokenExchange"
+        },
+        "sub": {
+          "all_of": [
+            "repo:acme/infra:*",
+            "*:ref:refs/heads/*",
+            "repo:*:ref:*",
+            "*infra*"
+          ]
+        }
+      }
+    ],
+    "provenance": [
+      {
+        "api": "graph:federatedIdentityCredentials.list",
+        "params": "{\"applicationId\":\"6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d\"}",
+        "status": "ok",
+        "bytes": {
+          "value": [
+            {
+              "name": "github-infra",
+              "claimsMatchingExpression": {
+                "value": "claims['sub'] matches 'repo:acme/infra:*' and claims['sub'] matches '*:ref:refs/heads/*' and claims['sub'] matches 'repo:*:ref:*' and claims['sub'] matches '*infra*'",
+                "languageVersion": 1
+              },
+              "issuer": "https://token.actions.githubusercontent.com",
+              "audiences": [
+                "api://AzureADTokenExchange"
+              ]
+            }
+          ]
+        },
+        "fetched_at": "2026-09-13T00:00:00Z"
+      }
+    ]
+  }
+]

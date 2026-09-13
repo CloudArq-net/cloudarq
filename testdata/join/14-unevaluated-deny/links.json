@@ -1,0 +1,106 @@
+[
+  {
+    "kind": "counterparty-fan-out",
+    "grants": [
+      {
+        "target": {
+          "kind": "application",
+          "id": "6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d"
+        },
+        "issuer": "https://token.actions.githubusercontent.com",
+        "effect": "Allow",
+        "admits": "{aud=\"api://AzureADTokenExchange\", sub=like:\"repo:acme/infra:*\"}",
+        "caveats": []
+      },
+      {
+        "target": {
+          "kind": "role",
+          "id": "arn:aws:iam::111111111111:role/deploy"
+        },
+        "issuer": "https://token.actions.githubusercontent.com",
+        "effect": "Allow",
+        "admits": "{aud=\"sts.amazonaws.com\", sub=like:\"repo:acme/*\"}",
+        "caveats": []
+      }
+    ],
+    "subject": {
+      "issuer": "https://token.actions.githubusercontent.com",
+      "overlap": "{sub=(like:\"repo:acme/*\" & like:\"repo:acme/infra:*\")}",
+      "witness": {
+        "sub": "repo:acme/infra:"
+      }
+    },
+    "confidence": "indeterminate",
+    "reason": "role arn:aws:iam::111111111111:role/deploy also denies identities from https://token.actions.githubusercontent.com, and whether these are among them could not be decided (StringNotLike on sub admits every value but the ones listed and passes when the claim is absent; this parser does not model complements, so the claim is not constrained at statement[1].Condition; this Deny statement could not be fully evaluated, so it is not applied; the admitted set is an upper bound at statement[1])",
+    "sentence": "Identities admitted by application 6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d may also be admitted by role arn:aws:iam::111111111111:role/deploy from https://token.actions.githubusercontent.com; role arn:aws:iam::111111111111:role/deploy also denies identities from https://token.actions.githubusercontent.com, and whether these are among them could not be decided (StringNotLike on sub admits every value but the ones listed and passes when the claim is absent; this parser does not model complements, so the claim is not constrained at statement[1].Condition; this Deny statement could not be fully evaluated, so it is not applied; the admitted set is an upper bound at statement[1]).",
+    "provenance": [
+      {
+        "api": "graph:federatedIdentityCredentials.list",
+        "params": "{\"applicationId\":\"6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d\"}",
+        "status": "ok",
+        "bytes": {
+          "value": [
+            {
+              "name": "github-infra",
+              "claimsMatchingExpression": {
+                "value": "claims['sub'] matches 'repo:acme/infra:*'",
+                "languageVersion": 1
+              },
+              "issuer": "https://token.actions.githubusercontent.com",
+              "audiences": [
+                "api://AzureADTokenExchange"
+              ]
+            }
+          ]
+        },
+        "sha256": "78dfabce0463141a4aace6d6e5b612b556736f7a15769969a718dfd51aada4a9",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      },
+      {
+        "api": "iam:GetRole",
+        "params": "{\"RoleName\":\"deploy\"}",
+        "status": "ok",
+        "bytes": {
+          "Role": {
+            "Arn": "arn:aws:iam::111111111111:role/deploy",
+            "RoleName": "deploy",
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Federated": "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com"
+                  },
+                  "Action": "sts:AssumeRoleWithWebIdentity",
+                  "Condition": {
+                    "StringEquals": {
+                      "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                    },
+                    "StringLike": {
+                      "token.actions.githubusercontent.com:sub": "repo:acme/*"
+                    }
+                  }
+                },
+                {
+                  "Effect": "Deny",
+                  "Principal": {
+                    "Federated": "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com"
+                  },
+                  "Action": "sts:AssumeRoleWithWebIdentity",
+                  "Condition": {
+                    "StringNotLike": {
+                      "token.actions.githubusercontent.com:sub": "repo:acme/tools:*"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "sha256": "d710ab71559311d23ee659c230d15569e9a2278409c770082ac302f27e6719ef",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      }
+    ]
+  }
+]

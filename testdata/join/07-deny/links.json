@@ -1,0 +1,212 @@
+[
+  {
+    "kind": "counterparty-fan-out",
+    "grants": [
+      {
+        "target": {
+          "kind": "application",
+          "id": "6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d"
+        },
+        "issuer": "https://token.actions.githubusercontent.com",
+        "effect": "Allow",
+        "admits": "{aud=\"api://AzureADTokenExchange\", repository_id=\"456789\", sub=\"repo:acme/infra:ref:refs/heads/main\"}",
+        "caveats": []
+      },
+      {
+        "target": {
+          "kind": "role",
+          "id": "arn:aws:iam::111111111111:role/deploy"
+        },
+        "issuer": "https://token.actions.githubusercontent.com",
+        "effect": "Allow",
+        "admits": "{aud=\"sts.amazonaws.com\", sub=like:\"repo:acme/*\"}",
+        "caveats": []
+      }
+    ],
+    "subject": {
+      "issuer": "https://token.actions.githubusercontent.com",
+      "overlap": "{repository_id=\"456789\", sub=\"repo:acme/infra:ref:refs/heads/main\"}",
+      "witness": {
+        "repository_id": "456789",
+        "sub": "repo:acme/infra:ref:refs/heads/main"
+      }
+    },
+    "confidence": "indeterminate",
+    "reason": "role arn:aws:iam::111111111111:role/deploy also denies identities from https://token.actions.githubusercontent.com, and whether these are among them could not be decided",
+    "sentence": "Identities admitted by application 6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d may also be admitted by role arn:aws:iam::111111111111:role/deploy from https://token.actions.githubusercontent.com; role arn:aws:iam::111111111111:role/deploy also denies identities from https://token.actions.githubusercontent.com, and whether these are among them could not be decided.",
+    "provenance": [
+      {
+        "api": "graph:federatedIdentityCredentials.list",
+        "params": "{\"applicationId\":\"6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d\"}",
+        "status": "ok",
+        "bytes": {
+          "value": [
+            {
+              "name": "github-infra-main",
+              "subject": "repo:acme/infra:ref:refs/heads/main",
+              "issuer": "https://token.actions.githubusercontent.com",
+              "audiences": [
+                "api://AzureADTokenExchange"
+              ]
+            }
+          ]
+        },
+        "sha256": "fa7e490355eb24f38baf4ae7f575ae2ced94b9af5355c4e4dd819b4d51b21d74",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      },
+      {
+        "api": "iam:GetRole",
+        "params": "{\"RoleName\":\"deploy\"}",
+        "status": "ok",
+        "bytes": {
+          "Role": {
+            "Arn": "arn:aws:iam::111111111111:role/deploy",
+            "RoleName": "deploy",
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Federated": "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com"
+                  },
+                  "Action": "sts:AssumeRoleWithWebIdentity",
+                  "Condition": {
+                    "StringEquals": {
+                      "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                    },
+                    "StringLike": {
+                      "token.actions.githubusercontent.com:sub": "repo:acme/*"
+                    }
+                  }
+                },
+                {
+                  "Effect": "Deny",
+                  "Principal": {
+                    "Federated": "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com"
+                  },
+                  "Action": "sts:AssumeRoleWithWebIdentity",
+                  "Condition": {
+                    "StringEquals": {
+                      "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                    },
+                    "StringLike": {
+                      "token.actions.githubusercontent.com:sub": "repo:acme/infra:*"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "sha256": "35555afdb44bc0cd23c43ecc24547938ef07234de031b2b6f50bd3a05014238e",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      }
+    ]
+  },
+  {
+    "kind": "counterparty-fan-out",
+    "grants": [
+      {
+        "target": {
+          "kind": "application",
+          "id": "9d2f4a6b-1c3e-4f5a-8b7c-6d5e4f3a2b1c"
+        },
+        "issuer": "https://token.actions.githubusercontent.com",
+        "effect": "Allow",
+        "admits": "{aud=\"api://AzureADTokenExchange\", repository_id=\"789012\", sub=\"repo:acme/tools:ref:refs/heads/main\"}",
+        "caveats": []
+      },
+      {
+        "target": {
+          "kind": "role",
+          "id": "arn:aws:iam::111111111111:role/deploy"
+        },
+        "issuer": "https://token.actions.githubusercontent.com",
+        "effect": "Allow",
+        "admits": "{aud=\"sts.amazonaws.com\", sub=like:\"repo:acme/*\"}",
+        "caveats": []
+      }
+    ],
+    "subject": {
+      "issuer": "https://token.actions.githubusercontent.com",
+      "overlap": "{repository_id=\"789012\", sub=\"repo:acme/tools:ref:refs/heads/main\"}",
+      "witness": {
+        "repository_id": "789012",
+        "sub": "repo:acme/tools:ref:refs/heads/main"
+      }
+    },
+    "confidence": "established",
+    "reason": "both admit identities from https://token.actions.githubusercontent.com with repository_id 789012 and sub repo:acme/tools:ref:refs/heads/main",
+    "sentence": "Identities admitted by application 9d2f4a6b-1c3e-4f5a-8b7c-6d5e4f3a2b1c are also admitted by role arn:aws:iam::111111111111:role/deploy: both admit identities from https://token.actions.githubusercontent.com with repository_id 789012 and sub repo:acme/tools:ref:refs/heads/main.",
+    "provenance": [
+      {
+        "api": "graph:federatedIdentityCredentials.list",
+        "params": "{\"applicationId\":\"9d2f4a6b-1c3e-4f5a-8b7c-6d5e4f3a2b1c\"}",
+        "status": "ok",
+        "bytes": {
+          "value": [
+            {
+              "name": "github-tools-main",
+              "subject": "repo:acme/tools:ref:refs/heads/main",
+              "issuer": "https://token.actions.githubusercontent.com",
+              "audiences": [
+                "api://AzureADTokenExchange"
+              ]
+            }
+          ]
+        },
+        "sha256": "e5d94cffa578d0651ebd495a0340dffe09d6814285960c7dcd5ff635a91a5bc0",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      },
+      {
+        "api": "iam:GetRole",
+        "params": "{\"RoleName\":\"deploy\"}",
+        "status": "ok",
+        "bytes": {
+          "Role": {
+            "Arn": "arn:aws:iam::111111111111:role/deploy",
+            "RoleName": "deploy",
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Federated": "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com"
+                  },
+                  "Action": "sts:AssumeRoleWithWebIdentity",
+                  "Condition": {
+                    "StringEquals": {
+                      "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                    },
+                    "StringLike": {
+                      "token.actions.githubusercontent.com:sub": "repo:acme/*"
+                    }
+                  }
+                },
+                {
+                  "Effect": "Deny",
+                  "Principal": {
+                    "Federated": "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com"
+                  },
+                  "Action": "sts:AssumeRoleWithWebIdentity",
+                  "Condition": {
+                    "StringEquals": {
+                      "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                    },
+                    "StringLike": {
+                      "token.actions.githubusercontent.com:sub": "repo:acme/infra:*"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "sha256": "35555afdb44bc0cd23c43ecc24547938ef07234de031b2b6f50bd3a05014238e",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      }
+    ]
+  }
+]

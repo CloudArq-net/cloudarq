@@ -1,0 +1,87 @@
+[
+  {
+    "kind": "counterparty-fan-out",
+    "grants": [
+      {
+        "target": {
+          "kind": "role",
+          "id": "arn:aws:iam::111111111111:role/deploy"
+        },
+        "issuer": "https://token.actions.githubusercontent.com",
+        "effect": "Allow",
+        "admits": "{aud=\"sts.amazonaws.com\", sub=\"repo:acme/infra:ref:refs/heads/main\"}",
+        "caveats": []
+      },
+      {
+        "target": {
+          "kind": "service-account",
+          "id": "deploy@acme-prod.iam.gserviceaccount.com"
+        },
+        "issuer": "https://token.actions.githubusercontent.com",
+        "effect": "Allow",
+        "admits": "{aud=\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\", sub=\"repo:acme/infra:ref:refs/heads/main\"}",
+        "caveats": []
+      }
+    ],
+    "subject": {
+      "issuer": "https://token.actions.githubusercontent.com",
+      "overlap": "{sub=\"repo:acme/infra:ref:refs/heads/main\"}",
+      "witness": {
+        "sub": "repo:acme/infra:ref:refs/heads/main"
+      }
+    },
+    "confidence": "established",
+    "reason": "both admit identities from https://token.actions.githubusercontent.com with sub repo:acme/infra:ref:refs/heads/main",
+    "sentence": "Identities admitted by role arn:aws:iam::111111111111:role/deploy are also admitted by service-account deploy@acme-prod.iam.gserviceaccount.com: both admit identities from https://token.actions.githubusercontent.com with sub repo:acme/infra:ref:refs/heads/main.",
+    "provenance": [
+      {
+        "api": "iam:GetRole",
+        "params": "{\"RoleName\":\"deploy\"}",
+        "status": "ok",
+        "bytes": {
+          "Role": {
+            "Arn": "arn:aws:iam::111111111111:role/deploy",
+            "RoleName": "deploy",
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Federated": "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com"
+                  },
+                  "Action": "sts:AssumeRoleWithWebIdentity",
+                  "Condition": {
+                    "StringEquals": {
+                      "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+                      "token.actions.githubusercontent.com:sub": "repo:acme/infra:ref:refs/heads/main"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "sha256": "a209193c7e15765a0bd66eae75fe0b9a1255722e2401c25ed6765c9b83903e39",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      },
+      {
+        "api": "iam:workloadIdentityPools.providers.get",
+        "params": "{\"name\":\"projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"}",
+        "status": "ok",
+        "bytes": {
+          "name": "projects/123456789012/locations/global/workloadIdentityPools/github/providers/github",
+          "oidc": {
+            "issuerUri": "https://token.actions.githubusercontent.com",
+            "allowedAudiences": [
+              "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github"
+            ]
+          },
+          "attributeCondition": "assertion.sub == 'repo:acme/infra:ref:refs/heads/main'"
+        },
+        "sha256": "0983a8fa3c5dc4c46572ad24d287469b80411724c071389b99bdfad778c27cfc",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      }
+    ]
+  }
+]
