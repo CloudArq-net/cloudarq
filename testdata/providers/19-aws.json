@@ -1,0 +1,10 @@
+{
+  "name": "projects/123456789012/locations/global/workloadIdentityPools/aws/providers/aws",
+  "displayName": "AWS",
+  "description": "an AWS provider with Google's default mapping and Google's documented condition",
+  "state": "ACTIVE",
+  "attributeCondition": "assertion.arn.startsWith('arn:aws:sts::123456789012:assumed-role/')",
+  "aws": {
+    "accountId": "123456789012"
+  }
+}

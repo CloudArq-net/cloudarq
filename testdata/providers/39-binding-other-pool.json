@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "etag": "BwYRz0m4XsE=",
+  "bindings": [
+    {
+      "role": "roles/iam.workloadIdentityUser",
+      "members": [
+        "principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/gitlab/*",
+        "serviceAccount:deploy@acme-prod.iam.gserviceaccount.com"
+      ]
+    }
+  ]
+}

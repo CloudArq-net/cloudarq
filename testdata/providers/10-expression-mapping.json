@@ -1,0 +1,17 @@
+{
+  "name": "projects/123456789012/locations/global/workloadIdentityPools/github/providers/github",
+  "displayName": "GitHub Actions",
+  "description": "a condition on an attribute whose mapping is an expression, not a claim",
+  "state": "ACTIVE",
+  "attributeMapping": {
+    "google.subject": "assertion.sub",
+    "attribute.repository": "assertion.repository.extract('{org}/')"
+  },
+  "attributeCondition": "attribute.repository == 'acme'",
+  "oidc": {
+    "issuerUri": "https://token.actions.githubusercontent.com",
+    "allowedAudiences": [
+      "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github"
+    ]
+  }
+}

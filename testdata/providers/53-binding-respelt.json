@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "etag": "BwYRz0m4XsE=",
+  "bindings": [
+    {
+      "role": "roles/iam.workloadIdentityUser",
+      "members": [
+        "Principal://IAM.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/subject/repo:acme/infra:ref:refs/heads/main"
+      ]
+    }
+  ]
+}

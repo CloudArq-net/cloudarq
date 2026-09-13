@@ -1,0 +1,12 @@
+{
+  "displayName": "GitHub Actions",
+  "description": "a request body: no name, no allowed audience",
+  "attributeMapping": {
+    "google.subject": "assertion.sub"
+  },
+  "attributeCondition": "assertion.sub == 'repo:acme/infra:ref:refs/heads/main'",
+  "oidc": {
+    "issuerUri": "https://token.actions.githubusercontent.com",
+    "allowedAudiences": []
+  }
+}

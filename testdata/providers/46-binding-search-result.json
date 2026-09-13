@@ -1,0 +1,17 @@
+{
+  "resource": "//iam.googleapis.com/projects/acme-prod/serviceAccounts/deploy@acme-prod.iam.gserviceaccount.com",
+  "assetType": "iam.googleapis.com/ServiceAccount",
+  "project": "projects/123456789012",
+  "policy": {
+    "version": 1,
+    "etag": "BwYRz0m4XsE=",
+    "bindings": [
+      {
+        "role": "roles/iam.workloadIdentityUser",
+        "members": [
+          "principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/*"
+        ]
+      }
+    ]
+  }
+}

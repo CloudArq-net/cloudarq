@@ -1,0 +1,13 @@
+{
+  "name": "projects/123456789012/locations/global/workloadIdentityPools/adfs/providers/adfs",
+  "displayName": "AD FS",
+  "description": "a SAML 2.0 provider",
+  "state": "ACTIVE",
+  "attributeMapping": {
+    "google.subject": "assertion.subject"
+  },
+  "attributeCondition": "assertion.subject == 'deploy'",
+  "saml": {
+    "idpMetadataXml": "<EntityDescriptor xmlns=\"urn:oasis:names:tc:SAML:2.0:metadata\" entityID=\"https://adfs.acme.example/adfs/services/trust\"></EntityDescriptor>"
+  }
+}

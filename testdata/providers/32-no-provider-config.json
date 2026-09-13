@@ -1,0 +1,10 @@
+{
+  "name": "projects/123456789012/locations/global/workloadIdentityPools/github/providers/github",
+  "displayName": "GitHub Actions",
+  "description": "no oidc, aws, saml or x509 member",
+  "state": "ACTIVE",
+  "attributeMapping": {
+    "google.subject": "assertion.sub"
+  },
+  "attributeCondition": "assertion.sub == 'repo:acme/infra:ref:refs/heads/main'"
+}

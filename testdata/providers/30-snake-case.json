@@ -1,0 +1,16 @@
+{
+  "name": "projects/123456789012/locations/global/workloadIdentityPools/github/providers/github",
+  "display_name": "GitHub Actions",
+  "description": "the proto field names instead of their lowerCamelCase JSON names",
+  "state": "ACTIVE",
+  "attribute_mapping": {
+    "google.subject": "assertion.sub"
+  },
+  "attribute_condition": "assertion.sub == 'repo:acme/infra:ref:refs/heads/main'",
+  "oidc": {
+    "issuer_uri": "https://token.actions.githubusercontent.com",
+    "allowed_audiences": [
+      "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github"
+    ]
+  }
+}

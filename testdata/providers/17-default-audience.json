@@ -1,0 +1,13 @@
+{
+  "name": "projects/123456789012/locations/global/workloadIdentityPools/github/providers/github",
+  "displayName": "GitHub Actions",
+  "description": "no allowed audience, so Google requires the provider's own resource name",
+  "state": "ACTIVE",
+  "attributeMapping": {
+    "google.subject": "assertion.sub"
+  },
+  "attributeCondition": "assertion.sub == 'repo:acme/infra:ref:refs/heads/main'",
+  "oidc": {
+    "issuerUri": "https://token.actions.githubusercontent.com"
+  }
+}
