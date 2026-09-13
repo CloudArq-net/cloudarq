@@ -1,0 +1,46 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ResourceTagBesideASubject",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+          "token.actions.githubusercontent.com:sub": "repo:acme/infra:ref:refs/heads/main",
+          "iam:ResourceTag/env": "prod"
+        }
+      }
+    },
+    {
+      "Sid": "SamlSubjectOnARole",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::123456789012:role/ci"
+      },
+      "Action": "sts:AssumeRole",
+      "Condition": {
+        "StringEquals": {
+          "saml:sub": "alice@example.com"
+        }
+      }
+    },
+    {
+      "Sid": "DenyByResourceTag",
+      "Effect": "Deny",
+      "Principal": {
+        "AWS": "123456789012"
+      },
+      "Action": "sts:AssumeRole",
+      "Condition": {
+        "StringEquals": {
+          "iam:ResourceTag/env": "prod"
+        }
+      }
+    }
+  ]
+}

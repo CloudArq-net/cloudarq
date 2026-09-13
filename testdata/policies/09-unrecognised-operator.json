@@ -1,0 +1,39 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "EveryOperatorFamilyThisParserDoesNotModel",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+        },
+        "ArnLike": {
+          "token.actions.githubusercontent.com:sub": "arn:aws:iam::*:role/*"
+        },
+        "Bool": {
+          "token.actions.githubusercontent.com:repository_visibility": "true"
+        },
+        "NumericLessThan": {
+          "token.actions.githubusercontent.com:run_attempt": "3"
+        },
+        "DateGreaterThan": {
+          "token.actions.githubusercontent.com:iat": "2026-01-01T00:00:00Z"
+        },
+        "IpAddress": {
+          "token.actions.githubusercontent.com:runner_ip": "203.0.113.0/24"
+        },
+        "BinaryEquals": {
+          "token.actions.githubusercontent.com:jti": "QmluYXJ5VmFsdWVJbkJhc2U2NA=="
+        },
+        "StringFuzzyMatch": {
+          "token.actions.githubusercontent.com:actor": "octocat"
+        }
+      }
+    }
+  ]
+}

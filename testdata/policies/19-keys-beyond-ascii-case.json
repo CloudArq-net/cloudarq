@@ -1,0 +1,60 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyWithALongSInTheProvider",
+      "Effect": "Deny",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubu\u017fercontent.com:sub": "repo:acme/infra:ref:refs/heads/main"
+        }
+      }
+    },
+    {
+      "Sid": "LongSInTheClaim",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+          "token.actions.githubusercontent.com:\u017fub": "repo:acme/infra:ref:refs/heads/main"
+        }
+      }
+    },
+    {
+      "Sid": "TwoSpellingsThatMayBeOneKey",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+          "token.actions.githubu\u017fercontent.com:sub": "repo:acme/infra:ref:refs/heads/main",
+          "token.actions.githubusercontent.com:sub": "repo:acme/infra:ref:refs/heads/dev"
+        }
+      }
+    },
+    {
+      "Sid": "AsciiKeyOnAProviderSpelledBeyondASCII",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/oidc.eks.us-west-2.amazonaws.com/id/\u212a1"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "oidc.eks.us-west-2.amazonaws.com/id/K1:sub": "system:serviceaccount:ns:sa"
+        }
+      }
+    }
+  ]
+}
