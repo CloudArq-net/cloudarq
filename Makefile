@@ -20,13 +20,21 @@ test:
 
 ## purity: internal/eval and internal/parse must not reach IO. docs/ENGINEERING.md s1.
 purity:
-	$(GO) test ./test/arch/ -run TestPureLayersHaveNoIO -v
+	$(GO) test ./test/arch/ -count=1 -run TestPureLayersHaveNoIO -v
 
 ## determinism: identical input must produce byte-identical output. docs/ENGINEERING.md s2.
+# DETERMINISM_TESTS is the number of TestDeterminism* tests the tree holds. The gate
+# counts what each fresh process ran and refuses any other number, so a renamed or
+# unreachable test fails loudly instead of vanishing from a gate that says "agree".
+DETERMINISM_TESTS = 9
 determinism:
 	@for i in $$(seq 1 20); do \
-	  $(GO) test ./internal/... -count=1 -run TestDeterminism >/dev/null || exit 1; \
-	done; echo "determinism: 20/20 fresh processes agree"
+	  out=$$($(GO) test ./... -count=1 -run TestDeterminism -v 2>&1) || { echo "$$out"; exit 1; }; \
+	  ran=$$(echo "$$out" | grep -cE '^=== RUN   TestDeterminism[^/]*$$'); \
+	  if [ "$$ran" -ne $(DETERMINISM_TESTS) ]; then \
+	    echo "determinism: process $$i ran $$ran TestDeterminism tests, expected $(DETERMINISM_TESTS) - a test was renamed, dropped or not reached"; exit 1; \
+	  fi; \
+	done; echo "determinism: 20/20 fresh processes agree, $(DETERMINISM_TESTS) tests each"
 
 # Every package in PURE_PKGS must be at 100% statement coverage.
 cover:
