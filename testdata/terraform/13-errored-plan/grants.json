@@ -1,0 +1,40 @@
+[
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.deploy"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{sub=\"repo:acme/infra:ref:refs/heads/main\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "plan-incomplete",
+        "Claim": "",
+        "Construct": "errored",
+        "Message": "the plan is marked errored: true; it holds the actions planned before the failure, and the rest are not stated",
+        "Source": "plan"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.deploy is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.deploy"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.deploy\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"deploy\",\"source\":\"13-errored-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "754f964b845b9570cb3dc4d1819ac107c42a95375edc0a65df44552700b45331",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:ref:refs/heads/main\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:ref:refs/heads/main\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}"
+  }
+]

@@ -1,0 +1,219 @@
+[
+  {
+    "target": {
+      "kind": "workloadIdentityPoolProvider",
+      "id": "google_iam_workload_identity_pool_provider.conformance[\"01\"]"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\", sub=\"repo:acme/infra:ref:refs/heads/main\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_iam_workload_identity_pool_provider.conformance[\"01\"] is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_iam_workload_identity_pool_provider.conformance[\"01\"]"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.conformance[\\\"01\\\"]\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"12-gcp-conformance/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "a0834a1f4dec81e38542340aa68a55f016f9287511eab12701714894d81cfc56",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"attributeCondition\":\"assertion.sub == 'repo:acme/infra:ref:refs/heads/main'\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_id\":\"assertion.repository_id\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"description\":\"one repo, one branch\",\"displayName\":\"GitHub Actions\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"],\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}"
+      }
+    ],
+    "source": "{\"attributeCondition\":\"assertion.sub == 'repo:acme/infra:ref:refs/heads/main'\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_id\":\"assertion.repository_id\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"description\":\"one repo, one branch\",\"displayName\":\"GitHub Actions\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"],\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "workloadIdentityPoolProvider",
+      "id": "google_iam_workload_identity_pool_provider.conformance[\"02\"]"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\", sub=like:\"repo:acme/infra:*\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_iam_workload_identity_pool_provider.conformance[\"02\"] is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_iam_workload_identity_pool_provider.conformance[\"02\"]"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.conformance[\\\"02\\\"]\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"12-gcp-conformance/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "24f94e781a0d8721ae7d29c8d4f3dc19e9e0fd93260d83aebfc8df7dd4a9811a",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"attributeCondition\":\"assertion.sub.startsWith('repo:acme/infra:')\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_id\":\"assertion.repository_id\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"description\":\"one repo, any branch; Azure cannot state a subject pattern without an immutable claim\",\"displayName\":\"GitHub Actions\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"],\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}"
+      }
+    ],
+    "source": "{\"attributeCondition\":\"assertion.sub.startsWith('repo:acme/infra:')\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_id\":\"assertion.repository_id\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"description\":\"one repo, any branch; Azure cannot state a subject pattern without an immutable claim\",\"displayName\":\"GitHub Actions\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"],\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "workloadIdentityPoolProvider",
+      "id": "google_iam_workload_identity_pool_provider.conformance[\"03\"]"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\", repository_owner_id=\"123456\", sub=like:\"repo:acme/*\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_iam_workload_identity_pool_provider.conformance[\"03\"] is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_iam_workload_identity_pool_provider.conformance[\"03\"]"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.conformance[\\\"03\\\"]\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"12-gcp-conformance/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "515d48893adef044d92813b0d8922daf51a45924a1b62eca5a274866bb1e13de",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"attributeCondition\":\"assertion.sub.startsWith('repo:acme/') && assertion.repository_owner_id == '123456'\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_id\":\"assertion.repository_id\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"description\":\"a whole organisation\",\"displayName\":\"GitHub Actions\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"],\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}"
+      }
+    ],
+    "source": "{\"attributeCondition\":\"assertion.sub.startsWith('repo:acme/') && assertion.repository_owner_id == '123456'\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_id\":\"assertion.repository_id\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"description\":\"a whole organisation\",\"displayName\":\"GitHub Actions\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"],\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "workloadIdentityPoolProvider",
+      "id": "google_iam_workload_identity_pool_provider.conformance[\"04\"]"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\", sub=\"repo:acme@123456/infra@456789:ref:refs/heads/main\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_iam_workload_identity_pool_provider.conformance[\"04\"] is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_iam_workload_identity_pool_provider.conformance[\"04\"]"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.conformance[\\\"04\\\"]\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"12-gcp-conformance/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "63ccd580cdfa6e6fc439637687ca26e6ffed44ecffbe71798c79825b25e14235",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"attributeCondition\":\"assertion.sub == 'repo:acme@123456/infra@456789:ref:refs/heads/main'\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_id\":\"assertion.repository_id\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"description\":\"the immutable subject format\",\"displayName\":\"GitHub Actions\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"],\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}"
+      }
+    ],
+    "source": "{\"attributeCondition\":\"assertion.sub == 'repo:acme@123456/infra@456789:ref:refs/heads/main'\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_id\":\"assertion.repository_id\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"description\":\"the immutable subject format\",\"displayName\":\"GitHub Actions\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"],\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "workloadIdentityPoolProvider",
+      "id": "google_iam_workload_identity_pool_provider.conformance[\"05\"]"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\", repository_id=\"456789\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_iam_workload_identity_pool_provider.conformance[\"05\"] is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_iam_workload_identity_pool_provider.conformance[\"05\"]"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.conformance[\\\"05\\\"]\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"12-gcp-conformance/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "b470be123a697cfacb2a8ee0a8f3dbfa04a6ccc70ac0fdf58fb4d6cc82d3d348",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"attributeCondition\":\"assertion.repository_id == '456789'\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_id\":\"assertion.repository_id\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"description\":\"constrained on repository_id rather than sub\",\"displayName\":\"GitHub Actions\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"],\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}"
+      }
+    ],
+    "source": "{\"attributeCondition\":\"assertion.repository_id == '456789'\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_id\":\"assertion.repository_id\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"description\":\"constrained on repository_id rather than sub\",\"displayName\":\"GitHub Actions\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"],\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "workloadIdentityPoolProvider",
+      "id": "google_iam_workload_identity_pool_provider.conformance[\"06\"]"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_iam_workload_identity_pool_provider.conformance[\"06\"] is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_iam_workload_identity_pool_provider.conformance[\"06\"]"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.conformance[\\\"06\\\"]\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"12-gcp-conformance/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "775fc625601e8d65e528acba577b1848b0350fedd35c62aeacc8859dc336e617",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_id\":\"assertion.repository_id\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"description\":\"issuer trusted, no subject pin\",\"displayName\":\"GitHub Actions\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"],\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}"
+      }
+    ],
+    "source": "{\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_id\":\"assertion.repository_id\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"description\":\"issuer trusted, no subject pin\",\"displayName\":\"GitHub Actions\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"],\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "workloadIdentityPoolProvider",
+      "id": "google_iam_workload_identity_pool_provider.conformance[\"07\"]"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\", repository_id=\"456789\", sub=like:\"repo:acme/infra:*\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_iam_workload_identity_pool_provider.conformance[\"07\"] is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_iam_workload_identity_pool_provider.conformance[\"07\"]"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.conformance[\\\"07\\\"]\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"12-gcp-conformance/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "3f1e9f7ffff8c3d3821086f4ca7e7e8f30e43e440ebec081bab65caf43c831fc",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"attributeCondition\":\"assertion.sub.startsWith('repo:acme/infra:') && assertion.repository_id == '456789'\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_id\":\"assertion.repository_id\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"description\":\"one repo, any branch; AWS states it with ForAllValues, which no other provider can\",\"displayName\":\"GitHub Actions\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"],\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}"
+      }
+    ],
+    "source": "{\"attributeCondition\":\"assertion.sub.startsWith('repo:acme/infra:') && assertion.repository_id == '456789'\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_id\":\"assertion.repository_id\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"description\":\"one repo, any branch; AWS states it with ForAllValues, which no other provider can\",\"displayName\":\"GitHub Actions\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"],\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}"
+  }
+]

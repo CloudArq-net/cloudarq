@@ -1,0 +1,197 @@
+{
+  "format_version": "1.2",
+  "terraform_version": "1.15.5",
+  "planned_values": {
+    "root_module": {
+      "resources": [
+        {
+          "address": "azuread_application_federated_identity_credential.conformance[\"01\"]",
+          "mode": "managed",
+          "type": "azuread_application_federated_identity_credential",
+          "name": "conformance",
+          "index": "01",
+          "provider_name": "registry.terraform.io/hashicorp/azuread",
+          "schema_version": 0,
+          "values": {
+            "application_id": "/applications/6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d",
+            "audiences": [
+              "api://AzureADTokenExchange"
+            ],
+            "description": "one repo, one branch",
+            "display_name": "github-infra-main",
+            "issuer": "https://token.actions.githubusercontent.com",
+            "subject": "repo:acme/infra:ref:refs/heads/main",
+            "timeouts": null
+          },
+          "sensitive_values": {
+            "audiences": [
+              false
+            ]
+          }
+        },
+        {
+          "address": "azuread_application_federated_identity_credential.conformance[\"04\"]",
+          "mode": "managed",
+          "type": "azuread_application_federated_identity_credential",
+          "name": "conformance",
+          "index": "04",
+          "provider_name": "registry.terraform.io/hashicorp/azuread",
+          "schema_version": 0,
+          "values": {
+            "application_id": "/applications/6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d",
+            "audiences": [
+              "api://AzureADTokenExchange"
+            ],
+            "description": "the immutable subject format",
+            "display_name": "github-infra-main-immutable",
+            "issuer": "https://token.actions.githubusercontent.com",
+            "subject": "repo:acme@123456/infra@456789:ref:refs/heads/main",
+            "timeouts": null
+          },
+          "sensitive_values": {
+            "audiences": [
+              false
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "resource_changes": [
+    {
+      "address": "azuread_application_federated_identity_credential.conformance[\"01\"]",
+      "mode": "managed",
+      "type": "azuread_application_federated_identity_credential",
+      "name": "conformance",
+      "index": "01",
+      "provider_name": "registry.terraform.io/hashicorp/azuread",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "application_id": "/applications/6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d",
+          "audiences": [
+            "api://AzureADTokenExchange"
+          ],
+          "description": "one repo, one branch",
+          "display_name": "github-infra-main",
+          "issuer": "https://token.actions.githubusercontent.com",
+          "subject": "repo:acme/infra:ref:refs/heads/main",
+          "timeouts": null
+        },
+        "after_unknown": {
+          "audiences": [
+            false
+          ],
+          "credential_id": true,
+          "id": true
+        },
+        "before_sensitive": false,
+        "after_sensitive": {
+          "audiences": [
+            false
+          ]
+        }
+      }
+    },
+    {
+      "address": "azuread_application_federated_identity_credential.conformance[\"04\"]",
+      "mode": "managed",
+      "type": "azuread_application_federated_identity_credential",
+      "name": "conformance",
+      "index": "04",
+      "provider_name": "registry.terraform.io/hashicorp/azuread",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "application_id": "/applications/6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d",
+          "audiences": [
+            "api://AzureADTokenExchange"
+          ],
+          "description": "the immutable subject format",
+          "display_name": "github-infra-main-immutable",
+          "issuer": "https://token.actions.githubusercontent.com",
+          "subject": "repo:acme@123456/infra@456789:ref:refs/heads/main",
+          "timeouts": null
+        },
+        "after_unknown": {
+          "audiences": [
+            false
+          ],
+          "credential_id": true,
+          "id": true
+        },
+        "before_sensitive": false,
+        "after_sensitive": {
+          "audiences": [
+            false
+          ]
+        }
+      }
+    }
+  ],
+  "configuration": {
+    "provider_config": {
+      "azuread": {
+        "name": "azuread",
+        "full_name": "registry.terraform.io/hashicorp/azuread"
+      }
+    },
+    "root_module": {
+      "resources": [
+        {
+          "address": "azuread_application_federated_identity_credential.conformance",
+          "mode": "managed",
+          "type": "azuread_application_federated_identity_credential",
+          "name": "conformance",
+          "provider_config_key": "azuread",
+          "expressions": {
+            "application_id": {
+              "constant_value": "/applications/6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d"
+            },
+            "audiences": {
+              "references": [
+                "each.value"
+              ]
+            },
+            "description": {
+              "references": [
+                "each.value"
+              ]
+            },
+            "display_name": {
+              "references": [
+                "each.value"
+              ]
+            },
+            "issuer": {
+              "references": [
+                "each.value"
+              ]
+            },
+            "subject": {
+              "references": [
+                "each.value"
+              ]
+            }
+          },
+          "schema_version": 0,
+          "for_each_expression": {
+            "references": [
+              "local.cases"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "timestamp": "2026-09-14T00:00:00Z",
+  "applyable": true,
+  "complete": true,
+  "errored": false
+}

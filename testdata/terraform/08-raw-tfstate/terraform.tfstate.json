@@ -1,0 +1,93 @@
+{
+  "version": 4,
+  "terraform_version": "1.15.5",
+  "serial": 3,
+  "lineage": "64e6b76d-bdad-5268-568f-149347e93aa8",
+  "outputs": {
+    "known": {
+      "value": "{\"Statement\":{\"Effect\":\"Allow\",\"Sid\":\"x\"},\"Version\":\"2012-10-17\"}",
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "mode": "managed",
+      "type": "terraform_data",
+      "name": "known",
+      "provider": "provider[\"terraform.io/builtin/terraform\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "b191466c-1ed9-d9c9-eca0-9b7b2b25af0e",
+            "input": {
+              "value": "{\"Statement\":{\"Effect\":\"Allow\",\"Sid\":\"x\"},\"Version\":\"2012-10-17\"}",
+              "type": "string"
+            },
+            "output": {
+              "value": "{\"Statement\":{\"Effect\":\"Allow\",\"Sid\":\"x\"},\"Version\":\"2012-10-17\"}",
+              "type": "string"
+            },
+            "triggers_replace": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "terraform_data",
+      "name": "provider",
+      "provider": "provider[\"terraform.io/builtin/terraform\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "32c00dcc-e620-cfaa-f044-b0da4440bcee",
+            "input": {
+              "value": "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com",
+              "type": "string"
+            },
+            "output": {
+              "value": "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com",
+              "type": "string"
+            },
+            "triggers_replace": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "terraform_data",
+      "name": "role",
+      "provider": "provider[\"terraform.io/builtin/terraform\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "9bdd9b8c-b5b5-a7d7-bfad-f3975351d1d9",
+            "input": {
+              "value": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringLike\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:*\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"32c00dcc-e620-cfaa-f044-b0da4440bcee\"},\"Sid\":\"a\\u003cb\\u003e\\u0026c\"}],\"Version\":\"2012-10-17\"}",
+              "type": "string"
+            },
+            "output": {
+              "value": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringLike\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:*\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"32c00dcc-e620-cfaa-f044-b0da4440bcee\"},\"Sid\":\"a\\u003cb\\u003e\\u0026c\"}],\"Version\":\"2012-10-17\"}",
+              "type": "string"
+            },
+            "triggers_replace": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "dependencies": [
+            "terraform_data.provider"
+          ]
+        }
+      ]
+    }
+  ],
+  "check_results": null
+}

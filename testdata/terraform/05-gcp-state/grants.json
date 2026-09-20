@@ -1,0 +1,352 @@
+[
+  {
+    "target": {
+      "kind": "workloadIdentityPoolProvider",
+      "id": "google_iam_workload_identity_pool_provider.github"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=(\"//iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\" | \"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"), repository_owner_id=\"123456\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "default-audience",
+        "Claim": "aud",
+        "Construct": "allowedAudiences",
+        "Message": "allowedAudiences is empty, so Google requires the token audience to be the provider's full resource name, with or without the https prefix: \"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\" or \"//iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"",
+        "Source": "oidc.allowedAudiences"
+      },
+      {
+        "Kind": "unread-resource",
+        "Claim": "",
+        "Construct": "google_iam_workforce_pool_provider",
+        "Message": "the state holds 1 instance of google_iam_workforce_pool_provider, which resembles a trust-bearing resource this reader does not map; it was not read",
+        "Source": "state"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "state",
+        "Message": "google_iam_workload_identity_pool_provider.github is read from the state, as Terraform last recorded it; the deployed resource was not fetched from the cloud",
+        "Source": "google_iam_workload_identity_pool_provider.github"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/state",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.github\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.0\",\"id\":\"projects/acme-prod/locations/global/workloadIdentityPools/github/providers/github\",\"name\":\"projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\",\"source\":\"05-gcp-state/state.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "a982fe68296a37e0e63e3b5a64ca4233bf23125d888aa22a94fe84b9a856784a",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"attributeCondition\":\"assertion.repository_owner_id == '123456'\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"displayName\":\"GitHub Actions\",\"name\":\"projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\",\"oidc\":{\"issuerUri\":\"https://token.actions.githubusercontent.com\"},\"state\":\"ACTIVE\"}"
+      }
+    ],
+    "source": "{\"attributeCondition\":\"assertion.repository_owner_id == '123456'\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"displayName\":\"GitHub Actions\",\"name\":\"projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\",\"oidc\":{\"issuerUri\":\"https://token.actions.githubusercontent.com\"},\"state\":\"ACTIVE\"}"
+  },
+  {
+    "target": {
+      "kind": "workloadIdentityPoolProvider",
+      "id": "google_iam_workload_identity_pool_provider.gitlab"
+    },
+    "issuer": "https://gitlab.com",
+    "effect": "Allow",
+    "admits": "{aud=\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/gitlab/providers/gitlab\", namespace_path=\"acme\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "unread-resource",
+        "Claim": "",
+        "Construct": "google_iam_workforce_pool_provider",
+        "Message": "the state holds 1 instance of google_iam_workforce_pool_provider, which resembles a trust-bearing resource this reader does not map; it was not read",
+        "Source": "state"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "state",
+        "Message": "google_iam_workload_identity_pool_provider.gitlab is read from the state, as Terraform last recorded it; the deployed resource was not fetched from the cloud",
+        "Source": "google_iam_workload_identity_pool_provider.gitlab"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/state",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.gitlab\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.0\",\"id\":\"projects/acme-prod/locations/global/workloadIdentityPools/gitlab/providers/gitlab\",\"name\":\"projects/123456789012/locations/global/workloadIdentityPools/gitlab/providers/gitlab\",\"source\":\"05-gcp-state/state.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "05a1ec200e702f79c52d1583ae3f5e0b5818018e1948b9874f1483c9948aeebd",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"attributeCondition\":\"assertion.namespace_path == 'acme'\",\"attributeMapping\":{\"attribute.namespace_path\":\"assertion.namespace_path\",\"google.subject\":\"assertion.sub\"},\"displayName\":\"GitLab\",\"name\":\"projects/123456789012/locations/global/workloadIdentityPools/gitlab/providers/gitlab\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/gitlab/providers/gitlab\"],\"issuerUri\":\"https://gitlab.com\"},\"state\":\"ACTIVE\"}"
+      }
+    ],
+    "source": "{\"attributeCondition\":\"assertion.namespace_path == 'acme'\",\"attributeMapping\":{\"attribute.namespace_path\":\"assertion.namespace_path\",\"google.subject\":\"assertion.sub\"},\"displayName\":\"GitLab\",\"name\":\"projects/123456789012/locations/global/workloadIdentityPools/gitlab/providers/gitlab\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/gitlab/providers/gitlab\"],\"issuerUri\":\"https://gitlab.com\"},\"state\":\"ACTIVE\"}"
+  },
+  {
+    "target": {
+      "kind": "serviceAccount",
+      "id": "projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=(\"//iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\" | \"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"), repository_owner_id=\"123456\", sub=\"repo:acme/infra:ref:refs/heads/main\"}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "the binding carries the condition \"request.time < timestamp('2027-01-01T00:00:00Z')\", which this parser does not evaluate; the grant is read as if the binding applied unconditionally",
+        "source": "bindings[0].condition"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "default-audience",
+        "Claim": "aud",
+        "Construct": "allowedAudiences",
+        "Message": "allowedAudiences is empty, so Google requires the token audience to be the provider's full resource name, with or without the https prefix: \"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\" or \"//iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"",
+        "Source": "oidc.allowedAudiences"
+      },
+      {
+        "Kind": "unmodelled-construct",
+        "Claim": "",
+        "Construct": "condition",
+        "Message": "the binding carries the condition \"request.time < timestamp('2027-01-01T00:00:00Z')\", which this parser does not evaluate; the grant is read as if the binding applied unconditionally",
+        "Source": "bindings[0].condition"
+      },
+      {
+        "Kind": "unread-resource",
+        "Claim": "",
+        "Construct": "google_iam_workforce_pool_provider",
+        "Message": "the state holds 1 instance of google_iam_workforce_pool_provider, which resembles a trust-bearing resource this reader does not map; it was not read",
+        "Source": "state"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "state",
+        "Message": "google_service_account_iam_binding.ci is read from the state, as Terraform last recorded it; the deployed resource was not fetched from the cloud",
+        "Source": "google_service_account_iam_binding.ci"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/state",
+        "params": "{\"address\":\"google_service_account_iam_binding.ci\",\"attributes\":[\"condition\",\"members\",\"role\"],\"format_version\":\"1.0\",\"id\":\"projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com/roles/iam.workloadIdentityUser/expires\",\"service_account_id\":\"projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com\",\"source\":\"05-gcp-state/state.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "5011dae130443395a6222cb5b9b91b73da1164d127892df6b91c89e4575b966d",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"bindings\":[{\"condition\":{\"expression\":\"request.time < timestamp('2027-01-01T00:00:00Z')\",\"title\":\"expires\"},\"members\":[\"principal://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/subject/repo:acme/infra:ref:refs/heads/main\",\"user:alice@acme.example\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}"
+      },
+      {
+        "api": "terraform/state",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.github\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.0\",\"id\":\"projects/acme-prod/locations/global/workloadIdentityPools/github/providers/github\",\"name\":\"projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\",\"source\":\"05-gcp-state/state.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "a982fe68296a37e0e63e3b5a64ca4233bf23125d888aa22a94fe84b9a856784a",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"attributeCondition\":\"assertion.repository_owner_id == '123456'\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"displayName\":\"GitHub Actions\",\"name\":\"projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\",\"oidc\":{\"issuerUri\":\"https://token.actions.githubusercontent.com\"},\"state\":\"ACTIVE\"}"
+      }
+    ],
+    "source": "{\"provider\": {\"attributeCondition\":\"assertion.repository_owner_id == '123456'\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"displayName\":\"GitHub Actions\",\"name\":\"projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\",\"oidc\":{\"issuerUri\":\"https://token.actions.githubusercontent.com\"},\"state\":\"ACTIVE\"}, \"binding\": {\"condition\":{\"expression\":\"request.time < timestamp('2027-01-01T00:00:00Z')\",\"title\":\"expires\"},\"members\":[\"principal://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/subject/repo:acme/infra:ref:refs/heads/main\",\"user:alice@acme.example\"],\"role\":\"roles/iam.workloadIdentityUser\"}}"
+  },
+  {
+    "target": {
+      "kind": "serviceAccount",
+      "id": "projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com"
+    },
+    "issuer": "",
+    "effect": "Allow",
+    "admits": "{}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "the member user:alice@acme.example is not a workload identity pool principal; what it admits is outside what this reader models and the grant is read as admitting everything",
+        "source": "google_service_account_iam_binding.ci"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "unbound-member",
+        "Claim": "",
+        "Construct": "user:alice@acme.example",
+        "Message": "the member user:alice@acme.example is not a workload identity pool principal; what it admits is outside what this reader models and the grant is read as admitting everything",
+        "Source": "google_service_account_iam_binding.ci"
+      },
+      {
+        "Kind": "unread-resource",
+        "Claim": "",
+        "Construct": "google_iam_workforce_pool_provider",
+        "Message": "the state holds 1 instance of google_iam_workforce_pool_provider, which resembles a trust-bearing resource this reader does not map; it was not read",
+        "Source": "state"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "state",
+        "Message": "google_service_account_iam_binding.ci is read from the state, as Terraform last recorded it; the deployed resource was not fetched from the cloud",
+        "Source": "google_service_account_iam_binding.ci"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/state",
+        "params": "{\"address\":\"google_service_account_iam_binding.ci\",\"attributes\":[\"condition\",\"members\",\"role\"],\"format_version\":\"1.0\",\"id\":\"projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com/roles/iam.workloadIdentityUser/expires\",\"service_account_id\":\"projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com\",\"source\":\"05-gcp-state/state.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "5011dae130443395a6222cb5b9b91b73da1164d127892df6b91c89e4575b966d",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"bindings\":[{\"condition\":{\"expression\":\"request.time < timestamp('2027-01-01T00:00:00Z')\",\"title\":\"expires\"},\"members\":[\"principal://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/subject/repo:acme/infra:ref:refs/heads/main\",\"user:alice@acme.example\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}"
+      }
+    ],
+    "source": "{\"bindings\":[{\"condition\":{\"expression\":\"request.time < timestamp('2027-01-01T00:00:00Z')\",\"title\":\"expires\"},\"members\":[\"principal://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/subject/repo:acme/infra:ref:refs/heads/main\",\"user:alice@acme.example\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}"
+  },
+  {
+    "target": {
+      "kind": "serviceAccount",
+      "id": "projects/acme-prod/serviceAccounts/deploy@acme-prod.iam.gserviceaccount.com"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=(\"//iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\" | \"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"), repository=\"acme/infra\", repository_owner_id=\"123456\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "default-audience",
+        "Claim": "aud",
+        "Construct": "allowedAudiences",
+        "Message": "allowedAudiences is empty, so Google requires the token audience to be the provider's full resource name, with or without the https prefix: \"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\" or \"//iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"",
+        "Source": "oidc.allowedAudiences"
+      },
+      {
+        "Kind": "unread-resource",
+        "Claim": "",
+        "Construct": "google_iam_workforce_pool_provider",
+        "Message": "the state holds 1 instance of google_iam_workforce_pool_provider, which resembles a trust-bearing resource this reader does not map; it was not read",
+        "Source": "state"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "state",
+        "Message": "google_service_account_iam_member.deploy is read from the state, as Terraform last recorded it; the deployed resource was not fetched from the cloud",
+        "Source": "google_service_account_iam_member.deploy"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/state",
+        "params": "{\"address\":\"google_service_account_iam_member.deploy\",\"attributes\":[\"condition\",\"member\",\"role\"],\"format_version\":\"1.0\",\"id\":\"projects/acme-prod/serviceAccounts/deploy@acme-prod.iam.gserviceaccount.com/roles/iam.workloadIdentityUser/principalset:projects/123456789012/locations/global/workloadIdentityPools/github/attribute.repository/acme/infra\",\"service_account_id\":\"projects/acme-prod/serviceAccounts/deploy@acme-prod.iam.gserviceaccount.com\",\"source\":\"05-gcp-state/state.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "6bd9122877f73c836dc36c4c2c02ffdd22a6f97bf8e4d49b31e7af840bb68608",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"bindings\":[{\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/attribute.repository/acme/infra\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}"
+      },
+      {
+        "api": "terraform/state",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.github\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.0\",\"id\":\"projects/acme-prod/locations/global/workloadIdentityPools/github/providers/github\",\"name\":\"projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\",\"source\":\"05-gcp-state/state.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "a982fe68296a37e0e63e3b5a64ca4233bf23125d888aa22a94fe84b9a856784a",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"attributeCondition\":\"assertion.repository_owner_id == '123456'\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"displayName\":\"GitHub Actions\",\"name\":\"projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\",\"oidc\":{\"issuerUri\":\"https://token.actions.githubusercontent.com\"},\"state\":\"ACTIVE\"}"
+      }
+    ],
+    "source": "{\"provider\": {\"attributeCondition\":\"assertion.repository_owner_id == '123456'\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"displayName\":\"GitHub Actions\",\"name\":\"projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\",\"oidc\":{\"issuerUri\":\"https://token.actions.githubusercontent.com\"},\"state\":\"ACTIVE\"}, \"binding\": {\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/attribute.repository/acme/infra\"],\"role\":\"roles/iam.workloadIdentityUser\"}}"
+  },
+  {
+    "target": {
+      "kind": "serviceAccount",
+      "id": "projects/acme-prod/serviceAccounts/release@acme-prod.iam.gserviceaccount.com"
+    },
+    "issuer": "https://gitlab.com",
+    "effect": "Allow",
+    "admits": "{aud=\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/gitlab/providers/gitlab\", namespace_path=\"acme\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "unread-resource",
+        "Claim": "",
+        "Construct": "google_iam_workforce_pool_provider",
+        "Message": "the state holds 1 instance of google_iam_workforce_pool_provider, which resembles a trust-bearing resource this reader does not map; it was not read",
+        "Source": "state"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "state",
+        "Message": "google_service_account_iam_policy.release is read from the state, as Terraform last recorded it; the deployed resource was not fetched from the cloud",
+        "Source": "google_service_account_iam_policy.release"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/state",
+        "params": "{\"address\":\"google_service_account_iam_policy.release\",\"attributes\":[\"policy_data\"],\"format_version\":\"1.0\",\"id\":\"projects/acme-prod/serviceAccounts/release@acme-prod.iam.gserviceaccount.com\",\"service_account_id\":\"projects/acme-prod/serviceAccounts/release@acme-prod.iam.gserviceaccount.com\",\"source\":\"05-gcp-state/state.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "565984a157ed83b17196e0aa4936858d8fbb336d4f53f4502a06aa38686ae9a1",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"bindings\":[{\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/gitlab/attribute.namespace_path/acme\",\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/legacy/*\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}"
+      },
+      {
+        "api": "terraform/state",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.gitlab\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.0\",\"id\":\"projects/acme-prod/locations/global/workloadIdentityPools/gitlab/providers/gitlab\",\"name\":\"projects/123456789012/locations/global/workloadIdentityPools/gitlab/providers/gitlab\",\"source\":\"05-gcp-state/state.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "05a1ec200e702f79c52d1583ae3f5e0b5818018e1948b9874f1483c9948aeebd",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"attributeCondition\":\"assertion.namespace_path == 'acme'\",\"attributeMapping\":{\"attribute.namespace_path\":\"assertion.namespace_path\",\"google.subject\":\"assertion.sub\"},\"displayName\":\"GitLab\",\"name\":\"projects/123456789012/locations/global/workloadIdentityPools/gitlab/providers/gitlab\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/gitlab/providers/gitlab\"],\"issuerUri\":\"https://gitlab.com\"},\"state\":\"ACTIVE\"}"
+      }
+    ],
+    "source": "{\"provider\": {\"attributeCondition\":\"assertion.namespace_path == 'acme'\",\"attributeMapping\":{\"attribute.namespace_path\":\"assertion.namespace_path\",\"google.subject\":\"assertion.sub\"},\"displayName\":\"GitLab\",\"name\":\"projects/123456789012/locations/global/workloadIdentityPools/gitlab/providers/gitlab\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/gitlab/providers/gitlab\"],\"issuerUri\":\"https://gitlab.com\"},\"state\":\"ACTIVE\"}, \"binding\": {\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/gitlab/attribute.namespace_path/acme\",\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/legacy/*\"],\"role\":\"roles/iam.workloadIdentityUser\"}}"
+  },
+  {
+    "target": {
+      "kind": "serviceAccount",
+      "id": "projects/acme-prod/serviceAccounts/release@acme-prod.iam.gserviceaccount.com"
+    },
+    "issuer": "",
+    "effect": "Allow",
+    "admits": "{}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "the member principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/legacy/* names the pool projects/123456789012/locations/global/workloadIdentityPools/legacy, and no provider of that pool is in this state; what the pool admits is not stated and the grant is read as admitting everything",
+        "source": "google_service_account_iam_policy.release"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "unbound-member",
+        "Claim": "",
+        "Construct": "principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/legacy/*",
+        "Message": "the member principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/legacy/* names the pool projects/123456789012/locations/global/workloadIdentityPools/legacy, and no provider of that pool is in this state; what the pool admits is not stated and the grant is read as admitting everything",
+        "Source": "google_service_account_iam_policy.release"
+      },
+      {
+        "Kind": "unread-resource",
+        "Claim": "",
+        "Construct": "google_iam_workforce_pool_provider",
+        "Message": "the state holds 1 instance of google_iam_workforce_pool_provider, which resembles a trust-bearing resource this reader does not map; it was not read",
+        "Source": "state"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "state",
+        "Message": "google_service_account_iam_policy.release is read from the state, as Terraform last recorded it; the deployed resource was not fetched from the cloud",
+        "Source": "google_service_account_iam_policy.release"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/state",
+        "params": "{\"address\":\"google_service_account_iam_policy.release\",\"attributes\":[\"policy_data\"],\"format_version\":\"1.0\",\"id\":\"projects/acme-prod/serviceAccounts/release@acme-prod.iam.gserviceaccount.com\",\"service_account_id\":\"projects/acme-prod/serviceAccounts/release@acme-prod.iam.gserviceaccount.com\",\"source\":\"05-gcp-state/state.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "565984a157ed83b17196e0aa4936858d8fbb336d4f53f4502a06aa38686ae9a1",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"bindings\":[{\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/gitlab/attribute.namespace_path/acme\",\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/legacy/*\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}"
+      }
+    ],
+    "source": "{\"bindings\":[{\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/gitlab/attribute.namespace_path/acme\",\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/legacy/*\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}"
+  }
+]

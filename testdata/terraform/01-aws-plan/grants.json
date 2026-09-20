@@ -1,0 +1,727 @@
+[
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.collapsed"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{sub=like:\"repo:*\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.collapsed is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.collapsed"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.collapsed\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"collapsed\",\"source\":\"01-aws-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "fc849f60b23ce49deda933e15a34a41cdd1c34b28d6f2b8a5ea68fc4c1e4081a",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringLike\":{\"token.actions.githubusercontent.com:sub\":\"repo:*\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringLike\":{\"token.actions.githubusercontent.com:sub\":\"repo:*\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.conformance[\"01\"]"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"sts.amazonaws.com\", sub=\"repo:acme/infra:ref:refs/heads/main\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.conformance[\"01\"] is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.conformance[\"01\"]"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.conformance[\\\"01\\\"]\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"conformance-01\",\"source\":\"01-aws-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "fb8ec952769d0e15a7ec9570ab6ae405a7d004e1c8b5b2e322e82656be8a6360",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:ref:refs/heads/main\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"},\"Sid\":\"GitHubOneRepoOneBranch\"}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:ref:refs/heads/main\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"},\"Sid\":\"GitHubOneRepoOneBranch\"}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.conformance[\"02\"]"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"sts.amazonaws.com\", sub=like:\"repo:acme/infra:*\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.conformance[\"02\"] is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.conformance[\"02\"]"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.conformance[\\\"02\\\"]\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"conformance-02\",\"source\":\"01-aws-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "c4029d2e4192d694c50f7c9d03a3fe69ff6e7096c3fd763148a454fbcc64c525",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\"},\"StringLike\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:*\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"},\"Sid\":\"GitHubOneRepoAnyBranch\"}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\"},\"StringLike\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:*\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"},\"Sid\":\"GitHubOneRepoAnyBranch\"}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.conformance[\"03\"]"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"sts.amazonaws.com\", repository_owner_id=\"123456\", sub=like:\"repo:acme/*\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.conformance[\"03\"] is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.conformance[\"03\"]"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.conformance[\\\"03\\\"]\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"conformance-03\",\"source\":\"01-aws-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "3116a5057a266f98c1a5d11aa5265ee9ee6a5e4f3f8fd2b727a97adbe6f5ca3d",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:repository_owner_id\":\"123456\"},\"StringLike\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/*\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"},\"Sid\":\"GitHubWholeOrganisation\"}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:repository_owner_id\":\"123456\"},\"StringLike\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/*\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"},\"Sid\":\"GitHubWholeOrganisation\"}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.conformance[\"04\"]"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"sts.amazonaws.com\", sub=\"repo:acme@123456/infra@456789:ref:refs/heads/main\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.conformance[\"04\"] is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.conformance[\"04\"]"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.conformance[\\\"04\\\"]\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"conformance-04\",\"source\":\"01-aws-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "0c1ebc554336be5880e12fe7c0c30f30cf2a5ac77e645af599242b21b054f752",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme@123456/infra@456789:ref:refs/heads/main\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"},\"Sid\":\"GitHubImmutableSubject\"}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme@123456/infra@456789:ref:refs/heads/main\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"},\"Sid\":\"GitHubImmutableSubject\"}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.conformance[\"05\"]"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"sts.amazonaws.com\", repository_id=\"456789\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.conformance[\"05\"] is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.conformance[\"05\"]"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.conformance[\\\"05\\\"]\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"conformance-05\",\"source\":\"01-aws-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "279afe0651b6f400c0a33b8a2cd597037036ac0d0f07e0034993284cdbdf33f0",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:repository_id\":\"456789\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"},\"Sid\":\"GitHubRepositoryID\"}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:repository_id\":\"456789\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"},\"Sid\":\"GitHubRepositoryID\"}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.conformance[\"06\"]"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"sts.amazonaws.com\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.conformance[\"06\"] is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.conformance[\"06\"]"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.conformance[\\\"06\\\"]\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"conformance-06\",\"source\":\"01-aws-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "5d151e92dc119a2aa6a5ca3db57eac30561ec47a6e66ee68ca564741b9a1a6e6",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"},\"Sid\":\"GitHubUnconstrained\"}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"},\"Sid\":\"GitHubUnconstrained\"}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.conformance[\"07\"]"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"sts.amazonaws.com\", repository_id=\"456789\", sub=?(\"ForAllValues:StringLike\")}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "sub",
+        "reason": "ForAllValues:StringLike on sub passes when the claim is absent, so it does not restrict what it looks like it restricts",
+        "source": "statement[0].Condition"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "unmodelled-construct",
+        "Claim": "sub",
+        "Construct": "ForAllValues:StringLike",
+        "Message": "ForAllValues:StringLike on sub passes when the claim is absent, so it does not restrict what it looks like it restricts",
+        "Source": "statement[0].Condition"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.conformance[\"07\"] is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.conformance[\"07\"]"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.conformance[\\\"07\\\"]\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"conformance-07\",\"source\":\"01-aws-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "75a97d0fcfc04692ed70fdcccfcdae1346629926fd396f4374e68e2707e7d91e",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"ForAllValues:StringLike\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:*\"},\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:repository_id\":\"456789\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"},\"Sid\":\"GitHubForAllValues\"}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"ForAllValues:StringLike\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:*\"},\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:repository_id\":\"456789\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"},\"Sid\":\"GitHubForAllValues\"}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.counted[0]"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{sub=\"repo:acme/infra:environment:env-0\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.counted[0] is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.counted[0]"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.counted[0]\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"counted-0\",\"source\":\"01-aws-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "3a3082f7f1f2499b027ade5fc2efc9aaa786eb832fccfbf79938355e24ecef07",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:environment:env-0\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:environment:env-0\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.counted[1]"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{sub=\"repo:acme/infra:environment:env-1\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.counted[1] is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.counted[1]"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.counted[1]\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"counted-1\",\"source\":\"01-aws-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "5c6e31a720d68f16d9c7e613c6827f9ecea99b5b964ddc70a19eedc887566efe",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:environment:env-1\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:environment:env-1\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.deferred"
+    },
+    "issuer": "",
+    "effect": "Allow",
+    "admits": "{}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "assume_role_policy of aws_iam_role.deferred is known only after apply; the expression references data.aws_iam_policy_document.deferred.json, and the data document data.aws_iam_policy_document.deferred is itself read only after apply, so what the grant admits is not stated and it is read as admitting everything",
+        "source": "aws_iam_role.deferred"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "known-after-apply",
+        "Claim": "",
+        "Construct": "assume_role_policy",
+        "Message": "assume_role_policy of aws_iam_role.deferred is known only after apply; the expression references data.aws_iam_policy_document.deferred.json, and the data document data.aws_iam_policy_document.deferred is itself read only after apply, so what the grant admits is not stated and it is read as admitting everything",
+        "Source": "aws_iam_role.deferred"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.deferred is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.deferred"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.deferred\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"deferred\",\"source\":\"01-aws-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "deae5927f6e72fc92cbcfc053f1da3460fb3fb02ac72261d7002634b4646b2bb",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"references\":[\"data.aws_iam_policy_document.deferred.json\"],\"unknown\":[\"assume_role_policy\"]}"
+      }
+    ],
+    "source": "{\"references\":[\"data.aws_iam_policy_document.deferred.json\"],\"unknown\":[\"assume_role_policy\"]}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.fromdoc"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{sub=(like:\"repo:acme/*\" | like:\"repo:acme/infra:*\")}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.fromdoc is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.fromdoc"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.fromdoc\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"fromdoc\",\"source\":\"01-aws-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "b2993ce8004ec3ff628a8dbd6af42261279fafedc3354eb797cde2c4d23f0bf8",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringLike\":{\"token.actions.githubusercontent.com:sub\":[\"repo:acme/*\",\"repo:acme/infra:*\"]}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringLike\":{\"token.actions.githubusercontent.com:sub\":[\"repo:acme/*\",\"repo:acme/infra:*\"]}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.heredoc"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{sub=\"repo:acme/infra:ref:refs/heads/main\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.heredoc is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.heredoc"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.heredoc\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"heredoc\",\"source\":\"01-aws-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "754f964b845b9570cb3dc4d1819ac107c42a95375edc0a65df44552700b45331",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:ref:refs/heads/main\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:ref:refs/heads/main\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.known"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"sts.amazonaws.com\", sub=like:\"repo:acme/*\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.known is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.known"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.known\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"known\",\"source\":\"01-aws-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "ddba919cb663ea5db604ffe4469d566e990dddc3bd8b899b5a35c28da1aefaf2",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\"},\"StringLike\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/*\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\"},\"StringLike\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/*\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.marked"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{sub=\"repo:acme/secret:ref:refs/heads/main\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "sensitive-value",
+        "Claim": "",
+        "Construct": "assume_role_policy",
+        "Message": "assume_role_policy of aws_iam_role.marked is marked sensitive; it was read and evaluated, and is not quoted: the evidence carries its digest",
+        "Source": "aws_iam_role.marked"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.marked is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.marked"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.marked\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"marked\",\"source\":\"01-aws-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "f96e0f205b08030d77c569e6f0aafb5969a59eb03757356375836c08f0a385b6",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"sensitive\":[\"assume_role_policy\"],\"sha256\":\"fc91a2b92be8339dfa4b00ef9fe69c69d8025c1d7df44567d900d693c88b7edf\"}"
+      }
+    ],
+    "source": "{\"sensitive\":[\"assume_role_policy\"],\"sha256\":\"fc91a2b92be8339dfa4b00ef9fe69c69d8025c1d7df44567d900d693c88b7edf\"}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.transformed"
+    },
+    "issuer": "",
+    "effect": "Allow",
+    "admits": "{}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "assume_role_policy of aws_iam_role.transformed is known only after apply; the expression references data.aws_iam_policy_document.doc.json and aws_iam_openid_connect_provider.gh.arn, so what the grant admits is not stated and it is read as admitting everything",
+        "source": "aws_iam_role.transformed"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "known-after-apply",
+        "Claim": "",
+        "Construct": "assume_role_policy",
+        "Message": "assume_role_policy of aws_iam_role.transformed is known only after apply; the expression references data.aws_iam_policy_document.doc.json and aws_iam_openid_connect_provider.gh.arn, so what the grant admits is not stated and it is read as admitting everything",
+        "Source": "aws_iam_role.transformed"
+      },
+      {
+        "Kind": "rendered-document",
+        "Claim": "",
+        "Construct": "data.aws_iam_policy_document.doc",
+        "Message": "the expression references data.aws_iam_policy_document.doc, whose json the plan rendered before apply; the rendering is attached as evidence, and assume_role_policy of aws_iam_role.transformed may differ from it",
+        "Source": "aws_iam_role.transformed"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.transformed is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.transformed"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.transformed\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"transformed\",\"source\":\"01-aws-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "2b0b85f6a51c83ecb0123879cc7b1136849ec6c18c240a4e6a03d352feff3bed",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"references\":[\"data.aws_iam_policy_document.doc.json\",\"aws_iam_openid_connect_provider.gh.arn\"],\"unknown\":[\"assume_role_policy\"]}"
+      },
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"data.aws_iam_policy_document.doc\",\"attributes\":[\"json\"],\"format_version\":\"1.2\",\"from\":\"prior_state\",\"rendering_for\":\"aws_iam_role.transformed\",\"source\":\"01-aws-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "57007ef1ae74d7ec4a1d55191ff6e2c644f6e48e285fa682793c7e908321d9d1",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": \"sts:AssumeRoleWithWebIdentity\",\n      \"Principal\": {\n        \"Federated\": \"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"\n      },\n      \"Condition\": {\n        \"StringLike\": {\n          \"token.actions.githubusercontent.com:sub\": [\n            \"repo:acme/*\",\n            \"repo:acme/infra:*\"\n          ]\n        }\n      }\n    }\n  ]\n}"
+      }
+    ],
+    "source": "{\"references\":[\"data.aws_iam_policy_document.doc.json\",\"aws_iam_openid_connect_provider.gh.arn\"],\"unknown\":[\"assume_role_policy\"]}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.unknown"
+    },
+    "issuer": "",
+    "effect": "Allow",
+    "admits": "{}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "assume_role_policy of aws_iam_role.unknown is known only after apply; the expression references aws_iam_openid_connect_provider.gh.arn and local.sub, so what the grant admits is not stated and it is read as admitting everything",
+        "source": "aws_iam_role.unknown"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "known-after-apply",
+        "Claim": "",
+        "Construct": "assume_role_policy",
+        "Message": "assume_role_policy of aws_iam_role.unknown is known only after apply; the expression references aws_iam_openid_connect_provider.gh.arn and local.sub, so what the grant admits is not stated and it is read as admitting everything",
+        "Source": "aws_iam_role.unknown"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.unknown is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.unknown"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.unknown\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"unknown\",\"source\":\"01-aws-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "62f3a6235c14b3b23aa65b6eb1bf21c44fb3d6bda7aa259cd52de09214cb6b90",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"references\":[\"aws_iam_openid_connect_provider.gh.arn\",\"local.sub\"],\"unknown\":[\"assume_role_policy\"]}"
+      }
+    ],
+    "source": "{\"references\":[\"aws_iam_openid_connect_provider.gh.arn\",\"local.sub\"],\"unknown\":[\"assume_role_policy\"]}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "module.ci[0].aws_iam_role.runner[\"build\"]"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{sub=\"repo:acme/infra:environment:build\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "module.ci[0].aws_iam_role.runner[\"build\"] is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "module.ci[0].aws_iam_role.runner[\"build\"]"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"module.ci[0].aws_iam_role.runner[\\\"build\\\"]\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"acme-build\",\"source\":\"01-aws-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "9b9b72026b7c4113662196a6ea327f4ccfa59134f9fa4ccca64f02814ca916ad",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:environment:build\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:environment:build\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "module.ci[0].aws_iam_role.runner[\"release\"]"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{sub=\"repo:acme/infra:environment:release\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "module.ci[0].aws_iam_role.runner[\"release\"] is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "module.ci[0].aws_iam_role.runner[\"release\"]"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"module.ci[0].aws_iam_role.runner[\\\"release\\\"]\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"acme-release\",\"source\":\"01-aws-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "0356fca4225f5562af18d80fccf6207d8dea3e5f8e563e20530e46efcfd94e8d",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:environment:release\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:environment:release\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "module.ci[1].aws_iam_role.runner[\"build\"]"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{sub=\"repo:acme/infra:environment:build\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "module.ci[1].aws_iam_role.runner[\"build\"] is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "module.ci[1].aws_iam_role.runner[\"build\"]"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"module.ci[1].aws_iam_role.runner[\\\"build\\\"]\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"acme-build\",\"source\":\"01-aws-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "9b9b72026b7c4113662196a6ea327f4ccfa59134f9fa4ccca64f02814ca916ad",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:environment:build\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:environment:build\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "module.ci[1].aws_iam_role.runner[\"release\"]"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{sub=\"repo:acme/infra:environment:release\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "module.ci[1].aws_iam_role.runner[\"release\"] is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "module.ci[1].aws_iam_role.runner[\"release\"]"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"module.ci[1].aws_iam_role.runner[\\\"release\\\"]\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"acme-release\",\"source\":\"01-aws-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "0356fca4225f5562af18d80fccf6207d8dea3e5f8e563e20530e46efcfd94e8d",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:environment:release\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:environment:release\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}"
+  }
+]

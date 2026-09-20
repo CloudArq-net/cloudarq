@@ -1,0 +1,415 @@
+[
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.counted[0]"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"sts.amazonaws.com\", sub=\"repo:acme/infra:environment:env-0\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "unread-resource",
+        "Claim": "",
+        "Construct": "awscc_iam_role",
+        "Message": "the state holds 1 instance of awscc_iam_role, which resembles a trust-bearing resource this reader does not map; it was not read",
+        "Source": "state"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "state",
+        "Message": "aws_iam_role.counted[0] is read from the state, as Terraform last recorded it; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.counted[0]"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/state",
+        "params": "{\"address\":\"aws_iam_role.counted[0]\",\"arn\":\"arn:aws:iam::123456789012:role/counted-0\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.0\",\"name\":\"counted-0\",\"source\":\"04-aws-state/state.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "51c6f77d235ed7427b65f13b5a5ec6742305ed47f6a6a73d557bab52ad2651be",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:environment:env-0\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:environment:env-0\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.counted[1]"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"sts.amazonaws.com\", sub=\"repo:acme/infra:environment:env-1\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "unread-resource",
+        "Claim": "",
+        "Construct": "awscc_iam_role",
+        "Message": "the state holds 1 instance of awscc_iam_role, which resembles a trust-bearing resource this reader does not map; it was not read",
+        "Source": "state"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "state",
+        "Message": "aws_iam_role.counted[1] is read from the state, as Terraform last recorded it; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.counted[1]"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/state",
+        "params": "{\"address\":\"aws_iam_role.counted[1]\",\"arn\":\"arn:aws:iam::123456789012:role/counted-1\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.0\",\"name\":\"counted-1\",\"source\":\"04-aws-state/state.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "567904fcf1c93fff40dfcb6133a9544ecedbd3a970e683fe550076a6b1989a08",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:environment:env-1\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:environment:env-1\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.deploy"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"sts.amazonaws.com\", sub=\"repo:acme/infra:ref:refs/heads/main\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "unread-resource",
+        "Claim": "",
+        "Construct": "awscc_iam_role",
+        "Message": "the state holds 1 instance of awscc_iam_role, which resembles a trust-bearing resource this reader does not map; it was not read",
+        "Source": "state"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "state",
+        "Message": "aws_iam_role.deploy is read from the state, as Terraform last recorded it; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.deploy"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/state",
+        "params": "{\"address\":\"aws_iam_role.deploy\",\"arn\":\"arn:aws:iam::123456789012:role/deploy\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.0\",\"name\":\"deploy\",\"source\":\"04-aws-state/state.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "cc1710252fed80937d623452bace2b4ece6e893b955f251f1f8d43528cd87c4a",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:ref:refs/heads/main\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:ref:refs/heads/main\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.legacy"
+    },
+    "issuer": "",
+    "effect": "Allow",
+    "admits": "{}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "assume_role_policy of aws_iam_role.legacy is absent from the state, which Terraform writes for a value that is unset or unknown; what the grant admits is not stated and it is read as admitting everything",
+        "source": "aws_iam_role.legacy"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "absent-attribute",
+        "Claim": "",
+        "Construct": "assume_role_policy",
+        "Message": "assume_role_policy of aws_iam_role.legacy is absent from the state, which Terraform writes for a value that is unset or unknown; what the grant admits is not stated and it is read as admitting everything",
+        "Source": "aws_iam_role.legacy"
+      },
+      {
+        "Kind": "unread-resource",
+        "Claim": "",
+        "Construct": "awscc_iam_role",
+        "Message": "the state holds 1 instance of awscc_iam_role, which resembles a trust-bearing resource this reader does not map; it was not read",
+        "Source": "state"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "state",
+        "Message": "aws_iam_role.legacy is read from the state, as Terraform last recorded it; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.legacy"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/state",
+        "params": "{\"address\":\"aws_iam_role.legacy\",\"arn\":\"arn:aws:iam::123456789012:role/legacy\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.0\",\"name\":\"legacy\",\"source\":\"04-aws-state/state.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "4e9ebeba8293c29c397d8aa7fba47742615bed211c1477e258517a619360adaf",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"absent\":[\"assume_role_policy\"]}"
+      }
+    ],
+    "source": "{\"absent\":[\"assume_role_policy\"]}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.marked"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"sts.amazonaws.com\", sub=\"repo:acme/secret:ref:refs/heads/main\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "sensitive-value",
+        "Claim": "",
+        "Construct": "assume_role_policy",
+        "Message": "assume_role_policy of aws_iam_role.marked is marked sensitive; it was read and evaluated, and is not quoted: the evidence carries its digest",
+        "Source": "aws_iam_role.marked"
+      },
+      {
+        "Kind": "unread-resource",
+        "Claim": "",
+        "Construct": "awscc_iam_role",
+        "Message": "the state holds 1 instance of awscc_iam_role, which resembles a trust-bearing resource this reader does not map; it was not read",
+        "Source": "state"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "state",
+        "Message": "aws_iam_role.marked is read from the state, as Terraform last recorded it; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.marked"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/state",
+        "params": "{\"address\":\"aws_iam_role.marked\",\"arn\":\"arn:aws:iam::123456789012:role/marked\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.0\",\"name\":\"marked\",\"source\":\"04-aws-state/state.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "93eff73ffe9a8dc22f0fb0f06c23c02df4ef310f401f13a702e693a9c20c41df",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"sensitive\":[\"assume_role_policy\"],\"sha256\":\"3e5b4e6b96ce169625b9c10d4aa80658fecc0fcb8038f7f8b80fd3c284f03855\"}"
+      }
+    ],
+    "source": "{\"sensitive\":[\"assume_role_policy\"],\"sha256\":\"3e5b4e6b96ce169625b9c10d4aa80658fecc0fcb8038f7f8b80fd3c284f03855\"}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.nulled"
+    },
+    "issuer": "",
+    "effect": "Allow",
+    "admits": "{}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "assume_role_policy of aws_iam_role.nulled is absent from the state, which Terraform writes for a value that is unset or unknown; what the grant admits is not stated and it is read as admitting everything",
+        "source": "aws_iam_role.nulled"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "absent-attribute",
+        "Claim": "",
+        "Construct": "assume_role_policy",
+        "Message": "assume_role_policy of aws_iam_role.nulled is absent from the state, which Terraform writes for a value that is unset or unknown; what the grant admits is not stated and it is read as admitting everything",
+        "Source": "aws_iam_role.nulled"
+      },
+      {
+        "Kind": "unread-resource",
+        "Claim": "",
+        "Construct": "awscc_iam_role",
+        "Message": "the state holds 1 instance of awscc_iam_role, which resembles a trust-bearing resource this reader does not map; it was not read",
+        "Source": "state"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "state",
+        "Message": "aws_iam_role.nulled is read from the state, as Terraform last recorded it; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.nulled"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/state",
+        "params": "{\"address\":\"aws_iam_role.nulled\",\"arn\":\"arn:aws:iam::123456789012:role/nulled\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.0\",\"name\":\"nulled\",\"source\":\"04-aws-state/state.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "4e9ebeba8293c29c397d8aa7fba47742615bed211c1477e258517a619360adaf",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"absent\":[\"assume_role_policy\"]}"
+      }
+    ],
+    "source": "{\"absent\":[\"assume_role_policy\"]}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "module.ci[0].aws_iam_role.runner[\"build\"]"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"sts.amazonaws.com\", sub=\"repo:acme/infra:environment:build\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "unread-resource",
+        "Claim": "",
+        "Construct": "awscc_iam_role",
+        "Message": "the state holds 1 instance of awscc_iam_role, which resembles a trust-bearing resource this reader does not map; it was not read",
+        "Source": "state"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "state",
+        "Message": "module.ci[0].aws_iam_role.runner[\"build\"] is read from the state, as Terraform last recorded it; the deployed resource was not fetched from the cloud",
+        "Source": "module.ci[0].aws_iam_role.runner[\"build\"]"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/state",
+        "params": "{\"address\":\"module.ci[0].aws_iam_role.runner[\\\"build\\\"]\",\"arn\":\"arn:aws:iam::123456789012:role/acme-build\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.0\",\"name\":\"acme-build\",\"source\":\"04-aws-state/state.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "891ec085644e7948b96a9513e94588b1504bbefb07a6858f7f36d476b97bbb5e",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:environment:build\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:environment:build\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "module.ci[0].aws_iam_role.runner[\"release\"]"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"sts.amazonaws.com\", sub=\"repo:acme/infra:environment:release\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "unread-resource",
+        "Claim": "",
+        "Construct": "awscc_iam_role",
+        "Message": "the state holds 1 instance of awscc_iam_role, which resembles a trust-bearing resource this reader does not map; it was not read",
+        "Source": "state"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "state",
+        "Message": "module.ci[0].aws_iam_role.runner[\"release\"] is read from the state, as Terraform last recorded it; the deployed resource was not fetched from the cloud",
+        "Source": "module.ci[0].aws_iam_role.runner[\"release\"]"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/state",
+        "params": "{\"address\":\"module.ci[0].aws_iam_role.runner[\\\"release\\\"]\",\"arn\":\"arn:aws:iam::123456789012:role/acme-release\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.0\",\"name\":\"acme-release\",\"source\":\"04-aws-state/state.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "0c1f03577acbc6281a58515fe341f842a9cab3385bbe74c91d9fadad6f5da1af",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:environment:release\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:environment:release\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "module.ci[1].aws_iam_role.runner[\"build\"]"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"sts.amazonaws.com\", sub=\"repo:acme/web:environment:build\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "unread-resource",
+        "Claim": "",
+        "Construct": "awscc_iam_role",
+        "Message": "the state holds 1 instance of awscc_iam_role, which resembles a trust-bearing resource this reader does not map; it was not read",
+        "Source": "state"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "state",
+        "Message": "module.ci[1].aws_iam_role.runner[\"build\"] is read from the state, as Terraform last recorded it; the deployed resource was not fetched from the cloud",
+        "Source": "module.ci[1].aws_iam_role.runner[\"build\"]"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/state",
+        "params": "{\"address\":\"module.ci[1].aws_iam_role.runner[\\\"build\\\"]\",\"arn\":\"arn:aws:iam::123456789012:role/acme-build-1\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.0\",\"name\":\"acme-build-1\",\"source\":\"04-aws-state/state.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "4fa392383c1176c7988327e9eff33ecf2f480872babb51302235eae4429e916e",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/web:environment:build\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/web:environment:build\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "module.ci[1].module.inner.aws_iam_role.deep"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{sub=like:\"repo:acme/deep:*\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "unread-resource",
+        "Claim": "",
+        "Construct": "awscc_iam_role",
+        "Message": "the state holds 1 instance of awscc_iam_role, which resembles a trust-bearing resource this reader does not map; it was not read",
+        "Source": "state"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "state",
+        "Message": "module.ci[1].module.inner.aws_iam_role.deep is read from the state, as Terraform last recorded it; the deployed resource was not fetched from the cloud",
+        "Source": "module.ci[1].module.inner.aws_iam_role.deep"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/state",
+        "params": "{\"address\":\"module.ci[1].module.inner.aws_iam_role.deep\",\"arn\":\"arn:aws:iam::123456789012:role/deep\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.0\",\"name\":\"deep\",\"source\":\"04-aws-state/state.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "c369474993d57bbef3febeaf4ebb9f159f9dcd22ec0e18cf4069a586aae2e56a",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringLike\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/deep:*\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringLike\":{\"token.actions.githubusercontent.com:sub\":\"repo:acme/deep:*\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}"
+  }
+]
