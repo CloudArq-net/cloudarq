@@ -53,7 +53,9 @@ make cover     # internal/eval must be 100%
 
 ## Reading order
 
-`docs/ARCHITECTURE.md` — the layers and why each is shaped that way.
+1. `docs/PROCESS.md` — how work gets done: the passes, the gates, the definition of done.
+2. `docs/ENGINEERING.md` — the technical rules. Every rule names the cost of breaking it.
+3. `docs/ARCHITECTURE.md` — the layers and why each is shaped that way.
 
 ## Licence
 
