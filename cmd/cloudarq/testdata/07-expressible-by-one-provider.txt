@@ -1,0 +1,28 @@
+read as an aws trust policy · version 2012-10-17 · 634 bytes · 22 lines · 1 statement
+sha256 fb0a68ba10c0f09da3162efb7935334565703e78c27e375f6ba86736572f46f8
+
+grant 1 of 1 · statement[0] "GitHubForAllValues" · Allow · https://token.actions.githubusercontent.com
+This role admits any token from token.actions.githubusercontent.com whose aud is sts.amazonaws.com, whose repository_id is 456789 and whose sub was not evaluated, so the set shown is an upper bound.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS                        IN WORDS · AS WRITTEN
+aud              "sts.amazonaws.com"           exactly this audience · line 13 StringEquals
+repository_id    "456789"                      exactly this value · line 14 StringEquals
+sub              ?("ForAllValues:StringLike")  not evaluated · note 1 · line 17 ForAllValues:StringLike
+any other claim  any                           unconstrained · no condition names it
+
+notes
+  1  ForAllValues:StringLike on sub passes when the claim is absent, so it does not restrict what it looks like it restricts
+     caveat · sub · statement[0].Condition
+  2  ForAllValues:StringLike on sub passes when the claim is absent, so it does not restrict what it looks like it restricts
+     anomaly · unmodelled-construct · sub · ForAllValues:StringLike · statement[0].Condition
+
+a token this grant admits
+  {
+    "iss": "https://token.actions.githubusercontent.com",
+    "aud": "sts.amazonaws.com",
+    "repository_id": "456789"
+  }
+The decoded payload. A claim not shown and not named by the grant is unconstrained; sub is not shown because it was not evaluated, so whether it excludes a token is not decided here.
+
+statement[0] "GitHubForAllValues" · offset 50 · 577 bytes · lines 4-20 · issuer at line 8 Principal.Federated · sha256 afa3bdcbdcca1a0771a938eecbc85a88a6f9d8e3f195f80f36c5a6a2b3296540

@@ -1,0 +1,21 @@
+read as an aws trust policy · version 2012-10-17 · 552 bytes · 21 lines · 1 statement
+sha256 59e64b5fb092aa7a0a8f073d11e3077817087c77e4d61a39104ec6f953325e65
+
+grant 1 of 1 · statement[0] "GitHubOneRepoAnyBranch" · Allow · https://token.actions.githubusercontent.com
+This role admits any token from token.actions.githubusercontent.com whose aud is sts.amazonaws.com and whose sub matches repo:acme/infra:*.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM            ADMITS                    IN WORDS · AS WRITTEN
+aud              "sts.amazonaws.com"       exactly this audience · line 13 StringEquals
+sub              like:"repo:acme/infra:*"  any subject beginning repo:acme/infra: · line 16 StringLike
+any other claim  any                       unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "iss": "https://token.actions.githubusercontent.com",
+    "aud": "sts.amazonaws.com",
+    "sub": "repo:acme/infra:"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant.
+
+statement[0] "GitHubOneRepoAnyBranch" · offset 50 · 495 bytes · lines 4-19 · issuer at line 8 Principal.Federated · sha256 00825bb4a66abd83707a3d6509007fdfba7e07d8e9f7e9b8c58f721dc8288a7b

@@ -30,7 +30,7 @@ echo "── build ──"
 # web/wasm/target.json is TinyGo's wasm target with a 1 MB linear-memory
 # stack in place of the toolchain's 64 KB: the readers recurse once per
 # nesting level, the entry refuses a document at 1000 levels and a token at
-# 500 (web/wasm/answer/nesting.go states the trap depths those sit under),
+# 500 (internal/report/nesting.go states the trap depths those sit under),
 # and the small stack overflowed at 125. The second build, on the stock
 # target, is the fixture that proves the glue recovers from a trap; it is
 # not shipped.
@@ -100,7 +100,7 @@ const rule = (name, paths, pattern, allowed = () => false) => {
   if (hits.length) broken++;
 };
 
-// the Makefile's css target greps every file under web/ for the same idioms,
+// the Makefile css target greps every file under web/ for the same idioms,
 // this script included, so the words are spelt with a character class here:
 // the pattern still matches them in the page, and this file never carries them
 rule("no decoration", page, /gr[a]dient|blur-\[|backdrop-f[i]lter|cyb[e]r-|drop-sh[a]dow|box-sh[a]dow|border-radius: *([4-9]|[1-9][0-9])px/);

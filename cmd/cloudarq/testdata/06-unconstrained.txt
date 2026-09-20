@@ -1,0 +1,20 @@
+read as an aws trust policy · version 2012-10-17 · 441 bytes · 18 lines · 1 statement
+sha256 45a919f7a7aff68d1536ef05a469f721a8b209527c9f7c24720959eeab4c4a76
+
+grant 1 of 1 · statement[0] "GitHubUnconstrained" · Allow · https://token.actions.githubusercontent.com
+This role admits every identity token.actions.githubusercontent.com issues a token to, whoever holds it: the only claim named is aud, and an audience is not a boundary.
+Exact means the set is known exactly, not that it is small: no construct went unevaluated.
+
+CLAIM            ADMITS               IN WORDS · AS WRITTEN
+aud              "sts.amazonaws.com"  exactly this audience · line 13 StringEquals
+sub              any                  any subject · no condition names it
+any other claim  any                  unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "iss": "https://token.actions.githubusercontent.com",
+    "aud": "sts.amazonaws.com"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant, and none of the claims shown names an identity: whoever holds a token like this is admitted.
+
+statement[0] "GitHubUnconstrained" · offset 50 · 384 bytes · lines 4-16 · issuer at line 8 Principal.Federated · sha256 8f2161ff1dc8a8d486dcfc196b38ba57bcba5aa4f979869901e1cef3cf505ee3

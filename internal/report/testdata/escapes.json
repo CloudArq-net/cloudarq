@@ -1,0 +1,29 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "Erase\u001b[2KThisLine\u0007",
+      "Effect": "Allow",
+      "Principal": { "Federated": "token.actions.githubusercontent.com" },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+          "token.actions.githubusercontent.com:sub": "repo:acme/\u001b[31minfra:ref:refs/heads/main",
+          "token.actions.githubusercontent.com:runner\u001b[1menvironment": "github-hosted"
+        }
+      }
+    },
+    {
+      "Sid": "AnOperatorNobodyModels",
+      "Effect": "Allow",
+      "Principal": { "Federated": "token.actions.githubusercontent.com" },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "String\u001b[7mLike": {
+          "token.actions.githubusercontent.com:sub": "repo:acme/*"
+        }
+      }
+    }
+  ]
+}

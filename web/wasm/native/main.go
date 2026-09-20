@@ -13,7 +13,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/CloudArq-net/cloudarq/web/wasm/answer"
+	"github.com/CloudArq-net/cloudarq/internal/report"
 )
 
 func main() {
@@ -33,7 +33,7 @@ func run(args []string) error {
 	}
 	switch args[0] {
 	case "admits":
-		_, err = os.Stdout.Write(answer.Admits(policy))
+		_, err = os.Stdout.Write(report.Admits(policy))
 		return err
 	case "explain":
 		if len(args) < 3 {
@@ -43,7 +43,7 @@ func run(args []string) error {
 		if err != nil {
 			return err
 		}
-		_, err = os.Stdout.Write(answer.Explain(policy, token))
+		_, err = os.Stdout.Write(report.Explain(policy, token))
 		return err
 	}
 	return fmt.Errorf("unknown command %q", args[0])

@@ -1,4 +1,4 @@
-package answer
+package report
 
 import (
 	"bytes"
@@ -16,7 +16,7 @@ import (
 	"github.com/CloudArq-net/cloudarq/internal/trust"
 )
 
-const testdata = "../../../testdata"
+const testdata = "../../testdata"
 
 // corpus is every AWS document under testdata, by path.
 func corpus(t *testing.T) map[string][]byte {
@@ -416,7 +416,7 @@ func TestDocumentAnomaliesAreCarried(t *testing.T) {
 	}
 }
 
-func TestRenderingIsDeterministic(t *testing.T) {
+func TestDeterminismOfTheRendering(t *testing.T) {
 	docs := corpus(t)
 	token := []byte(`{"iss":"https://token.actions.githubusercontent.com","aud":"sts.amazonaws.com","sub":"repo:acme/infra:ref:refs/heads/main","repository_id":"456789","repository_owner_id":"123456"}`)
 	for path, raw := range docs {
@@ -539,6 +539,19 @@ func TestADocumentBeyondTheBoundIsAnsweredNotRead(t *testing.T) {
 	}
 	if e := explanationFor(t, beyond, []byte(`{}`)); e.Error != a.Error {
 		t.Errorf("explain reads a document admits refused: %+v", e)
+	}
+	// The bound is on the bytes the engine was handed, not on what is left
+	// of them after trimming. Every offset, line number and digest in the
+	// answer is into these exact bytes, the reader holds all of them
+	// whichever ones end the file, and the sentence names the size the
+	// reader can check with wc: a bound read off a trimmed length would let
+	// a document four bytes past it through and then say it was 262,148.
+	whitespace := append(padded(MaxDocumentBytes), " \n\n\n"...)
+	if len(whitespace) != MaxDocumentBytes+4 {
+		t.Fatalf("the padded document is %d bytes", len(whitespace))
+	}
+	if a := answerFor(t, whitespace); a.Error != "the document is 262148 bytes; the engine reads up to 262144, and AWS accepts a role trust policy of at most 8192 characters" {
+		t.Errorf("a document whose four bytes past the bound are whitespace: %+v", a.Error)
 	}
 	paddedToken := func(n int) []byte { return []byte(`{"sub":"` + strings.Repeat("b", n-10) + `"}`) }
 	if len(paddedToken(MaxTokenBytes)) != MaxTokenBytes {

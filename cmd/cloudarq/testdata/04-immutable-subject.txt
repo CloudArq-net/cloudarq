@@ -1,0 +1,21 @@
+read as an aws trust policy · version 2012-10-17 · 550 bytes · 19 lines · 1 statement
+sha256 bb1a0aaa3bf4e977a4e2aed13409eabab097b69327245269b5fd9a9fda12ce7c
+
+grant 1 of 1 · statement[0] "GitHubImmutableSubject" · Allow · https://token.actions.githubusercontent.com
+This role admits any token from token.actions.githubusercontent.com whose aud is sts.amazonaws.com and whose sub is repo:acme@123456/infra@456789:ref:refs/heads/main.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM            ADMITS                                               IN WORDS · AS WRITTEN
+aud              "sts.amazonaws.com"                                  exactly this audience · line 13 StringEquals
+sub              "repo:acme@123456/infra@456789:ref:refs/heads/main"  exactly this subject · line 14 StringEquals
+any other claim  any                                                  unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "iss": "https://token.actions.githubusercontent.com",
+    "aud": "sts.amazonaws.com",
+    "sub": "repo:acme@123456/infra@456789:ref:refs/heads/main"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant.
+
+statement[0] "GitHubImmutableSubject" · offset 50 · 493 bytes · lines 4-17 · issuer at line 8 Principal.Federated · sha256 5d7400606f03c0523588c65f1c649ba498adaf638d6d3815599a69b318937751

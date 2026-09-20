@@ -1,18 +1,21 @@
-// Package answer renders what the explorer shows: the grants of a trust
-// policy and, for a token, why each grant admits or rejects it, as JSON the
-// page prints verbatim. It is the one place the page's words are composed,
-// so that the same engine and the same sentences reach the CLI later, and
-// so that the page itself evaluates nothing.
+// Package report renders what the explorer shows and what the command
+// prints: the grants of a trust policy and, for a token, why each grant
+// admits or rejects it, as JSON the page prints verbatim and as text for a
+// terminal. It is the one place those words are composed, so that the page
+// and the command say the same sentence about the same document, and so
+// that the page itself evaluates nothing. It is the rendering layer of
+// docs/ENGINEERING.md section 1, and reaches no IO.
 //
 // Both entry points are total. A policy that cannot be read, or a token
 // that cannot, is stated in the answer rather than returned as an error,
 // because the page shows the reason in the same pane as any other answer.
-package answer
+package report
 
 import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"maps"
 	"slices"
@@ -62,6 +65,11 @@ type Answer struct {
 	Error    string    `json:"error,omitempty"`
 	Document *Document `json:"document,omitempty"`
 	Grants   []Grant   `json:"grants"`
+	// beyondABound records that Error is one of the engine's bounds rather
+	// than a reading of the bytes. It is not part of the schema: the page
+	// prints the sentence and nothing more, and the terminal rendering is
+	// the only surface that adds a second one to it.
+	beyondABound bool
 }
 
 // Document is the pasted document as the engine read it.
@@ -72,6 +80,12 @@ type Document struct {
 	Version    string      `json:"version"`
 	Statements []Statement `json:"statements"`
 	Anomalies  []Note      `json:"anomalies"`
+	// membersOutsideTheGrammar reports that a top-level member the IAM
+	// policy grammar does not define was read as a statement. The parser
+	// says so of each such member in that statement's own note, which is
+	// what the schema carries; this is the document-wide fact the terminal
+	// rendering states once, above the grants.
+	membersOutsideTheGrammar bool
 }
 
 // Statement locates one statement in the document: its bytes, so that the
@@ -175,7 +189,7 @@ func admits(policy []byte) Answer {
 	a := Answer{V: Version, Grants: []Grant{}}
 	r, err := readPolicy(policy)
 	if err != nil {
-		a.Error = err.Error()
+		a.Error, a.beyondABound = err.Error(), beyondABound(err)
 		return a
 	}
 	a.Document = r.document()
@@ -201,10 +215,10 @@ type reading struct {
 
 func readPolicy(policy []byte) (reading, error) {
 	if len(policy) > MaxDocumentBytes {
-		return reading{}, fmt.Errorf("the document is %d bytes; the engine reads up to %d, and AWS accepts a role trust policy of at most 8192 characters", len(policy), MaxDocumentBytes)
+		return reading{}, bounded{fmt.Errorf("the document is %d bytes; the engine reads up to %d, and AWS accepts a role trust policy of at most 8192 characters", len(policy), MaxDocumentBytes)}
 	}
 	if err := nesting(policy, MaxDocumentNesting, "document"); err != nil {
-		return reading{}, err
+		return reading{}, bounded{err}
 	}
 	d, err := aws.ParseTrustPolicy(policy)
 	if err != nil {
@@ -225,6 +239,21 @@ func readPolicy(policy []byte) (reading, error) {
 	return r, nil
 }
 
+// bounded marks a refusal about how much there is rather than about what
+// the bytes are: a document longer or deeper than the engine reads is
+// turned away before any reader sees one of them. The two classes read
+// alike in the answer — both are a sentence in Error — and the terminal
+// rendering has to tell them apart, because the sentence it adds to a
+// refusal says which dialects have a reader at all, and that is a question
+// a bound refusal never reached.
+type bounded struct{ error }
+
+// beyondABound reports whether a refusal is one of the engine's bounds.
+func beyondABound(err error) bool {
+	var b bounded
+	return errors.As(err, &b)
+}
+
 // statementOf finds the statement a grant came from. The engine sorts its
 // grants by what they mean and keeps no index, but a grant's Source is the
 // statement's own slice of the parser's copy of the input, so the two are
@@ -241,12 +270,13 @@ func statementOf(g trust.Grant, d aws.Document) (int, bool) {
 
 func (r reading) document() *Document {
 	doc := &Document{
-		Bytes:      len(r.raw),
-		Lines:      lines(r.raw),
-		SHA256:     digest(r.raw),
-		Version:    r.doc.Version,
-		Statements: []Statement{},
-		Anomalies:  []Note{},
+		Bytes:                    len(r.raw),
+		Lines:                    lines(r.raw),
+		SHA256:                   digest(r.raw),
+		Version:                  r.doc.Version,
+		Statements:               []Statement{},
+		Anomalies:                []Note{},
+		membersOutsideTheGrammar: r.lay.membersOutsideTheGrammar,
 	}
 	for i, s := range r.doc.Statements {
 		at := r.lay.statements[i]
@@ -303,7 +333,7 @@ func (r reading) grant(i int) (Grant, error) {
 		}
 		out.Terms = append(out.Terms, rows)
 	}
-	out.Spans = sentenceOf(g, out)
+	out.Spans = stripped(sentenceOf(g, out))
 	out.Sentence = plain(out.Spans)
 	out.Caption = captionOf(g, out)
 	if out.Witness = witnessOf(g, out.Terms); out.Witness != "" {

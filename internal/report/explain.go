@@ -1,4 +1,4 @@
-package answer
+package report
 
 import (
 	"maps"
@@ -25,6 +25,8 @@ type Explanation struct {
 	Sentence string    `json:"sentence"`
 	Spans    []Span    `json:"spans"`
 	Grants   []Outcome `json:"grants"`
+	// beyondABound is Answer's, for the same reason and on the same terms.
+	beyondABound bool
 }
 
 // Token is the pasted token as the engine read it.
@@ -100,7 +102,7 @@ func explain(policy, tokenText []byte) Explanation {
 	e := Explanation{V: Version, Heading: []Span{}, Spans: []Span{}, Grants: []Outcome{}}
 	r, err := readPolicy(policy)
 	if err != nil {
-		e.Error = err.Error()
+		e.Error, e.beyondABound = err.Error(), beyondABound(err)
 		return e
 	}
 	tok, err := readToken(tokenText)
@@ -118,7 +120,8 @@ func explain(policy, tokenText []byte) Explanation {
 		grants = append(grants, grant)
 		e.Grants = append(e.Grants, r.outcome(grant, tok))
 	}
-	e.Heading, e.Spans = net(grants, e.Grants)
+	heading, sentence := net(grants, e.Grants)
+	e.Heading, e.Spans = stripped(heading), stripped(sentence)
 	e.Sentence = plain(e.Spans)
 	return e
 }
@@ -270,7 +273,8 @@ func (r reading) outcome(g Grant, tok token) Outcome {
 		})
 	}
 	o.Witness = g.Witness != "" && g.Witness == payload(grant.Issuer, tok.values)
-	o.Heading, o.Spans = wording(g, o)
+	heading, sentence := wording(g, o)
+	o.Heading, o.Spans = stripped(heading), stripped(sentence)
 	o.Sentence = plain(o.Spans)
 	return o
 }

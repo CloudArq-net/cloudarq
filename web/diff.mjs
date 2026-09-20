@@ -75,7 +75,7 @@ function policyOf(n) {
   return JSON.stringify({ Version: "2012-10-17", Statement: statements }, null, 2);
 }
 
-// The engine's bounds, as the answer package states them; the shapes below
+// The engine's bounds, as the report package states them; the shapes below
 // sit on either side of each. deepObjects(n) nests n + 1 objects.
 const maxDocumentBytes = 256 << 10;
 const maxTokenBytes = 16 << 10;

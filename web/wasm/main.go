@@ -14,7 +14,7 @@
 // life of the page instead of ending with main.
 package main
 
-import "github.com/CloudArq-net/cloudarq/web/wasm/answer"
+import "github.com/CloudArq-net/cloudarq/internal/report"
 
 // inbox holds the caller's bytes: the policy, then the token when there is
 // one. outbox holds the last answer until the next call replaces it. Both
@@ -42,7 +42,7 @@ func reserve(n int32) *byte {
 //
 //go:wasmexport admits
 func admits(policyLen int32) int32 {
-	outbox = answer.Admits(inbox[:policyLen])
+	outbox = report.Admits(inbox[:policyLen])
 	return int32(len(outbox))
 }
 
@@ -51,7 +51,7 @@ func admits(policyLen int32) int32 {
 //
 //go:wasmexport explain
 func explain(policyLen, tokenLen int32) int32 {
-	outbox = answer.Explain(inbox[:policyLen], inbox[policyLen:policyLen+tokenLen])
+	outbox = report.Explain(inbox[:policyLen], inbox[policyLen:policyLen+tokenLen])
 	return int32(len(outbox))
 }
 

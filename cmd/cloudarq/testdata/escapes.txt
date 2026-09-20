@@ -1,0 +1,38 @@
+read as an aws trust policy · version 2012-10-17 · 931 bytes · 29 lines · 2 statements
+sha256 0768bad79ba1bb28dbe6e509a98e245d95bac8a24bb8d85ec0d86b2ad918f099
+
+grant 1 of 2 · statement[0] "Erase[2KThisLine" · Allow · https://token.actions.githubusercontent.com
+This role admits any token from token.actions.githubusercontent.com whose aud is sts.amazonaws.com, whose runner[1menvironment is github-hosted and whose sub is repo:acme/[31minfra:ref:refs/heads/main.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM                 ADMITS                                         IN WORDS · AS WRITTEN
+aud                   "sts.amazonaws.com"                            exactly this audience · line 11 StringEquals
+runner[1menvironment  "github-hosted"                                exactly this value · line 13 StringEquals
+sub                   "repo:acme/\x1b[31minfra:ref:refs/heads/main"  exactly this subject · line 12 StringEquals
+any other claim       any                                            unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "iss": "https://token.actions.githubusercontent.com",
+    "aud": "sts.amazonaws.com",
+    "sub": "repo:acme/\u001b[31minfra:ref:refs/heads/main",
+    "runner\u001b[1menvironment": "github-hosted"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant.
+
+statement[0] "Erase[2KThisLine" · offset 50 · 534 bytes · lines 4-16 · issuer at line 7 Principal.Federated · sha256 e4ece9164c72d20b8218921f1877d56be8f50114237ebd38c670acc6c7d36b11
+
+grant 2 of 2 · statement[1] "AnOperatorNobodyModels" · Allow · https://token.actions.githubusercontent.com
+Who this statement admits is not known: operator "String\x1b[7mLike" on sub is not modelled by this parser, so the claim is not constrained.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  operator "String\x1b[7mLike" on sub is not modelled by this parser, so the claim is not constrained
+     caveat · sub · statement[1].Condition
+  2  operator "String\x1b[7mLike" on sub is not modelled by this parser, so the claim is not constrained
+     anomaly · unmodelled-construct · sub · String[7mLike · statement[1].Condition
+
+statement[1] "AnOperatorNobodyModels" · offset 590 · 334 bytes · lines 17-27 · issuer at line 20 Principal.Federated · sha256 1c4ca6686f81bc19b264014fea2ebc2e118d1251c3565675b25c5af3e6d84de1

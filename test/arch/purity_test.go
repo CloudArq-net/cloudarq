@@ -20,6 +20,7 @@ var pureRoots = []string{
 	"github.com/CloudArq-net/cloudarq/internal/join/...",
 	"github.com/CloudArq-net/cloudarq/internal/parse/...",
 	"github.com/CloudArq-net/cloudarq/internal/registry/...",
+	"github.com/CloudArq-net/cloudarq/internal/report/...",
 	"github.com/CloudArq-net/cloudarq/internal/trust/...",
 }
 

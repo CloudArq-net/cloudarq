@@ -1,4 +1,4 @@
-package answer
+package report
 
 import (
 	"bytes"
@@ -22,6 +22,12 @@ import (
 type layout struct {
 	newlines   []int
 	statements []statementLayout
+	// membersOutsideTheGrammar reports that at least one of the document's
+	// top-level members is one the IAM policy grammar does not define, and
+	// so was read as a statement. It is read from the document as written,
+	// because the parser states the same fact in a sentence it also uses
+	// for a different one.
+	membersOutsideTheGrammar bool
 }
 
 type statementLayout struct {
@@ -54,8 +60,8 @@ func layoutOf(raw []byte, d aws.Document) (layout, error) {
 	if err != nil {
 		return layout{}, fmt.Errorf("locate the statements: %w", err)
 	}
-	lay := layout{newlines: newlinesIn(raw)}
-	nodes := statementNodes(root)
+	nodes, outside := statementNodes(root)
+	lay := layout{newlines: newlinesIn(raw), membersOutsideTheGrammar: outside}
 	if len(nodes) != len(d.Statements) {
 		return layout{}, fmt.Errorf("locate the statements: the document writes %d and the parser read %d", len(nodes), len(d.Statements))
 	}
@@ -69,15 +75,26 @@ func layoutOf(raw []byte, d aws.Document) (layout, error) {
 }
 
 // statementNodes lists the values the parser reads as statements, in the
-// parser's order. The parser groups the document's members by name in order
-// of first appearance and reads the groups in that order: every value of a
-// Statement member is a statement, an array standing for its items, and a
-// scalar standing for one statement that cannot be read; every value of a
-// member the grammar does not define, a misspelt Statement among them, is
-// one such statement too. Version and Id are the only members that project
-// nothing. Nothing here decides what a value means: the parser has already
-// declared what it could not read, and the page is owed the bytes to quote.
-func statementNodes(root *node) []*node {
+// parser's order, and reports whether any of them is a member the IAM
+// policy grammar does not define. The parser groups the document's members
+// by name in order of first appearance and reads the groups in that order:
+// every value of a Statement member is a statement, an array standing for
+// its items, and a scalar standing for one statement that cannot be read;
+// every value of a member the grammar does not define, a misspelt Statement
+// among them, is one such statement too. Version and Id are the only
+// members that project nothing. Nothing here decides what a value means:
+// the parser has already declared what it could not read, and the page is
+// owed the bytes to quote.
+//
+// The second return is the one fact the terminal rendering needs that the
+// parser does not state on its own. The parser says "the document has no
+// Statement member" and "Statement is an empty list" as the same kind,
+// construct and source, so a rendering that read the case off those three
+// fields would explain the first under the second; and a document may
+// carry both a Statement member and a member outside the grammar, so
+// neither the count of statements nor the presence of the member settles
+// it. The document as written does.
+func statementNodes(root *node) (nodes []*node, outsideTheGrammar bool) {
 	var names []string
 	groups := map[string][]*node{}
 	for _, m := range root.members {
@@ -86,7 +103,6 @@ func statementNodes(root *node) []*node {
 		}
 		groups[m.name] = append(groups[m.name], m.value)
 	}
-	var nodes []*node
 	for _, name := range names {
 		switch name {
 		case "Version", "Id":
@@ -100,9 +116,10 @@ func statementNodes(root *node) []*node {
 			}
 		default:
 			nodes = append(nodes, groups[name]...)
+			outsideTheGrammar = true
 		}
 	}
-	return nodes
+	return nodes, outsideTheGrammar
 }
 
 func (l layout) statementLayout(n *node) statementLayout {

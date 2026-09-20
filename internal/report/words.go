@@ -1,4 +1,4 @@
-package answer
+package report
 
 import (
 	"slices"
@@ -226,18 +226,24 @@ func host(issuer trust.IssuerRef) string {
 
 // captionOf is the muted line under the sentence: what the reader should
 // not take the sentence to say.
+//
+// No caption names the surface it is read on. These words are printed by
+// the page and by the command from this one place, so a sentence saying
+// "this page" is false in a terminal, and a sentence saying "this command"
+// is false in a browser; what both can say is where the answer came from,
+// which is here.
 func captionOf(g trust.Grant, out Grant) string {
 	switch {
 	case out.Empty:
 		return ""
 	case !out.Exact:
-		return "The set shown is an upper bound, not the set: a token this page does not exclude may still be refused by AWS."
+		return "The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS."
 	case g.Effect == trust.Deny:
 		return "A Deny subtracts from what the Allow statements admit; it admits nobody by itself."
 	case out.Beyond:
 		return "Exact means the set is known exactly, not that it is small: no construct went unevaluated."
 	}
-	return "Who holds those identities now is not computed here: this page makes no network request."
+	return "Who holds those identities now is not computed here: no network request is made."
 }
 
 // witnessHeading is the label over a witness, in the grant's effect.
@@ -299,7 +305,7 @@ func spans(parts ...any) []Span {
 	return out
 }
 
-// plain is the sentence as text, with control characters stripped: a
+// plain is a run of spans as text, with control characters stripped: a
 // claim value is customer configuration, and a terminal escape inside one
 // could rewrite the line the CLI prints it on.
 func plain(s []Span) string {
@@ -307,10 +313,31 @@ func plain(s []Span) string {
 	for _, span := range s {
 		b.WriteString(span.Text)
 	}
+	return withoutControls(b.String())
+}
+
+// stripped is the run with the control characters gone from every span,
+// which is where they must go rather than from the sentence alone: the page
+// renders the spans and the command renders the sentence, and a grant that
+// read differently on the two surfaces would make the differential between
+// them meaningless. The spans are composed here and nowhere else, so they
+// are stripped in place.
+func stripped(spans []Span) []Span {
+	for i := range spans {
+		spans[i].Text = withoutControls(spans[i].Text)
+	}
+	return spans
+}
+
+// withoutControls removes the C0 and C1 characters a terminal acts on. It
+// removes the newline and the tab with them: these are the words of one
+// sentence, printed on one line, and a claim value carrying a newline would
+// break the line the command prints it on as surely as an escape would.
+func withoutControls(text string) string {
 	return strings.Map(func(r rune) rune {
 		if r < 0x20 || (r >= 0x7f && r <= 0x9f) {
 			return -1
 		}
 		return r
-	}, b.String())
+	}, text)
 }

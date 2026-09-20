@@ -1,0 +1,21 @@
+read as an aws trust policy · version 2012-10-17 · 513 bytes · 19 lines · 1 statement
+sha256 bbb7d911dadfa5caefafefcec9f588ede34dd077b42ac985ba49db4004fcf1d0
+
+grant 1 of 1 · statement[0] "GitHubRepositoryID" · Allow · https://token.actions.githubusercontent.com
+This role admits any token from token.actions.githubusercontent.com whose aud is sts.amazonaws.com and whose repository_id is 456789.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM            ADMITS               IN WORDS · AS WRITTEN
+aud              "sts.amazonaws.com"  exactly this audience · line 13 StringEquals
+repository_id    "456789"             exactly this value · line 14 StringEquals
+any other claim  any                  unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "iss": "https://token.actions.githubusercontent.com",
+    "aud": "sts.amazonaws.com",
+    "repository_id": "456789"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant.
+
+statement[0] "GitHubRepositoryID" · offset 50 · 456 bytes · lines 4-17 · issuer at line 8 Principal.Federated · sha256 888f00d7a0179cb3afc610517e26c59fba7b6a3987758c5f8321bf1e98eb69f8
