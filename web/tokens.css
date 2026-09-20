@@ -1,0 +1,91 @@
+/* tokens.css — the only file in which a colour or a length literal may appear.
+   Light is the base; dark redefines the colour tokens under prefers-color-scheme
+   unless data-theme="light" pins light, and data-theme="dark" pins dark. The two
+   dark blocks must stay identical; work/contrast.py refuses to run when they differ. */
+
+:root {
+  color-scheme: light;
+
+  /* type: every line-height is a multiple of 4px, so the page sits on one grid */
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --font-sans: system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --text-s: 11px;  --lh-s: 16px;   /* labels, readouts, captions */
+  --text-m: 13px;  --lh-m: 20px;   /* the substrate: policy, terms, tokens */
+  --text-p: 14px;  --lh-p: 20px;   /* prose */
+  --text-l: 20px;  --lh-l: 28px;   /* the sentence: 20/13 over the substrate, 20/14 over prose */
+  --tracking-label: 0.04em;
+  --code-in-prose: 0.92em;
+  --underline-offset: 0.15em;
+
+  /* space: the name is the multiple of 4px */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s6: 24px;
+  --s12: 48px;
+
+  /* structure */
+  --hairline: 1px;
+  --rule: 2px;
+  --radius: 2px;
+  --focus-width: 2px;
+  --focus-offset: 1px;
+  --divider: 9px;
+  --head-height: 40px;    /* every pane head, in every state */
+  --mark-col: 5ch;        /* the statement mark in the gutter */
+  --ln-col: 3ch;          /* line numbers */
+  --pane-min: 20;         /* percent of the width a pane may shrink to */
+  --pane-max: 80;
+  --split-default: 45;    /* the policy pane's share, in percent */
+  --measure: 36rem;       /* prose only; tables take the pane */
+  --paste-lines: 14lh;
+  --token-lines: 8lh;
+  --listing-lines: 10lh;  /* the stacked listing: a screenful of the input, then it scrolls */
+  --share-field: 20rem;   /* the link field's flex basis */
+
+  /* Neutrals. Every ink carries the ratio it is read at against each ground
+     it is read on; web/page-check.mjs reads the colours back out of Chrome in
+     each theme, recomputes these numbers and fails the build when one of them
+     is wrong or falls under 4.5:1. */
+  --bg: #ffffff;
+  --bg-2: #f2f2ef;        /* the selected statement, the grant head, a pane head */
+  --bg-mark: #e3e3df;     /* the one marked line or note */
+  --ink: #1a1a1a;         /* on bg 17.40:1 · bg-2 15.52:1 · bg-mark 13.53:1 */
+  --ink-2: #5d5d58;       /* on bg 6.62:1 · bg-2 5.90:1 · bg-mark 5.14:1 */
+  --line: #d3d3ce;
+  --focus: var(--ink);
+
+  /* the three semantic colours, and nothing else has a hue */
+  --exact: #0b57d0;       /* on bg 6.39:1 · bg-2 5.69:1 */
+  --beyond: #b23a0c;      /* on bg 5.99:1 · bg-2 5.34:1 */
+  --unknown: #6e3fc2;     /* on bg 6.66:1 · bg-2 5.94:1 · bg-mark 5.18:1 */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #111111;
+    --bg-2: #1c1c1b;
+    --bg-mark: #2c2c2a;
+    --ink: #e8e8e4;       /* on bg 15.37:1 · bg-2 13.88:1 · bg-mark 11.39:1 */
+    --ink-2: #a6a6a0;     /* on bg 7.72:1 · bg-2 6.97:1 · bg-mark 5.72:1 */
+    --line: #363634;
+    --exact: #86b9ff;     /* on bg 9.35:1 · bg-2 8.44:1 */
+    --beyond: #ffa070;    /* on bg 9.45:1 · bg-2 8.54:1 */
+    --unknown: #ccaeff;   /* on bg 9.95:1 · bg-2 8.99:1 · bg-mark 7.37:1 */
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #111111;
+  --bg-2: #1c1c1b;
+  --bg-mark: #2c2c2a;
+  --ink: #e8e8e4;       /* on bg 15.37:1 · bg-2 13.88:1 · bg-mark 11.39:1 */
+  --ink-2: #a6a6a0;     /* on bg 7.72:1 · bg-2 6.97:1 · bg-mark 5.72:1 */
+  --line: #363634;
+  --exact: #86b9ff;     /* on bg 9.35:1 · bg-2 8.44:1 */
+  --beyond: #ffa070;    /* on bg 9.45:1 · bg-2 8.54:1 */
+  --unknown: #ccaeff;   /* on bg 9.95:1 · bg-2 8.99:1 · bg-mark 7.37:1 */
+}

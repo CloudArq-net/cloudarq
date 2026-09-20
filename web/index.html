@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cloudarq admits</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<header class="bar">
+  <h1 class="name"><b>cloudarq</b> admits <span>· who a trust policy lets in</span></h1>
+  <div class="bar-actions">
+    <button type="button" id="share-toggle" aria-expanded="false" aria-controls="share">link</button>
+    <div class="theme" role="group" aria-label="theme">
+      <span class="label">theme</span>
+      <button type="button" data-theme-choice="system" aria-pressed="true">system</button>
+      <button type="button" data-theme-choice="light" aria-pressed="false">light</button>
+      <button type="button" data-theme-choice="dark" aria-pressed="false">dark</button>
+    </div>
+  </div>
+</header>
+
+<section class="share" id="share" hidden aria-label="this analysis, as a link">
+  <label class="label" for="share-url">this analysis, as a link</label>
+  <div class="share-row">
+    <input id="share-url" type="text" readonly value="" spellcheck="false">
+    <button type="button" id="copy-url">copy</button>
+    <button type="button" id="copy-md">copy as markdown</button>
+  </div>
+  <p class="readout" id="share-note"></p>
+  <p class="prose muted">The fragment holds the policy and the token, deflated and base64url-encoded; a browser never sends a fragment to a server. Markdown puts the answer in the link text, so a pull request shows the sentence before anyone clicks.</p>
+</section>
+
+<main>
+
+  <!-- the policy pane: the paste form, or the pasted document as numbered lines with a mark per statement -->
+  <section class="pane" id="policy-pane" aria-label="policy">
+    <div class="pane-head">
+      <h2 class="label">policy</h2>
+      <span class="readout" id="policy-readout">loading the engine</span>
+      <span class="pane-links"><button type="button" class="ref" id="policy-edit" hidden>edit</button><a href="#v1.aws" id="policy-clear" hidden>clear</a></span>
+    </div>
+    <div class="pane-body" id="policy-body"></div>
+  </section>
+
+  <div class="divider" role="separator" aria-orientation="vertical" aria-label="resize the panes" tabindex="0"></div>
+
+  <!-- the answer pane: one article per grant, or the token against every grant -->
+  <section class="pane" id="answer-pane" aria-label="answer">
+    <div class="pane-head">
+      <nav class="views" aria-label="answer view"><a href="#" data-view="admits" aria-current="page">admits</a><a href="#" data-view="token">token</a></nav>
+      <span class="readout" id="answer-readout" aria-live="polite"></span>
+    </div>
+    <div class="pane-body" id="answer-body"></div>
+  </section>
+
+</main>
+
+<!-- ================= the static copy the page renders from ================= -->
+
+<template id="t-paste">
+  <div class="paste">
+    <textarea name="policy" aria-label="trust policy" placeholder="Paste a trust policy. The answer appears as you type." spellcheck="false"></textarea>
+    <dl class="pairs accepts">
+      <dt>aws</dt><dd>a role's trust policy: Statement, Principal.Federated, Condition</dd>
+    </dl>
+  </div>
+</template>
+
+<template id="t-teach">
+  <div class="answer teach prose">
+    <p data-copy="unreadable-link" hidden>The address holds a fragment this page could not read: <span class="reason"></span>. Nothing was loaded from it.</p>
+    <p data-copy="nothing">Nothing to evaluate yet. Paste a trust policy into the policy pane, or start from one of the corpus documents below.</p>
+    <h3 class="label">examples from the conformance corpus</h3>
+    <ul>
+      <li><a href="#" data-example="03-whole-organisation">03-whole-organisation</a><span><code>repo:acme/*</code> with the owner id pinned</span></li>
+      <li><a href="#" data-example="06-unconstrained">06-unconstrained</a><span>the audience, and nothing else</span></li>
+      <li><a href="#" data-example="07-expressible-by-one-provider">07-expressible-by-one-provider</a><span><code>ForAllValues:StringLike</code> on <code>sub</code></span></li>
+    </ul>
+    <details class="how">
+      <summary>how to read this</summary>
+      <p>The answer is one sentence per grant, saying who the policy admits; then each claim with the values it admits, in words and as written in the document; then a decoded token the grant accepts; then the statement's own bytes. A value is coloured by what the engine knows about it: <span class="v-exact">exact</span>, <span class="v-beyond">admitted beyond the tenant the policy names</span>, or <span class="v-unknown">unknown, because a construct could not be evaluated</span>. Unknown is never folded into a clean answer.</p>
+      <p>Everything runs in this page. Nothing is sent anywhere, and the address bar holds the whole analysis: copy the link and the reader sees exactly this.</p>
+      <h4 class="label">keyboard</h4>
+      <p><kbd>Tab</kbd> moves between the policy, the divider and the answer. On the divider, <kbd>←</kbd> and <kbd>→</kbd> resize by 2%, with <kbd>Shift</kbd> by 10%; <kbd>Home</kbd> and <kbd>End</kbd> go to the limits. <kbd>Enter</kbd> on a statement mark such as <kbd>[0]</kbd>, or on <kbd>statement[0]</kbd> in a grant's head, selects the statement and its grants in both panes. <kbd>Enter</kbd> on a line reference such as <kbd>L13</kbd> marks that line in the policy.</p>
+    </details>
+  </div>
+</template>
+
+<template id="t-unreadable">
+  <div class="answer">
+    <p class="sentence">This is not a trust policy the engine can read.</p>
+    <p class="prose"><code class="error"></code></p>
+    <p class="prose muted">The engine reads exactly one JSON object; what it refuses, it names. Everything it can read at all becomes an answer, with what it could not evaluate declared.</p>
+  </div>
+</template>
+
+<template id="t-stopped">
+  <div class="answer">
+    <p class="sentence">The engine stopped while reading this document, and was restarted.</p>
+    <p class="prose"><code class="error"></code></p>
+    <p class="prose muted">No answer exists for what is in the policy pane: the engine gave none before it stopped, and the previous answer was for another document. Every document the engine reads it answers, so this is a defect in the engine, not in the document.</p>
+  </div>
+</template>
+
+<template id="t-token">
+  <div class="answer">
+    <label class="token">
+      <span class="label">token · the decoded payload, or the whole token</span>
+      <textarea name="token" spellcheck="false" placeholder="Paste a token this policy rejected."></textarea>
+    </label>
+    <p class="prose muted" data-copy="read">Only the payload is read: the signature is not checked here, and nothing leaves this page. Each claim is shown against the constraint each grant puts on it; a claim the policy does not name is listed and ignored.</p>
+    <p class="prose muted" data-copy="bound">A grant that is an upper bound does not prove a token in: a token nothing excludes is not thereby proven admitted.</p>
+    <p class="prose" data-copy="witness">Or start from a grant's witness, the token shown under it in the admits view: <span class="witness-links"></span>.</p>
+    <p class="prose" data-copy="unreadable-link" hidden>The address holds a fragment this page could not read: <span class="reason"></span>. Nothing was loaded from it.</p>
+    <p class="prose" data-copy="no-policy">There is no policy yet. Paste one into the policy pane, or start from an example under <a href="#" data-view="admits">admits</a>; then each claim of the token is shown against the constraint the policy puts on it, and the first claim that fails names the reason.</p>
+    <p class="prose" data-copy="unreadable-token">The token could not be read: <code class="error"></code></p>
+    <p class="prose" data-copy="stopped">The engine stopped while reading this token, and was restarted: <code class="error"></code>. No answer exists for it.</p>
+  </div>
+</template>
+
+<!-- the three examples, byte for byte the corpus documents under testdata/grants; web/build.sh refuses to build when they differ -->
+<script type="application/json" data-example="03-whole-organisation">{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "GitHubWholeOrganisation",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+          "token.actions.githubusercontent.com:repository_owner_id": "123456"
+        },
+        "StringLike": {
+          "token.actions.githubusercontent.com:sub": "repo:acme/*"
+        }
+      }
+    }
+  ]
+}
+</script>
+<script type="application/json" data-example="06-unconstrained">{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "GitHubUnconstrained",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+        }
+      }
+    }
+  ]
+}
+</script>
+<script type="application/json" data-example="07-expressible-by-one-provider">{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "GitHubForAllValues",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+          "token.actions.githubusercontent.com:repository_id": "456789"
+        },
+        "ForAllValues:StringLike": {
+          "token.actions.githubusercontent.com:sub": "repo:acme/infra:*"
+        }
+      }
+    }
+  ]
+}
+</script>
+
+<script src="wasm_exec.js"></script>
+<script type="module" src="app.js"></script>
+
+</body>
+</html>

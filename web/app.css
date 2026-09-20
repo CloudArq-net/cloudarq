@@ -1,0 +1,414 @@
+/* app.css — layout and type. Every colour and every length is a token from tokens.css,
+   except the one media-query breakpoint at the end, which a media query cannot read
+   from a custom property. */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--ink);
+  font: var(--text-m) / var(--lh-m) var(--font-mono);
+  font-variant-ligatures: none;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* one focus ring for everything that can take focus */
+:focus-visible {
+  outline: var(--focus-width) solid var(--focus);
+  outline-offset: var(--focus-offset);
+}
+
+a { color: inherit; text-decoration: underline; text-underline-offset: var(--underline-offset); }
+a:hover { text-decoration-thickness: var(--rule); }
+
+h1, h2, h3, h4, p, dl, dd, pre, ol { margin: 0; }
+pre, code, textarea, input { font-family: var(--font-mono); }
+code { font-size: inherit; }
+sup { line-height: 0; }
+/* a note reference in a superscript keeps a box of its own, so its ring is a ring */
+sup .ref { display: inline-block; line-height: var(--lh-s); vertical-align: top; }
+
+button {
+  font: inherit;
+  color: inherit;
+  background: var(--bg);
+  border: var(--hairline) solid var(--ink-2);
+  border-radius: var(--radius);
+  padding: 0 var(--s2);
+  cursor: pointer;
+}
+button:hover { border-color: var(--ink); }
+button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* a reference reads as a link: a statement, a line, a note. It is a button because it
+   marks something on the page rather than changing the address. */
+.ref {
+  border: 0;
+  padding: 0;
+  background: inherit;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: var(--underline-offset);
+}
+.ref:hover { text-decoration-thickness: var(--rule); }
+.ref[aria-pressed="true"] { background: inherit; color: inherit; font-weight: 600; text-decoration: none; }
+
+textarea, input {
+  width: 100%;
+  display: block;
+  color: var(--ink);
+  background: var(--bg);
+  border: var(--hairline) solid var(--ink-2);
+  border-radius: var(--radius);
+  padding: var(--s2) var(--s3);
+  font-size: var(--text-m);
+  line-height: var(--lh-m);
+}
+textarea { resize: vertical; tab-size: 2; }
+textarea::placeholder { color: var(--ink-2); }
+
+/* labels: the one place case and tracking carry hierarchy */
+.label {
+  font-size: var(--text-s);
+  line-height: var(--lh-s);
+  font-weight: normal;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.muted { color: var(--ink-2); }
+.prose { font: var(--text-p) / var(--lh-p) var(--font-sans); max-width: var(--measure); }
+.prose code, .sentence code, .teach code { font-family: var(--font-mono); font-size: var(--code-in-prose); }
+
+/* the three semantic colours, applied only to lattice facts */
+.v-exact { color: var(--exact); }
+.v-beyond { color: var(--beyond); }
+.v-unknown { color: var(--unknown); }
+
+/* the one marked line or note */
+[data-mark] { background: var(--bg-mark); }
+
+/* a selection is inverse video, so that its colours are the page's and measured */
+::selection { background: var(--ink); color: var(--bg); }
+
+/* ---- the bar, and the share row under it ---- */
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s2) var(--s4);
+  padding: var(--s2) var(--s4);
+  border-bottom: var(--hairline) solid var(--line);
+}
+.bar .name { font-size: var(--text-m); font-weight: normal; }
+.bar .name b { font-weight: 600; }
+.bar .name span { color: var(--ink-2); }
+.bar-actions { display: flex; align-items: baseline; gap: var(--s4); }
+.theme { display: flex; align-items: baseline; gap: var(--s2); font-size: var(--text-s); line-height: var(--lh-s); }
+
+.share {
+  padding: var(--s3) var(--s4);
+  border-bottom: var(--hairline) solid var(--line);
+}
+.share[hidden] { display: none; }
+.share-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s2) var(--s3);
+  margin-top: var(--s1);
+}
+.share-row input { flex: 1 1 var(--share-field); min-width: 0; width: auto; padding: var(--s1) var(--s2); }
+.share .readout { margin-top: var(--s2); color: var(--ink-2); overflow-wrap: anywhere; }
+.share .prose { margin-top: var(--s2); }
+
+/* ---- the panes: the policy and the answer; the fragment decides what each holds ---- */
+
+main {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, calc(var(--split) * 1%)) var(--divider) minmax(0, 1fr);
+  --split: var(--split-default);
+}
+
+.pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+.pane[hidden] { display: none; }
+
+.pane-head {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  min-height: var(--head-height);
+  padding: var(--s2) var(--s3);
+  border-bottom: var(--hairline) solid var(--line);
+  background: var(--bg-2);
+  font-size: var(--text-s);
+  line-height: var(--lh-s);
+  white-space: nowrap;
+}
+.pane-head .readout { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--ink-2); }
+.pane-links { flex: none; display: flex; gap: var(--s3); }
+/* the edit toggle is a reference-styled button: it changes the pane, not the address */
+.pane-links .ref { font-size: var(--text-s); line-height: var(--lh-s); }
+
+/* focus-scrolling leaves room for the ring above and below the element brought into view */
+.pane-body { flex: 1; min-height: 0; overflow: auto; scroll-padding: var(--s1); }
+
+.divider {
+  position: relative;
+  cursor: col-resize;
+  background: var(--bg);
+}
+.divider::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 50%;
+  width: var(--hairline);
+  background: var(--ink-2);
+}
+.divider:hover::before, .divider:focus-visible::before { background: var(--ink); }
+
+/* a quoted block: a token payload, or the customer's own bytes */
+.quote {
+  padding: var(--s2) var(--s3);
+  border: var(--hairline) solid var(--line);
+  border-radius: var(--radius);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* readouts in pairs: label, value */
+.pairs { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--s1) var(--s3); }
+.pairs dt { color: var(--ink-2); }
+.pairs dt.v-unknown { color: var(--unknown); }
+.pairs dd { overflow-wrap: anywhere; }
+
+/* ---- the policy pane: lines, a gutter, statement marks ---- */
+
+.policy { padding: var(--s2) 0 var(--s4); }
+
+.l {
+  display: flex;
+  white-space: pre;
+  min-width: max-content;
+  background: var(--bg);
+}
+/* The listing is the input and every line of it is ink-2 on bg (6.62:1 light,
+   7.72:1 dark), selected or not: a document of one statement opens with that
+   statement selected, so a selected line drawn in ink made seventeen of
+   twenty-two lines the strongest block on the page and the input outranked
+   the answer again. The selection is said by the statement's mark and by the
+   rule beside its line numbers, which is what the grant head says on the
+   other side. The one marked line is ink on bg-mark (13.53:1 light, 11.39:1
+   dark), and it is one line. */
+.src { color: var(--ink-2); }
+.policy .l[data-mark], .policy .l[data-in][data-mark] { background: var(--bg-mark); }
+.policy .l[data-mark] .src { color: var(--ink); }
+
+/* the gutter stays put under horizontal scroll; the rule beside the numbers spans the
+   statement's lines and is ink while the statement is selected, as on the grant head */
+.mark, .ln {
+  position: sticky;
+  flex: none;
+  background: inherit;
+  color: var(--ink-2);
+  user-select: none;
+}
+.mark {
+  left: 0;
+  width: var(--mark-col);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  text-align: center;
+  font-weight: 600;
+}
+button.mark { color: var(--ink-2); }
+button.mark[aria-pressed="true"] { background: inherit; color: var(--ink); }
+/* the mark sits at the scrollport's edge, so its ring is drawn inside its own box */
+.mark:focus-visible { outline-offset: calc(-1 * var(--focus-width)); }
+.ln {
+  left: var(--mark-col);
+  width: calc(var(--rule) + var(--ln-col) + var(--s3));
+  padding: 0 var(--s3) 0 var(--rule);
+  text-align: right;
+}
+.l[data-in] .ln { padding-left: 0; border-left: var(--rule) solid var(--line); }
+.l[data-selected] .ln { border-left-color: var(--ink); }
+.policy .l[data-mark] .ln { color: var(--ink); }
+.src { padding-right: var(--s4); }
+
+.paste { padding: var(--s3); }
+.paste textarea { min-height: var(--paste-lines); }
+.accepts { margin-top: var(--s3); }
+
+/* ---- the answer pane ---- */
+
+.views { display: flex; gap: var(--s3); }
+.views a[aria-current="page"] { text-decoration: none; font-weight: 600; }
+
+.answer { padding: var(--s3) var(--s4) var(--s12); }
+.answer > .prose + .prose { margin-top: var(--s2); }
+.answer .pairs { margin: var(--s3) 0; }
+
+.grant-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s1) var(--s3);
+  margin: 0 calc(-1 * var(--s4));
+  padding: var(--s2) var(--s4);
+  border-left: var(--rule) solid var(--line);
+  font-size: var(--text-m);
+  font-weight: normal;
+}
+.grant-head:has(.stmt[aria-pressed="true"]) { border-left-color: var(--ink); background: var(--bg-2); }
+
+.sentence {
+  font-family: var(--font-sans);
+  font-size: var(--text-l);
+  line-height: var(--lh-l);
+  max-width: var(--measure);
+  margin: var(--s6) 0 var(--s4);
+}
+/* a note's reference inside the sentence stays the substrate's size: it points
+   at a note, it is not part of the reading */
+.sentence sup .ref { font-size: var(--text-m); }
+.sentence + .prose { margin-bottom: var(--s4); }
+
+/* a table takes the pane's width; a ring on a reference in its last column needs room
+   inside the scroll box, so the box is widened by the ring and padded back */
+.table {
+  overflow-x: auto;
+  margin: 0 calc(-1 * (var(--focus-width) + var(--focus-offset)));
+  padding: 0 calc(var(--focus-width) + var(--focus-offset));
+}
+.terms { width: 100%; border-collapse: collapse; margin: var(--s3) 0; }
+.terms th {
+  text-align: left;
+  padding: 0 var(--s4) var(--s1) 0;
+  vertical-align: bottom;
+}
+.terms td {
+  padding: var(--s1) var(--s4) var(--s1) 0;
+  border-top: var(--hairline) solid var(--line);
+  vertical-align: top;
+}
+.terms th:last-child, .terms td:last-child { padding-right: 0; }
+/* a claim name, a lattice element and a reference are read whole; a token's value gives
+   way first, and past that the table scrolls sideways */
+.terms td:first-child, .terms .val, .terms .why, .terms .result { white-space: nowrap; }
+.terms .token-val { white-space: normal; overflow-wrap: anywhere; }
+.why { color: var(--ink-2); }
+.terms .rest td { color: var(--ink-2); }
+
+/* caveats and anomalies, numbered so the sentence and the table can point at them */
+.notes { padding-left: var(--s6); margin: var(--s3) 0; }
+.notes li { margin-bottom: var(--s2); }
+.notes .kind { color: var(--ink-2); }
+
+.witness { margin: var(--s4) 0 var(--s3); }
+.witness h4 { margin-bottom: var(--s1); }
+.witness .prose { margin-top: var(--s2); }
+
+.evidence { margin-top: var(--s3); border-top: var(--hairline) solid var(--line); }
+.evidence summary { padding: var(--s2) 0; cursor: pointer; }
+.evidence summary::marker { color: var(--ink-2); }
+.digest, .error { overflow-wrap: anywhere; }
+
+/* the token view */
+.token { display: block; margin: var(--s3) 0 var(--s4); }
+.token-answer + .evidence { margin-bottom: var(--s6); }
+.term-label { margin-top: var(--s3); }
+.token .label { display: block; margin-bottom: var(--s1); }
+.token textarea { min-height: var(--token-lines); white-space: pre; }
+.token-answer { margin: var(--s4) 0 var(--s2); }
+.token-answer h3 { font-size: var(--text-m); font-weight: 600; margin-bottom: var(--s1); }
+
+/* the way out of the page, under the last grant */
+.bridge { padding: 0 var(--s4) var(--s6); }
+
+/* the teaching block: with nothing pasted, and beside the document the page
+   opens with */
+.teach p + p { margin-top: var(--s3); }
+.teach h3 { margin-top: var(--s6); }
+.teach ul { list-style: none; padding: 0; margin: var(--s2) 0 0; }
+.teach li a, .teach code { font-family: var(--font-mono); font-size: var(--code-in-prose); }
+.teach li { display: grid; grid-template-columns: max-content 1fr; gap: var(--s3); padding: var(--s1) 0; border-top: var(--hairline) solid var(--line); }
+.teach li:last-child { border-bottom: var(--hairline) solid var(--line); }
+.teach kbd { font-family: var(--font-mono); font-size: var(--code-in-prose); border: var(--hairline) solid var(--line); border-radius: var(--radius); padding: 0 var(--s1); }
+.how { margin-top: var(--s6); border-top: var(--hairline) solid var(--line); }
+.how summary { padding: var(--s2) 0; cursor: pointer; }
+.how summary::marker { color: var(--ink-2); }
+.how h4 { margin-top: var(--s3); }
+
+/* ---- narrow: the panes stack, the divider goes, the page scrolls. 800px is the one
+   length that cannot be a token, because a media query cannot read a custom property. ---- */
+
+@media (max-width: 800px) {
+  body { height: auto; }
+  main { display: block; }
+  .divider { display: none; }
+  .pane-body { overflow: visible; }
+  .pane + .pane { border-top: var(--hairline) solid var(--line); }
+  .pane-head { flex-wrap: wrap; white-space: normal; }
+  .pane-head .readout { order: 1; flex-basis: 100%; white-space: normal; }
+  .pane-links { margin-left: auto; }
+  .l { min-width: 0; }
+  /* Stacked, the panes are read in the order they are written and the policy
+     comes first, so the listing is capped at a screenful of the document and
+     scrolls: the answer's first sentence is then on screen without scrolling
+     the page. The statement marks in its gutter are the keyboard's way in. */
+  .policy { overflow: auto; max-height: var(--listing-lines); }
+  .sentence, .prose { max-width: none; }
+  /* an example and its gloss stack: side by side, a name and an unbreakable
+     operator overflow the narrow viewport */
+  .teach li { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  /* a term table keeps its rows whole and scrolls sideways in its box */
+  .terms .words { white-space: nowrap; }
+
+  /* each claim of a token becomes a block: name and result, the token's value, the constraint */
+  .claims thead { display: none; }
+  .claims tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) max-content;
+    gap: 0 var(--s3);
+    padding: var(--s2) 0;
+    border-top: var(--hairline) solid var(--line);
+  }
+  .claims td { display: block; padding: 0; border: 0; white-space: normal; }
+  .claims td.token-val { grid-column: 1 / -1; }
+  .claims td.val { grid-column: 1 / -1; }
+  .claims td.val::before { content: "admits "; }
+  .claims td.result { grid-column: 2; grid-row: 1; }
+}
+
+/* ---- print: the listing as the exhibit, then the answer; controls gone. Last in the
+   file because an A4 page is 794px wide, inside the narrow breakpoint above, and the
+   printed page keeps the whole listing rather than a screenful of it. ---- */
+@media print {
+  body { height: auto; display: block; }
+  .bar-actions, .share, .views, .pane-head a, .divider { display: none; }
+  main { display: block; }
+  .pane-head { min-height: 0; white-space: normal; }
+  .pane-body { overflow: visible; }
+  .l { min-width: 0; white-space: pre-wrap; }
+  .table { overflow: visible; }
+  .policy { max-height: none; overflow: visible; }
+  textarea { border: 0; padding: 0; resize: none; }
+  .terms .val { white-space: normal; overflow-wrap: anywhere; }
+}
+

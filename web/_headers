@@ -1,0 +1,21 @@
+# Response headers for the hosted page, in the format Cloudflare Pages reads
+# from the root of what it serves. web/build.sh copies this file into
+# web/dist beside the page; web/page-check.mjs serves web/dist through the
+# Pages emulator, loads the page from it in Chrome and reads these back out
+# of the response, because a header file nothing applies is a file and not a
+# header, and a CSP nobody loaded the page under is a guess.
+#
+# The page fetches its own five files, evaluates WebAssembly and keeps no
+# storage, posts nothing and embeds nothing, so everything else is refused
+# outright rather than listed. 'wasm-unsafe-eval' is what
+# WebAssembly.compileStreaming needs and is not 'unsafe-eval': it permits
+# WebAssembly compilation and no eval of script.
+
+/*
+  Content-Security-Policy: default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  Permissions-Policy: accelerometer=(), autoplay=(), camera=(), display-capture=(), encrypted-media=(), fullscreen=(), geolocation=(), gyroscope=(), hid=(), idle-detection=(), local-fonts=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), serial=(), storage-access=(), usb=(), xr-spatial-tracking=()
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
