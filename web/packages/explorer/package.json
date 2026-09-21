@@ -1,0 +1,54 @@
+{
+  "name": "@cloudarq/explorer",
+  "version": "0.1.0",
+  "description": "The CloudArq trust-policy explorer as a Svelte component: one WebAssembly engine, one answer, no network and no storage.",
+  "license": "Apache-2.0",
+  "author": "Abdallah Khaldi",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CloudArq-net/cloudarq.git",
+    "directory": "web/packages/explorer"
+  },
+  "homepage": "https://github.com/CloudArq-net/cloudarq",
+  "type": "module",
+  "svelte": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./tokens.css": "./dist/tokens.css",
+    "./explorer.css": "./dist/explorer.css",
+    "./cloudarq.wasm": "./dist/cloudarq.wasm",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": [
+    "**/*.css",
+    "**/wasm_exec.js"
+  ],
+  "scripts": {
+    "package": "svelte-package --input src/lib --output dist",
+    "page": "vite build",
+    "build": "npm run package && npm run page",
+    "check": "svelte-check --tsconfig ./tsconfig.json --fail-on-warnings && tsc --noEmit -p tsconfig.json",
+    "test": "node --test test/*.test.ts"
+  },
+  "peerDependencies": {
+    "svelte": "^5.57.1"
+  },
+  "devDependencies": {
+    "@sveltejs/package": "2.5.8",
+    "svelte": "5.57.1",
+    "svelte-check": "4.7.6",
+    "typescript": "6.0.3",
+    "vite": "8.3.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

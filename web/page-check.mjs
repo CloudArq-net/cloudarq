@@ -19,24 +19,58 @@
 // the page fetches and what it leaves in the browser are read once each,
 // over the whole run.
 //
-//   node web/page-check.mjs <dist dir> <axe.min.js> [<pages emulator>]
+//   node web/page-check.mjs <dist dir | url> <axe.min.js> [<pages emulator>] [--tokens <tokens.css>]
+//
+// The first argument is a directory of built files, served here over
+// loopback, or a URL somebody else is already serving. Both are the same
+// argument because a harness that only knows one of them is two harnesses,
+// and the one thing this has to survive is being pointed at the server the
+// site will actually be hosted behind. The two differ in what can be read
+// rather than in what is checked: over a directory the header set is read
+// out of _headers and again out of the response the pages emulator builds
+// from it, and the files the page may fetch are the files on disk; over a
+// URL there is nothing to emulate, so the header set is read out of the
+// response the server under test gives, and the files are walked through the
+// build manifest that origin serves. The last two lines of a run say which
+// of the two it was.
 //
 // Exits non-zero on the first state that reads wrong, when axe or the pages
 // emulator cannot be run, or when no Chrome can be found: a check that did
 // not run is not a pass. Set CHROME to the browser's path when it is not at
 // one of the usual ones.
-import { spawn, spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, rmSync, statSync } from "node:fs";
-import { createServer } from "node:http";
+import { spawn } from "node:child_process";
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { extname, join, resolve } from "node:path";
+import { join, resolve } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
 
-const [dist, axePath, emulatorSpec] = process.argv.slice(2);
-if (!dist || !axePath) {
-  console.error("usage: node web/page-check.mjs <dist dir> <axe.min.js> [<pages emulator command>]");
+import { findChrome, launch, serveDirectory, settleOn } from "./chrome.mjs";
+
+// Elements are addressed as [id$=name] rather than #name. Every id the
+// explorer renders is spelt under the instance that rendered it, so that two
+// explorers on one page do not name the same element twice; the suffix is
+// the part that does not depend on which instance rendered it. It is written
+// without quotes because these names are CSS identifiers and the selectors
+// live inside quoted strings.
+const argv = process.argv.slice(2);
+const flag = (name, fallback) => {
+  const at = argv.indexOf(name);
+  if (at < 0) return fallback;
+  const value = argv[at + 1];
+  argv.splice(at, 2);
+  return value;
+};
+// The contrast ratios are read out of the tokens file the page wears. It is
+// an argument because a page this is pointed at over a URL is not
+// necessarily built from the tree it is run in.
+const tokensPath = flag("--tokens", "web/packages/explorer/src/lib/tokens.css");
+const [served, axePath, emulatorSpec] = argv;
+if (!served || !axePath) {
+  console.error("usage: node web/page-check.mjs <dist dir | url> <axe.min.js> [<pages emulator command>] [--tokens <tokens.css>]");
   process.exit(2);
 }
+const servedIsUrl = /^https?:\/\//.test(served);
+const dist = servedIsUrl ? null : served;
 // The headers in web/dist/_headers are read back out of a response rather
 // than out of the file, and the page is loaded under them: Cloudflare's own
 // parser decides what a header file means, and a rule it silently drops is
@@ -65,19 +99,6 @@ if (axeSource.length < 100000) {
 // so that rule is read and any other incomplete rule fails the audit.
 const contrastRule = "color-contrast";
 
-function findChrome() {
-  const candidates = [
-    process.env.CHROME,
-    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-    "/Applications/Chromium.app/Contents/MacOS/Chromium",
-  ].filter(Boolean);
-  for (const c of candidates) if (existsSync(c)) return c;
-  for (const name of ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser"]) {
-    const found = spawnSync("which", [name], { encoding: "utf8" }).stdout.trim();
-    if (found) return found;
-  }
-  return null;
-}
 const chromePath = findChrome();
 if (!chromePath) {
   console.error("page check: not run, no Chrome found; set CHROME to the browser's path");
@@ -87,44 +108,42 @@ if (!chromePath) {
 // the built page over loopback; the engine can be withheld to see what the
 // page says when it does not arrive
 let withholdEngine = false;
-const types = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".wasm": "application/wasm" };
-const server = createServer((req, res) => {
-  const path = join(resolve(dist), req.url === "/" ? "index.html" : req.url.split("?")[0]);
-  if (!path.startsWith(resolve(dist)) || !existsSync(path) || statSync(path).isDirectory() || (withholdEngine && path.endsWith(".wasm"))) {
-    res.writeHead(404).end();
-    return;
-  }
-  res.writeHead(200, { "content-type": types[extname(path)] || "application/octet-stream" }).end(readFileSync(path));
-});
-await new Promise(ready => server.listen(0, "127.0.0.1", ready));
-const base = `http://127.0.0.1:${server.address().port}/index.html`;
+const server = servedIsUrl ? null : await serveDirectory(dist, { hide: path => withholdEngine && path.endsWith(".wasm") });
+const base = servedIsUrl ? served : server.base;
 
-// extensions are off: one installed for every profile of the machine's Chrome
-// injected a content script whose own exception was read as the page's
-const port = 9600 + Math.floor(Math.random() * 300);
-const profile = mkdtempSync(join(tmpdir(), "cloudarq-page-check-"));
-const chrome = spawn(chromePath, [
-  "--headless=new", "--no-first-run", "--no-default-browser-check", "--disable-extensions", "--disable-gpu", "--hide-scrollbars",
-  `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, "--window-size=1440,900", "about:blank",
-], { stdio: "ignore" });
-
-async function target() {
-  for (let i = 0; i < 100; i++) {
-    try {
-      const list = await (await fetch(`http://127.0.0.1:${port}/json`)).json();
-      const page = list.find(t => t.type === "page");
-      if (page) return page.webSocketDebuggerUrl;
-    } catch {}
-    await sleep(100);
+// Every path the build actually holds, and every path its manifest names. A
+// build with hashed asset names changes these on every run, so they are read
+// rather than written down; _headers is a file the host reads and the page
+// never fetches, so it is not one of them.
+function builtPathsOf(dir) {
+  const root = resolve(dir);
+  const paths = new Set(["/"]);
+  const walk = (at, prefix) => {
+    for (const entry of readdirSync(at, { withFileTypes: true })) {
+      if (entry.name === ".vite") continue;
+      const path = join(at, entry.name);
+      if (entry.isDirectory()) walk(path, `${prefix}/${entry.name}`);
+      else paths.add(`${prefix}/${entry.name}`);
+    }
+  };
+  walk(root, "");
+  return paths;
+}
+function manifestPathsOf(dir) {
+  const at = join(resolve(dir), ".vite", "manifest.json");
+  if (!existsSync(at)) return [];
+  const manifest = JSON.parse(readFileSync(at, "utf8"));
+  const named = new Set();
+  for (const entry of Object.values(manifest)) {
+    if (entry.file) named.add("/" + entry.file);
+    for (const css of entry.css ?? []) named.add("/" + css);
+    for (const asset of entry.assets ?? []) named.add("/" + asset);
   }
-  throw new Error("chrome did not come up");
+  return [...named];
 }
 
-const ws = new WebSocket(await target());
-await new Promise(open => (ws.onopen = open));
-let seq = 0;
-const pending = new Map();
-const errors = [];
+const browser = await launch(chromePath, { label: "cloudarq-page-check" });
+const { errors, send, evaluate } = browser;
 // every request the page makes, over every state, so that the page's own
 // sentence — everything runs in this page, nothing is sent anywhere — is a
 // checked claim rather than a promise
@@ -134,20 +153,11 @@ const requested = new Set();
 // that 404 is not a fault. What is read from them is what the browser files
 // under "security", which is where a content policy's refusals land.
 const refusals = [];
-ws.onmessage = m => {
-  const msg = JSON.parse(m.data);
-  if (msg.id && pending.has(msg.id)) { pending.get(msg.id)(msg); pending.delete(msg.id); }
-  if (msg.method === "Runtime.exceptionThrown") errors.push(msg.params.exceptionDetails.exception?.description || msg.params.exceptionDetails.text);
+browser.on(msg => {
   if (msg.method === "Log.entryAdded" && msg.params.entry.source === "security") refusals.push(msg.params.entry.text);
   if (msg.method === "Network.requestWillBeSent") requested.add(msg.params.request.url);
   if (msg.method === "Network.webSocketCreated") requested.add(msg.params.url);
-};
-const send = (method, params = {}) => new Promise(resolve => { const id = ++seq; pending.set(id, resolve); ws.send(JSON.stringify({ id, method, params })); });
-const evaluate = async expression => {
-  const r = await send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true });
-  if (r.result?.exceptionDetails) throw new Error(r.result.exceptionDetails.exception?.description || r.result.exceptionDetails.text);
-  return r.result?.result?.value;
-};
+});
 
 // the fragment for a state, spelt the way the page spells it
 const base64url = bytes => Buffer.from(bytes).toString("base64url");
@@ -168,11 +178,16 @@ let opened = 0;
 async function open(name, hash, { width = 1440, height = 900, engine = true, mobile = false } = {}) {
   withholdEngine = !engine;
   await send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: mobile ? 2 : 1, mobile });
-  await send("Page.navigate", { url: `${base}?${++opened}${hash}` });
+  // What says the engine has arrived is the page, not a global: the loader
+  // returns an engine object and writes nothing to globalThis, so a predicate
+  // that asked for one would be waiting for something that never comes. The
+  // policy readout says "loading the engine" until it has. settleOn will not
+  // answer it off the document before this one, and a wait that runs out
+  // throws rather than auditing whatever is on screen.
   const settled = engine
-    ? "typeof globalThis.admits === 'function' && document.querySelector('#answer-body').childElementCount > 0"
-    : "document.querySelector('#answer-readout').textContent.length > 0";
-  for (let i = 0; i < 100 && !(await evaluate(settled)); i++) await sleep(100);
+    ? "(document.querySelector('[id$=policy-readout]') || {}).textContent !== 'loading the engine' && (document.querySelector('[id$=answer-body]') || {}).childElementCount > 0"
+    : "((document.querySelector('[id$=answer-readout]') || {}).textContent || '').length > 0";
+  await settleOn(browser, `${base}?${++opened}${hash}`, settled, { tries: 100 });
   await sleep(150);
   await audit(`${name} at ${width}px`);
   // the way in, the way to read an answer and the way on are read wherever
@@ -183,6 +198,11 @@ async function open(name, hash, { width = 1440, height = 900, engine = true, mob
   await sentenceIsLargest(`${name} at ${width}px`);
   await noDeadEnd(`${name} at ${width}px`);
 }
+
+// the files the build holds and the files its manifest names, read once
+const builtPaths = dist ? builtPathsOf(dist) : new Set();
+const manifestNamed = dist ? manifestPathsOf(dist) : [];
+const manifestMissing = manifestNamed.filter(path => !builtPaths.has(path));
 
 let checks = 0;
 const failures = [];
@@ -243,7 +263,7 @@ async function teaches(state) {
 // sentence, not its first line: a sentence cut in half is not read.
 async function sentenceAboveTheFold(state) {
   const fold = await evaluate(`(() => {
-    const s = document.querySelector("#answer-body .sentence");
+    const s = document.querySelector("[id$=answer-body] .sentence");
     if (!s) return null;
     const box = s.getBoundingClientRect();
     return { top: Math.round(box.top), bottom: Math.round(box.bottom), viewport: innerHeight };
@@ -289,7 +309,7 @@ const tooDeep = "{" + '"a":{'.repeat(1000) + "}".repeat(1001);
 // a listing is opened for editing first
 const paste = policy => evaluate(`(async () => {
   if (!document.querySelector("textarea[name=policy]")) {
-    document.querySelector("#policy-edit").click();
+    document.querySelector("[id$=policy-edit]").click();
     await new Promise(r => setTimeout(r, 50));
   }
   const box = document.querySelector("textarea[name=policy]");
@@ -298,7 +318,7 @@ const paste = policy => evaluate(`(async () => {
   box.dispatchEvent(new InputEvent("input", { inputType: "insertFromPaste", bubbles: true }));
   await new Promise(r => setTimeout(r, 200));
   const e = document.activeElement;
-  return { active: e === document.body ? "body" : e.tagName + " " + (e.className || "") + " " + e.textContent.trim(), readout: document.querySelector("#policy-readout").textContent, answer: document.querySelector("#answer-readout").textContent, sentence: (document.querySelector("#answer-body .sentence") || {}).textContent ?? "", error: (document.querySelector("#answer-body .error") || {}).textContent ?? "" };
+  return { active: e === document.body ? "body" : e.tagName + " " + (e.className || "") + " " + e.textContent.trim(), readout: document.querySelector("[id$=policy-readout]").textContent, answer: document.querySelector("[id$=answer-readout]").textContent, sentence: (document.querySelector("[id$=answer-body] .sentence") || {}).textContent ?? "", error: (document.querySelector("[id$=answer-body] .error") || {}).textContent ?? "" };
 })()`);
 
 // the grant sentence is the one piece of text on the page at the largest
@@ -322,6 +342,14 @@ const hierarchy = () => evaluate(`(() => {
 })()`);
 let headersRead = 0;
 let emulatorUsed = "";
+let servedUrl = null;
+// what the last two lines of the run say they read, written where they are
+// read rather than assumed: over a directory the header file and the
+// emulator's response, over a URL the response the server under test gave
+let headersSource = "";
+let network = "";
+let engineWithheld = "";
+let themeChoicesPressed = 0;
 let sentencesRead = 0;
 async function sentenceIsLargest(state) {
   const h = await hierarchy();
@@ -337,8 +365,8 @@ async function sentenceIsLargest(state) {
 // it — so the rule is read where there is a finding to act on.
 async function noDeadEnd(state) {
   const shown = await evaluate(`({
-    findings: document.querySelectorAll("#answer-body article.answer, #answer-body .token-answer").length,
-    ways: document.querySelectorAll("#answer-body .bridge").length,
+    findings: document.querySelectorAll("[id$=answer-body] article.answer, [id$=answer-body] .token-answer").length,
+    ways: document.querySelectorAll("[id$=answer-body] .bridge").length,
   })`);
   if (shown.findings === 0) return;
   check(`${state}: a state that shows a finding shows the way on`, shown.ways === 1,
@@ -527,7 +555,7 @@ try {
     addEventListener("securitypolicyviolation", e => window.__refused.push(e.effectiveDirective + " refused " + (e.blockedURI || "an inline " + e.violatedDirective)));
     window.__shown = [];
     new MutationObserver(() => {
-      const body = document.querySelector("#answer-body");
+      const body = document.querySelector("[id$=answer-body]");
       if (!body) return;
       const text = body.textContent;
       window.__shown.push({ chars: text.length, opening: text.includes("GitHubForAllValues"), head: text.trim().slice(0, 80) });
@@ -538,14 +566,14 @@ try {
   // it names, at the address a reader can copy
   const default07 = await fragment(policy07);
   await open("the default document", "");
-  check("the page opens answering", (await count("#answer-body .sentence")) === 1, `${await count("#answer-body .sentence")} sentences in the answer pane`);
-  check("the default document is named as an example", (await text("#policy-readout")) === "aws trust policy · 634 bytes · 1 statement · example 07", await text("#policy-readout"));
+  check("the page opens answering", (await count("[id$=answer-body] .sentence")) === 1, `${await count("[id$=answer-body] .sentence")} sentences in the answer pane`);
+  check("the default document is named as an example", (await text("[id$=policy-readout]")) === "aws trust policy · 634 bytes · 1 statement · example 07", await text("[id$=policy-readout]"));
   check("the default writes its own address", (await evaluate("location.hash")) === default07, `${await evaluate("location.hash")} for a page opened with no fragment`);
-  const openedWithNothing = await evaluate("[document.querySelector('#policy-body').innerHTML, document.querySelector('#answer-body').innerHTML]");
-  check("the head names the paste control over a corpus document", (await text("#policy-clear")) === "paste your own" && (await text("#policy-edit")) === "edit" && (await evaluate("document.querySelector('#policy-edit').hidden")) === false, `clear reads "${await text("#policy-clear")}", edit reads "${await text("#policy-edit")}" hidden ${await evaluate("document.querySelector('#policy-edit').hidden")}`);
+  const openedWithNothing = await evaluate("[document.querySelector('[id$=policy-body]').innerHTML, document.querySelector('[id$=answer-body]').innerHTML]");
+  check("the head names the paste control over a corpus document", (await text("[id$=policy-clear]")) === "paste your own" && (await text("[id$=policy-edit]")) === "edit" && (await evaluate("document.querySelector('[id$=policy-edit]').hidden")) === false, `clear reads "${await text("[id$=policy-clear]")}", edit reads "${await text("[id$=policy-edit]")}" hidden ${await evaluate("document.querySelector('[id$=policy-edit]').hidden")}`);
   // the empty state is a state like any other and has an address of its own;
   // only an absent fragment means the document the page opens with
-  check("the paste control carries the empty state's own address", (await evaluate("document.querySelector('#policy-clear').getAttribute('href')")) === "#v1.aws", await evaluate("document.querySelector('#policy-clear').getAttribute('href')"));
+  check("the paste control carries the empty state's own address", (await evaluate("document.querySelector('[id$=policy-clear]').getAttribute('href')")) === "#v1.aws", await evaluate("document.querySelector('[id$=policy-clear]').getAttribute('href')"));
   await sentenceAboveTheFold("the default document at 1440×900");
   listingIsQuiet("the default document at 1440×900", await listingInk());
   const opening = await bridge();
@@ -553,7 +581,7 @@ try {
 
   // the same document reached by its link renders identically
   await open("07 admits", default07);
-  const openedByLink = await evaluate("[document.querySelector('#policy-body').innerHTML, document.querySelector('#answer-body').innerHTML]");
+  const openedByLink = await evaluate("[document.querySelector('[id$=policy-body]').innerHTML, document.querySelector('[id$=answer-body]').innerHTML]");
   check("the default renders as its own shared link does", openedWithNothing[0] === openedByLink[0] && openedWithNothing[1] === openedByLink[1],
     `the panes differ: policy ${openedWithNothing[0].length} against ${openedByLink[0].length} bytes, answer ${openedWithNothing[1].length} against ${openedByLink[1].length}`);
 
@@ -579,8 +607,8 @@ try {
   // the box it exists to produce: a control that hides itself under the
   // reader's focus drops them back at the top of the page.
   await open("the default document", "");
-  await evaluate("document.querySelector('#policy-clear').focus()");
-  check("the paste control is in the tab order", (await evaluate("document.activeElement.id")) === "policy-clear", await evaluate("document.activeElement.tagName + '#' + document.activeElement.id"));
+  await evaluate("document.querySelector('[id$=policy-clear]').focus()");
+  check("the paste control is in the tab order", (await evaluate("document.activeElement.id")).endsWith("policy-clear"), await evaluate("document.activeElement.tagName + '#' + document.activeElement.id"));
   await pressEnter();
   await sleep(250);
   const emptied = await evaluate(`({
@@ -589,7 +617,7 @@ try {
     boxes: document.querySelectorAll("textarea[name=policy]").length,
     value: (document.querySelector("textarea[name=policy]") || {}).value,
     sentences: document.querySelectorAll(".sentence").length,
-    readout: document.querySelector("#policy-readout").textContent,
+    readout: document.querySelector("[id$=policy-readout]").textContent,
   })`);
   await audit("the paste state at 1440px");
   check("Enter on the paste control leaves an empty box", emptied.boxes === 1 && emptied.value === "", JSON.stringify(emptied));
@@ -599,7 +627,7 @@ try {
   check("the empty state has no bridge", (await bridge()) === null, JSON.stringify(await bridge()));
   check("the empty state teaches", (await count(".teach")) === 1 && (await count("[data-copy=nothing]:not([hidden])")) === 1, `${await count(".teach")} teach blocks`);
   await teaches("the paste state at 1440px");
-  check("the share row says there is nothing to share", (await evaluate("(() => { document.querySelector('#share-toggle').click(); return document.querySelector('#share-note').textContent; })()")) === "Nothing to share yet: nothing is pasted.", await text("#share-note"));
+  check("the share row says there is nothing to share", (await evaluate("(() => { document.querySelector('#share-toggle').click(); return document.querySelector('[id$=share-note]').textContent; })()")) === "Nothing to share yet: nothing is pasted.", await text("[id$=share-note]"));
   await audit("the share row open at 1440px");
 
   // the empty state
@@ -623,25 +651,35 @@ try {
   await open("a corrupt link", whole.slice(0, 200));
   const unreadable = await text("[data-copy=unreadable-link]:not([hidden])");
   check("a corrupt link says the link could not be read", unreadable !== null && unreadable.includes("this page could not read"), `sentence: ${unreadable}`);
-  check("a corrupt link never blames the engine", !(await text("#answer-readout")).includes("engine did not load"), await text("#answer-readout"));
-  check("a corrupt link loads nothing", (await count("textarea[name=policy]")) === 1 && (await text("#policy-readout")) === "nothing pasted", await text("#policy-readout"));
+  check("a corrupt link never blames the engine", !(await text("[id$=answer-readout]")).includes("engine did not load"), await text("[id$=answer-readout]"));
+  check("a corrupt link loads nothing", (await count("textarea[name=policy]")) === 1 && (await text("[id$=policy-readout]")) === "nothing pasted", await text("[id$=policy-readout]"));
   await open("a link of another version", "#v2.aws.abc");
   check("a link of another version says so", ((await text("[data-copy=unreadable-link]:not([hidden])")) || "").includes("this page reads v1"), await text("[data-copy=unreadable-link]"));
 
-  // the engine does not arrive
-  await open("03 admits without the engine", whole, { engine: false });
-  check("the engine's own load failure keeps its own sentence", (await text("#answer-readout")).startsWith("the engine did not load: "), await text("#answer-readout"));
+  // The engine does not arrive. Withholding it means answering 404 for the
+  // wasm, which only the loopback server this run owns can be told to do: a
+  // URL is somebody else's server and it will keep serving the engine. So
+  // over a URL this state is not read, and the last line of the run says so
+  // rather than leaving a reader to infer a pass from a state that is
+  // missing.
+  if (dist) {
+    await open("03 admits without the engine", whole, { engine: false });
+    check("the engine's own load failure keeps its own sentence", (await text("[id$=answer-readout]")).startsWith("the engine did not load: "), await text("[id$=answer-readout]"));
+    engineWithheld = "the engine was withheld for one of them and the page kept its own sentence";
+  } else {
+    engineWithheld = "the engine could not be withheld from a server this run does not own, so that one state was not read";
+  }
 
   // one statement opens selected, and the toggle is a button
   await open("03 admits", whole);
   check("a one-statement document opens with its statement selected", (await count("button.mark[data-stmt='0'][aria-pressed='true']")) === 1 && (await count(".grant-head .stmt[aria-pressed='true']")) === 1 && (await count(".l[data-selected]")) === 17, `${await count("[aria-pressed='true'][data-stmt]")} pressed, ${await count(".l[data-selected]")} lines selected`);
   listingIsQuiet("03 admits at 1440×900", await listingInk());
-  check("the edit toggle is a button", (await evaluate("document.querySelector('#policy-edit').tagName")) === "BUTTON", await evaluate("document.querySelector('#policy-edit').outerHTML"));
-  await evaluate("document.querySelector('#policy-edit').click()");
-  check("edit shows the document in the box", (await count("textarea[name=policy]")) === 1 && (await text("#policy-edit")) === "listing", await text("#policy-edit"));
+  check("the edit toggle is a button", (await evaluate("document.querySelector('[id$=policy-edit]').tagName")) === "BUTTON", await evaluate("document.querySelector('[id$=policy-edit]').outerHTML"));
+  await evaluate("document.querySelector('[id$=policy-edit]').click()");
+  check("edit shows the document in the box", (await count("textarea[name=policy]")) === 1 && (await text("[id$=policy-edit]")) === "listing", await text("[id$=policy-edit]"));
   await audit("the edit state at 1440px");
-  await evaluate("document.querySelector('#policy-edit').click()");
-  check("listing shows the document as lines", (await count(".policy .l")) === 22 && (await text("#policy-edit")) === "edit", `${await count(".policy .l")} lines`);
+  await evaluate("document.querySelector('[id$=policy-edit]').click()");
+  check("listing shows the document as lines", (await count(".policy .l")) === 22 && (await text("[id$=policy-edit]")) === "edit", `${await count(".policy .l")} lines`);
 
   // the evidence body of a closed details is written when it opens, and
   // while it is open a keystroke moves it with the statement
@@ -672,12 +710,12 @@ try {
   // the reading, so only a re-evaluation inside the keystroke can have
   // written it.
   await open("03 admits", whole);
-  await evaluate("document.querySelector('#policy-edit').click()");
+  await evaluate("document.querySelector('[id$=policy-edit]').click()");
   await sleep(100);
   const answered = await evaluate(`(() => {
     const box = document.querySelector("textarea[name=policy]");
-    const sentence = () => (document.querySelector("#answer-body .sentence") || {}).textContent ?? "";
-    const readout = () => document.querySelector("#policy-readout").textContent;
+    const sentence = () => (document.querySelector("[id$=answer-body] .sentence") || {}).textContent ?? "";
+    const readout = () => document.querySelector("[id$=policy-readout]").textContent;
     const before = { sentence: sentence(), readout: readout() };
     if (!before.sentence.includes("repository_owner_id")) throw new Error("the document before the keystroke is not the one this reads: " + before.sentence.slice(0, 80));
     box.value = ${JSON.stringify(example("06-unconstrained"))};
@@ -693,27 +731,37 @@ try {
   // frame it asked for, and the ones in between are overtaken. That bound on
   // the work one frame can be asked to do is what the frame callback used to
   // give unconditionally.
+  // Counted off the page rather than off the engine: the loader writes no
+  // global, so there is nothing to wrap, and what a reader pays for is the
+  // re-render, not the call inside it. Each keystroke makes the document one
+  // byte longer, so every re-evaluation leaves a distinct byte count in the
+  // readout and the ones that were overtaken leave none.
   const inOneFrame = await evaluate(`(async () => {
     const box = document.querySelector("textarea[name=policy]");
-    const engine = globalThis.admits;
-    let calls = 0;
-    globalThis.admits = p => { calls++; return engine(p); };
+    const readout = document.querySelector("[id$=policy-readout]");
+    const seen = [];
+    const record = () => { const t = readout.textContent; if (seen[seen.length - 1] !== t) seen.push(t); };
+    const watcher = new MutationObserver(record);
+    watcher.observe(readout, { childList: true, subtree: true, characterData: true });
     // a space before the document's first brace: JSON ignores it, so each
     // keystroke is a readable document one byte longer than the last
     const base = box.value.trimStart();
     const type = n => {
       box.value = " ".repeat(n) + base;
       box.dispatchEvent(new InputEvent("input", { inputType: "insertText", bubbles: true }));
+      record();
     };
+    const start = readout.textContent;
     type(1); type(2); type(3);
-    const inTheKeystrokes = calls;
+    const inTheKeystrokes = seen.filter(t => t !== start).length;
     await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-    globalThis.admits = engine;
-    return { inTheKeystrokes, byTheFrame: calls, bytes: document.querySelector("#policy-readout").textContent };
+    record();
+    watcher.disconnect();
+    return { inTheKeystrokes, byTheFrame: seen.filter(t => t !== start).length, bytes: readout.textContent, seen };
   })()`);
   check("three keystrokes inside one frame are two re-evaluations",
     inOneFrame.inTheKeystrokes === 1 && inOneFrame.byTheFrame === 2,
-    `${inOneFrame.inTheKeystrokes} re-evaluation(s) in the keystrokes and ${inOneFrame.byTheFrame} by the end of the frame`);
+    `${inOneFrame.inTheKeystrokes} re-evaluation(s) in the keystrokes and ${inOneFrame.byTheFrame} by the end of the frame: ${JSON.stringify(inOneFrame.seen)}`);
   check("the last of them is the one the page ends up showing", inOneFrame.bytes === "aws trust policy · 444 bytes · 1 statement", inOneFrame.bytes);
 
   // the token view: a constraint value is code in the exact colour
@@ -743,19 +791,19 @@ try {
   listingIsQuiet("a Deny policy with its second statement selected", await listingInk());
   await open("a Deny policy with a denied token", await fragment(deny, denied, "token"));
   await evaluate("document.querySelector('#share-toggle').click()");
-  const markdown = await evaluate("document.querySelector('#share-url').dataset.markdown");
+  const markdown = await evaluate("document.querySelector('[id$=share-url]').dataset.markdown");
   check("a token view shares the policy's answer for the token", markdown.startsWith("[Refused by grant 2, though grant 1 admits it.]("), markdown.slice(0, 80));
   await noSidewaysScroll("the token view of a Deny policy");
 
   // a document the engine reads and finds nobody in: an answer, and still a
   // way on
   await open("a document with no statement", await fragment(noStatements));
-  check("a document with no statement says nobody is named", (await text("#answer-readout")) === "0 grants · nobody is named" && (await count("article.answer")) === 0, `${await text("#answer-readout")}, ${await count("article.answer")} articles`);
+  check("a document with no statement says nobody is named", (await text("[id$=answer-readout]")) === "0 grants · nobody is named" && (await count("article.answer")) === 0, `${await text("[id$=answer-readout]")}, ${await count("article.answer")} articles`);
 
   // documents the parser reads as anomalous are answered, not refused
   for (const [name, doc] of [["a misspelt member", misspelt], ["a scalar Statement", scalarStatement]]) {
     await open(name, await fragment(doc));
-    check(`${name} is answered with its anomaly`, (await text("#answer-readout")) === "1 grant · upper bound · 1 caveat" && (await count("article.answer")) === 1 && (await count(".notes li")) >= 1, `${await text("#answer-readout")}, ${await count("article.answer")} articles`);
+    check(`${name} is answered with its anomaly`, (await text("[id$=answer-readout]")) === "1 grant · upper bound · 1 caveat" && (await count("article.answer")) === 1 && (await count(".notes li")) >= 1, `${await text("[id$=answer-readout]")}, ${await count("article.answer")} articles`);
   }
 
   // nothing scrolls sideways at 400px
@@ -794,7 +842,7 @@ try {
   // governs, and each must be the number written and at least the floor for
   // body text. A pair nobody wrote down is a pair nobody measured, so every
   // ink in every block must carry its ratios.
-  const recorded = recordedRatios(readFileSync("web/tokens.css", "utf8"));
+  const recorded = recordedRatios(readFileSync(tokensPath, "utf8"));
   check("the two dark blocks are the same declarations", recorded.darkMedia === recorded.darkPinned,
     `the media query and [data-theme="dark"] differ:\n${recorded.darkMedia}\n${recorded.darkPinned}`);
   let pairs = 0;
@@ -808,8 +856,27 @@ try {
     await send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: system }] });
     await open(where, default07);
     if (pin) {
-      await evaluate(`document.documentElement.dataset.theme = "dark"`);
+      // Pressed, not assigned. Setting the attribute here would read the same
+      // colours and would leave the control itself unexercised: a theme
+      // control that wrote the choice to storage would never run, and the
+      // storage assertion at the end of this run would pass over a page that
+      // stores a theme. That gap was found by a mutation that nothing caught.
+      const clicked = await evaluate(`(() => {
+        const button = document.querySelector('[data-theme-choice="dark"]');
+        if (!button) return false;
+        button.click();
+        return true;
+      })()`);
       await sleep(50);
+      // read after the frame, not inside the click: a theme control is not
+      // the keystroke path, and one frame is the whole of what it may cost
+      const pressed = clicked ? await evaluate(`(() => {
+        const button = document.querySelector('[data-theme-choice="dark"]');
+        return { theme: document.documentElement.dataset.theme, pressed: button.getAttribute("aria-pressed") };
+      })()`) : null;
+      check("the theme control pins dark when it is pressed", pressed !== null && pressed.theme === "dark" && pressed.pressed === "true",
+        pressed === null ? "there is no theme control on the page" : JSON.stringify(pressed));
+      themeChoicesPressed++;
     }
     const rendered = await palette();
     for (const ink of inks) {
@@ -819,25 +886,26 @@ try {
         const measured = contrastRatio(rendered[ink], rendered[ground]);
         pairs++;
         check(`${where}: ${ink} on ${ground} is written as measured`, measured.toFixed(2) === saidRatio,
-          `tokens.css says ${saidRatio}:1, Chrome renders ${rendered[ink]} on ${rendered[ground]} at ${measured.toFixed(2)}:1`);
+          `${tokensPath} says ${saidRatio}:1, Chrome renders ${rendered[ink]} on ${rendered[ground]} at ${measured.toFixed(2)}:1`);
         check(`${where}: ${ink} on ${ground} reaches the floor for body text`, measured >= textFloor,
           `${measured.toFixed(2)}:1, under ${textFloor}:1`);
       }
     }
   }
-  check("every pair recorded beside a token was measured", pairs > 0, "no ratio was read out of tokens.css, so nothing was compared");
+  check("every pair recorded beside a token was measured", pairs > 0, `no ratio was read out of ${tokensPath}, so nothing was compared`);
   contrastPairs = pairs;
 
   // ---- the headers the hosted page is served under ----
   // product/LAUNCH-STANDARD.md §4, and the one row on it that cannot be met
-  // by a file: the set is asserted where it is declared, in web/dist/_headers,
-  // and again in the response Cloudflare's own server built from that file,
-  // and then the page is loaded under it. The emulator adds two headers of
-  // its own in dev, so the declaration is what is read for content and the
-  // response is what proves the declaration was applied at all.
-  const headersFile = join(resolve(dist), "_headers");
-  check("the hosted page carries a header file", existsSync(headersFile), `${headersFile} does not exist`);
-  const declared = existsSync(headersFile) ? parseHeaders(readFileSync(headersFile, "utf8")) : new Map();
+  // by a file. Over a directory the set is asserted where it is declared, in
+  // web/dist/_headers, and again in the response Cloudflare's own server
+  // built from that file, and then the page is loaded under it: the emulator
+  // adds two headers of its own in dev, so the declaration is what is read
+  // for content and the response is what proves the declaration was applied
+  // at all. Over a URL there is no file and nothing to emulate — the server
+  // under test is the one already answering — so the same set is read out of
+  // its own response, which is the stronger reading of the two and the one
+  // that will be pointed at a real origin.
   const required = {
     "Content-Security-Policy": csp => {
       const tokens = csp.split(";").map(d => d.trim().split(/\s+/));
@@ -864,28 +932,51 @@ try {
       return features.length >= 20 ? "" : `it names ${features.length} features`;
     },
   };
-  for (const [name, meets] of Object.entries(required)) {
-    const value = declared.get(name);
-    check(`_headers declares ${name}`, value !== undefined, "it is not in the file");
-    if (value !== undefined) check(`_headers declares ${name} as the launch standard asks`, meets(value) === "", `${meets(value)}: ${value}`);
-  }
-
-  // the same headers, read out of the response Cloudflare's own server built
-  const served = await servedHeaders(dist);
-  check("the pages emulator parsed the header file", served.rules >= 1, `it reported ${served.rules} valid header rules: ${served.log.slice(-400)}`);
-  for (const name of Object.keys(required)) {
-    const want = declared.get(name);
-    const got = served.headers.get(name.toLowerCase());
-    check(`the served response carries ${name} as the file declares it`, want !== undefined && got === want, `served "${got ?? "nothing"}"`);
+  let stopServed = () => {};
+  if (dist) {
+    const headersFile = join(resolve(dist), "_headers");
+    check("the hosted page carries a header file", existsSync(headersFile), `${headersFile} does not exist`);
+    const declared = existsSync(headersFile) ? parseHeaders(readFileSync(headersFile, "utf8")) : new Map();
+    for (const [name, meets] of Object.entries(required)) {
+      const value = declared.get(name);
+      check(`_headers declares ${name}`, value !== undefined, "it is not in the file");
+      if (value !== undefined) check(`_headers declares ${name} as the launch standard asks`, meets(value) === "", `${meets(value)}: ${value}`);
+    }
+    // the same headers, read out of the response Cloudflare's own server built
+    const served = await servedHeaders(dist);
+    servedUrl = served.url;
+    stopServed = served.stop;
+    check("the pages emulator parsed the header file", served.rules >= 1, `it reported ${served.rules} valid header rules: ${served.log.slice(-400)}`);
+    for (const name of Object.keys(required)) {
+      const want = declared.get(name);
+      const got = served.headers.get(name.toLowerCase());
+      check(`the served response carries ${name} as the file declares it`, want !== undefined && got === want, `served "${got ?? "nothing"}"`);
+    }
+    emulatorUsed = `${emulator.join(" ")}, ${served.rules} header rule${served.rules === 1 ? "" : "s"} parsed`;
+    headersSource = `${dist}/_headers and again out of the response the pages emulator built from it`;
+  } else {
+    const response = await fetch(base);
+    check("the server under test answers the page", response.ok, `it answered ${response.status} ${response.statusText}`);
+    for (const [name, meets] of Object.entries(required)) {
+      const value = response.headers.get(name);
+      check(`the server under test sends ${name}`, value !== null, "it is not in the response");
+      if (value !== null) check(`the ${name} it sends is what the launch standard asks`, meets(value) === "", `${meets(value)}: ${value}`);
+    }
+    servedUrl = base;
+    emulatorUsed = "no emulator: the server under test answered for itself";
+    headersSource = `the response ${base} answered with`;
   }
 
   // and the page under them: an engine that will not compile under the
   // policy, or a stylesheet the policy refuses, is a hosted page that does
-  // not work, which no reading of the file would have shown
-  await send("Page.navigate", { url: served.url });
-  for (let i = 0; i < 100 && !(await evaluate("typeof globalThis.admits === 'function' && document.querySelector('#answer-body .sentence') !== null")); i++) await sleep(100);
+  // not work, which no reading of the file would have shown.
+  // What says the engine has arrived is the page, so the page is what is
+  // waited on. The query is this one state's; without it a navigation the
+  // server refused would leave the previous page up and the content policy
+  // would be read off a page served without one.
+  await settleOn(browser, `${servedUrl}?under-its-own-headers`, "document.querySelector('[id$=answer-body] .sentence') !== null", { tries: 100 });
   await sleep(200);
-  const underPolicy = await evaluate(`({ refused: window.__refused, sentence: (document.querySelector("#answer-body .sentence") || {}).textContent ?? null, hash: location.hash })`);
+  const underPolicy = await evaluate(`({ refused: window.__refused, sentence: (document.querySelector("[id$=answer-body] .sentence") || {}).textContent ?? null, hash: location.hash })`);
   check("the page evaluates under its own content policy", underPolicy.sentence !== null && underPolicy.hash.startsWith("#v1.aws."),
     `the answer pane holds ${underPolicy.sentence === null ? "no sentence" : "a sentence"} at ${underPolicy.hash || "no fragment"}`);
   check("the content policy refuses nothing the page does", underPolicy.refused.length === 0 && refusals.length === 0,
@@ -893,37 +984,78 @@ try {
   await audit("the page under its own content policy at 1440px");
   await sentenceIsLargest("the page under its own content policy at 1440px");
   headersRead = Object.keys(required).length;
-  emulatorUsed = `${emulator.join(" ")}, ${served.rules} header rule${served.rules === 1 ? "" : "s"} parsed`;
-  served.stop();
+  stopServed();
 
   // Nothing is fetched but the page's own files, and nothing is left in the
   // browser. Read after every state has been opened, so the set covers the
   // whole run rather than one page load.
-  const origins = new Set([new URL(base).origin, new URL(served.url).origin]);
-  const own = new Set(["/", "/index.html", "/tokens.css", "/app.css", "/app.js", "/wasm_exec.js", "/cloudarq.wasm"]);
-  const elsewhere = [...requested].filter(url => {
-    const at = new URL(url);
-    return !origins.has(at.origin) || !own.has(at.pathname);
-  });
+  // The allowed set is derived from the build, never written out here: a
+  // literal list of paths is a list that a build with hashed asset names
+  // breaks on its first day, and a gate that has to be edited after every
+  // build is a gate that gets edited to agree with the build.
+  const origins = new Set([new URL(base).origin, ...(servedUrl ? [new URL(servedUrl).origin] : [])]);
   requests = requested.size;
-  check("the page fetches nothing but the files it is made of", elsewhere.length === 0, elsewhere.join(", "));
-  check("the page did fetch its own files", requested.size >= own.size, `${requested.size} requests over the whole run`);
-  const left = await evaluate(`(async () => {
+  const offOrigin = [...requested].filter(url => !origins.has(new URL(url).origin));
+  check("the page fetches nothing off the origins it was served from", offOrigin.length === 0, offOrigin.join(", "));
+  check("the page did fetch its own files", requested.size >= 3, `${requested.size} requests over the whole run`);
+  if (dist) {
+    const elsewhere = [...requested].filter(url => !builtPaths.has(new URL(url).pathname));
+    check("the page fetches nothing but the files it is made of", elsewhere.length === 0, elsewhere.join(", "));
+    check("the set of files the page is made of was read from the build", builtPaths.size > 1, `${builtPaths.size} paths were derived from ${dist}`);
+    check("every file the build manifest names is in the build", manifestMissing.length === 0, manifestMissing.join(", "));
+    network = `all of them among the ${builtPaths.size} paths read out of the build (${manifestNamed.length} of them named by its manifest)`;
+  } else {
+    // Over a URL the build is not on disk, so the set the page is made of
+    // cannot be walked — and a check that cannot be made is not a check that
+    // passed. What the origin does publish is Vite's manifest, so the walk is
+    // done over HTTP instead: every file it names is asked for, and every one
+    // has to come back.
+    const manifestUrl = new URL(".vite/manifest.json", servedUrl).href;
+    const response = await fetch(manifestUrl);
+    const manifest = response.ok ? await response.json() : null;
+    const named = new Set();
+    for (const entry of Object.values(manifest ?? {})) {
+      if (entry.file) named.add(entry.file);
+      for (const css of entry.css ?? []) named.add(css);
+      for (const asset of entry.assets ?? []) named.add(asset);
+    }
+    const unserved = [];
+    for (const path of named) {
+      const at = new URL(path, servedUrl).href;
+      const got = await fetch(at);
+      if (!got.ok) unserved.push(`${path} -> ${got.status}`);
+    }
+    check("the origin serves the build manifest it was built with", manifest !== null, `${manifestUrl} answered ${response.status}`);
+    check("every file the manifest names is served by that origin", named.size > 0 && unserved.length === 0,
+      named.size === 0 ? "the manifest names no file, so nothing was asked for" : unserved.length ? unserved.join(", ") : `${named.size} files named, every one answered`);
+    network = `every one to ${[...origins].join(" and ")}, and the ${named.size} files the origin's own build manifest names all answered`;
+  }
+  // Storage is per origin, and this run has used two: the loopback server
+  // every state was driven on, and the pages emulator the content policy was
+  // read under. Reading only the one the run happens to end on is reading the
+  // wrong origin's storage — a theme control that wrote a choice on the first
+  // would leave the second empty, which is how this was found.
+  const storage = `(async () => {
     const out = { cookie: document.cookie, local: null, session: null, databases: null, caches: null };
     try { out.local = localStorage.length; } catch (err) { out.local = err.name; }
     try { out.session = sessionStorage.length; } catch (err) { out.session = err.name; }
     try { out.databases = (await indexedDB.databases()).map(d => d.name); } catch (err) { out.databases = err.name; }
     try { out.caches = await caches.keys(); } catch (err) { out.caches = err.name; }
     return out;
-  })()`);
-  check("the page leaves nothing in the browser", left.cookie === "" && left.local === 0 && left.session === 0 && (left.databases || []).length === 0 && (left.caches || []).length === 0, JSON.stringify(left));
+  })()`;
+  const empty = left => left.cookie === "" && left.local === 0 && left.session === 0 && (left.databases || []).length === 0 && (left.caches || []).length === 0;
+  const onTheEmulator = await evaluate(storage);
+  check("the page leaves nothing in the browser, on the origin its policy was read on", empty(onTheEmulator), JSON.stringify(onTheEmulator));
+  await open("the page again, to read the origin every state was driven on", default07);
+  const left = await evaluate(storage);
+  check("the page leaves nothing in the browser, on the origin every state was driven on", empty(left), JSON.stringify(left));
+  // A storage assertion over a run in which nothing was chosen is an
+  // assertion about a page nobody used.
+  check("a theme was chosen before the browser was read", themeChoicesPressed > 0, `${themeChoicesPressed} theme choices were pressed over the whole run`);
 } finally {
-  ws.close();
-  chrome.kill("SIGKILL");
   stopEmulator();
-  server.close();
-  await sleep(100);
-  rmSync(profile, { recursive: true, force: true });
+  server?.stop();
+  await browser.stop();
 }
 
 if (errors.length) {
@@ -932,10 +1064,10 @@ if (errors.length) {
 }
 for (const f of failures) console.error(`FAIL: ${f}`);
 const undecided = [...incompleteSeen].map(([id, n]) => `${id}\u00d7${n}`).join(", ") || "none";
-console.log(`page check: ${checks} assertions read in Chrome, ${failures.length} wrong`);
+console.log(`page check: ${checks} assertions read in Chrome, ${failures.length} wrong; ${engineWithheld}`);
 console.log(`axe: axe-core ${axeVersion} run over ${audits} states, ${violations} violations; left undecided and read by the contrast check below: ${undecided}`);
-console.log(`contrast: ${contrastPairs} pairs read out of Chrome in both themes, each equal to the ratio written beside its token in web/tokens.css and at least ${textFloor}:1`);
+console.log(`contrast: ${contrastPairs} pairs read out of Chrome in both themes, each equal to the ratio written beside its token in ${tokensPath} and at least ${textFloor}:1`);
 console.log(`hierarchy: ${sentencesRead} finding sentences read across those states, ${listingsRead} listings read line by line for the ink they carry`);
-console.log(`network: ${requests} requests over the whole run, all of them the page's own files; no cookie, no storage, no database, no cache`);
-console.log(`headers: ${headersRead} required headers read out of web/dist/_headers and again out of the response the pages emulator built from it (${emulatorUsed}), with the page loaded and evaluated under them`);
+console.log(`network: ${requests} requests over the whole run, ${network}; no cookie, no storage, no database, no cache`);
+console.log(`headers: ${headersRead} required headers read out of ${headersSource} (${emulatorUsed}), with the page loaded and evaluated under them`);
 if (checks === 0 || audits === 0 || contrastPairs === 0 || sentencesRead === 0 || listingsRead === 0 || headersRead === 0 || failures.length > 0) process.exit(1);

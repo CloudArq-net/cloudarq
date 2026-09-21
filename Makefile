@@ -53,9 +53,10 @@ cover:
 
 ## css: taste under deadline is unreliable; a grep is not. docs/ENGINEERING.md s9.
 css:
-	@! grep -rniE 'gradient|blur-\[|backdrop-filter|cyber-|drop-shadow' web/ 2>/dev/null \
+	@! grep -rniE --exclude-dir=node_modules --exclude-dir=dist --exclude-dir=site --exclude-dir=.svelte-kit --exclude-dir=.vite \
+	  'gradient|blur-\[|backdrop-filter|cyber-|drop-shadow' web/ 2>/dev/null \
 	  || { echo "FAIL: forbidden visual idiom in web/ (docs/ENGINEERING.md s9)"; exit 1; }
-	@echo "css: clean"
+	@echo "css: clean over the sources under web/ (build output and node_modules excluded)"
 
 check: build vet test purity determinism cover css
 	@echo "all checks green"

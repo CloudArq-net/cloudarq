@@ -1,11 +1,23 @@
 #!/usr/bin/env bash
-# Builds the explorer into web/dist and proves the build: the engine compiled
-# to WebAssembly, its sizes against the budget, the greps and the token
-# census that stand in for taste, the differential against the native engine
-# over every document in the corpus and the generated shapes, the entry's
-# refusal of depth, the heap's ceiling, the glue's recovery from a trap, the
-# engine's own time in node, the page's behaviour in Chrome under the headers
-# it will be hosted with, and the page's re-evaluation time in Chrome.
+# Builds the explorer into web/dist and proves the build.
+#
+# The page in web/dist is @cloudarq/explorer's standalone page, built by Vite
+# out of the package: there is one explorer in this repository and one page
+# that mounts it. What is proven here, in order: the engine compiled to
+# WebAssembly, its sizes against the budget, the differential against the
+# native engine over every document in the corpus and the generated shapes,
+# the entry's refusal of depth, the heap's ceiling, the glue's recovery from a
+# trap, the engine's own time in node, the package's type check and tests, the
+# package's own rules and byte budget, the rendering differential that holds
+# the page to web/text-fixture.json word for word, the tarball a consumer
+# installs, the page's behaviour in Chrome under the headers it will be hosted
+# with, a host page built from that tarball with the component mounted twice —
+# which is the only place the ids, the landmarks, the address's one owner and
+# the unmounting can be read — and the page's re-evaluation time in Chrome.
+#
+# web/text-fixture.json is the record of what the shipped page rendered,
+# captured in Chrome before the component existed. It is committed, so the
+# differential needs no second page alive to compare against.
 #
 # Standalone until the Makefile gains web targets. Every step prints what it
 # measured; a step that cannot run fails the build rather than printing a
@@ -42,107 +54,51 @@ echo "── build ──"
 # the day the budget, rather than the frame, is the tight one.
 tinygo build -o "$work/engine.wasm" -target web/wasm/target.json -buildmode=c-shared -scheduler=none -opt=s -no-debug ./web/wasm
 tinygo build -o "$work/trapping.wasm" -target wasm -buildmode=c-shared -scheduler=none -opt=s -no-debug ./web/wasm
+# The engine is built under $work rather than into $dist, because the page's
+# own build empties $dist: the engine and the hosted headers are the host's,
+# not the bundler's, and they are copied in after Vite has written the page.
 wasm-opt -Os --enable-bulk-memory --enable-nontrapping-float-to-int --enable-sign-ext \
   --enable-mutable-globals --enable-reference-types --enable-multivalue \
-  "$work/engine.wasm" -o "$dist/cloudarq.wasm"
+  "$work/engine.wasm" -o "$work/cloudarq.wasm"
 go build -o "$work/native" ./web/wasm/native
-# _headers is what Cloudflare Pages reads from the root of what it serves;
-# it belongs beside the page in dist and is kept in web/ so that a clean
-# build writes it rather than inheriting it
-cp web/index.html web/app.js web/tokens.css web/app.css web/wasm_exec.js web/_headers "$dist/"
-echo "built $dist/cloudarq.wasm and the page beside it, with the hosted headers in $dist/_headers"
+echo "built $work/cloudarq.wasm; the page it goes beside is built further down, out of the package"
 
 echo
-echo "── examples ──"
-# the empty state offers three corpus documents, embedded in the page; they
-# must be the corpus bytes, not a copy that drifted
+echo "── the harness's own rules ──"
+# "secure" is a permitted adjective and "security" a forbidden noun. The
+# hosted headers and the browser API that reports their refusals carry the
+# word as a name of the platform, which is not the product speaking. The
+# package's source is read by web/package-check.mjs; what is read here is the
+# harness beside it. build.sh and package-check.mjs are not in the list
+# because they carry the pattern: a scanner that scans itself reports its own
+# rule and nothing else.
 node --input-type=module -e '
 import { readFileSync } from "node:fs";
-const html = readFileSync("web/index.html", "utf8");
-let n = 0;
-for (const [, name, text] of html.matchAll(/<script type="application\/json" data-example="([^"]+)">([^]*?)<\/script>/g)) {
-  if (text !== readFileSync(`testdata/grants/${name}/aws.json`, "utf8")) {
-    console.error(`FAIL: the example ${name} in web/index.html differs from testdata/grants/${name}/aws.json`);
-    process.exit(1);
-  }
-  n++;
-}
-if (n === 0) { console.error("FAIL: no example is embedded in web/index.html"); process.exit(1); }
-console.log(`examples: ${n} embedded documents equal their corpus files byte for byte`);
-'
-
-echo
-echo "── the page's own rules ──"
-# product/LAUNCH-STANDARD.md §3 and docs/ENGINEERING.md §9: the greps that
-# stand in for taste under a deadline. They were run by hand until now, which
-# is not a gate. Declarations are read with comments stripped, because a
-# comment declares nothing: the file says 800px in prose twice and the one
-# literal length outside the tokens is the media query, which a custom
-# property cannot express.
-node --input-type=module -e '
-import { readFileSync } from "node:fs";
-const read = path => readFileSync(`web/${path}`, "utf8");
-const strip = (path, text) => path.endsWith(".html")
-  ? text.replace(/<!--[^]*?-->/g, "")
-  : text.replace(/\/\*[^]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
-const lines = paths => paths.flatMap(path => strip(path, read(path)).split("\n").map((text, i) => [`${path}:${i + 1}`, text]));
-const page = ["index.html", "app.css", "tokens.css", "app.js"];
-const styling = ["index.html", "app.css", "app.js"];
-
-let broken = 0;
-// A rule fires on every line its pattern matches, except the ones "allowed"
-// names. The default allows nothing: a default that allowed everything made
-// six of the eight greps below print "clean" over a page carrying a
-// box-shadow and a literal duration, which is how they were found.
-const rule = (name, paths, pattern, allowed = () => false) => {
-  const hits = lines(paths).filter(([, text]) => pattern.test(text)).filter(([at, text]) => !allowed(at, text));
-  console.log(`  ${hits.length === 0 ? "clean" : "FAIL "} ${name}: ${lines(paths).length} declaration lines over ${paths.join(", ")}${hits.length ? `\n         ${hits.map(([at, text]) => `${at}: ${text.trim()}`).join("\n         ")}` : ""}`);
-  if (hits.length) broken++;
-};
-
-// the Makefile css target greps every file under web/ for the same idioms,
-// this script included, so the words are spelt with a character class here:
-// the pattern still matches them in the page, and this file never carries them
-rule("no decoration", page, /gr[a]dient|blur-\[|backdrop-f[i]lter|cyb[e]r-|drop-sh[a]dow|box-sh[a]dow|border-radius: *([4-9]|[1-9][0-9])px/);
-rule("no colour outside the tokens", styling, /#[0-9a-fA-F]{3,8}\b|transparent|currentColor|rgb\(|hsl\(/);
-rule("no length outside the tokens", styling, /[0-9](px|rem|em|ch|lh)\b/, at => at.startsWith("app.css:") && /@media/.test(lines(["app.css"]).find(([a]) => a === at)[1]));
-// motion explains state and never decorates: every transition and keyframe is
-// declared once in tokens.css under a named motion token, so a literal
-// duration anywhere else is a motion nobody declared
-rule("no motion outside the tokens", styling, /transition|animation|@keyframes|scroll-behavior/);
-rule("no literal duration outside the tokens", ["index.html", "app.css"], /[0-9](\.[0-9]+)?m?s\b/);
-rule("no verdict in the page", page, /severity|critical|posture|verdict|badge|hero|dashboard|!important|TODO|FIXME|XXX/i);
-// "secure" is a permitted adjective and "security" a forbidden noun; the
-// hosted headers and the browser API that reports their refusals carry the
-// word as a name of the platform, which is not the product speaking
 const platform = /Content-Security-Policy|Strict-Transport-Security|securitypolicyviolation|source === "security"/;
-rule("the page never says the forbidden noun", page, /secur/i);
-// build.sh is not in that list because it carries the pattern: a scanner
-// that scans itself reports its own rule and nothing else
-rule("nothing else says it but the platform", ["_headers", "page-check.mjs", "page-timing.mjs", "diff.mjs"], /secur/i, (at, text) => platform.test(text));
-
-// Every token declared in tokens.css is read by name somewhere, and every
-// name the page reads is declared: the second half catches a token renamed
-// in one file and not the other, which no stylesheet reports.
-const declarations = text => [...text.matchAll(/(--[a-z0-9-]+)\s*:/g)].map(m => m[1]);
-const tokens = [...new Set(declarations(read("tokens.css")))];
-const all = page.map(read).join("\n");
-const declared = new Set(page.flatMap(path => declarations(read(path))));
-const unused = tokens.filter(t => !all.includes(`var(${t})`) && !all.includes(`"${t}"`));
-const used = [...new Set([...all.matchAll(/var\((--[a-z0-9-]+)/g)].map(m => m[1]))];
-const undeclared = used.filter(t => !declared.has(t));
-console.log(`  ${unused.length || undeclared.length ? "FAIL " : "clean"} every token is declared and consumed: ${tokens.length} declared in tokens.css, ${used.length} names read across the page${unused.length ? `; unused: ${unused.join(", ")}` : ""}${undeclared.length ? `; never declared: ${undeclared.join(", ")}` : ""}`);
-if (unused.length || undeclared.length) broken++;
-if (tokens.length === 0) { console.log("  FAIL  no token was read out of tokens.css, so nothing was checked"); broken++; }
-if (broken) { console.error(`FAIL: ${broken} of the page rules are broken`); process.exit(1); }
-console.log(`the page rules: ${tokens.length} tokens and 8 greps over the page, all clean`);
+const paths = ["_headers", "page-check.mjs", "page-timing.mjs", "diff.mjs", "text-diff.mjs", "chrome.mjs", "chrome.test.mjs", "consumer-check.mjs"];
+// read with comments stripped, because a comment declares nothing: what is
+// being looked for is the word reaching a reader, and these files say it
+// about themselves
+const strip = text => text.replace(/\/\*[^]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+const lines = paths.flatMap(path => strip(readFileSync(`web/${path}`, "utf8")).split("\n").map((text, i) => [`${path}:${i + 1}`, text]));
+const hits = lines.filter(([, text]) => /secur/i.test(text)).filter(([, text]) => !platform.test(text));
+if (hits.length) {
+  console.error(`FAIL: the harness says the forbidden noun\n  ${hits.map(([at, text]) => `${at}: ${text.trim()}`).join("\n  ")}`);
+  process.exit(1);
+}
+if (lines.length === 0) { console.error("FAIL: not one line was read out of the harness, so nothing was examined"); process.exit(1); }
+console.log(`  clean nothing but the platform says it: ${lines.length} lines over ${paths.length} files`);
 '
+# What the harnesses' own wait does when a navigation never arrives and when
+# it runs out. It drives a Chrome against a server that answers awkwardly on
+# purpose, so it is here rather than in CI.
+node --test web/chrome.test.mjs
 
 echo
 echo "── size ──"
-raw=$(stat -f %z "$dist/cloudarq.wasm" 2>/dev/null || stat -c %s "$dist/cloudarq.wasm")
-gz=$(gzip -9 -c "$dist/cloudarq.wasm" | wc -c | tr -d ' ')
-br=$(brotli -q 11 -c "$dist/cloudarq.wasm" | wc -c | tr -d ' ')
+raw=$(stat -f %z "$work/cloudarq.wasm" 2>/dev/null || stat -c %s "$work/cloudarq.wasm")
+gz=$(gzip -9 -c "$work/cloudarq.wasm" | wc -c | tr -d ' ')
+br=$(brotli -q 11 -c "$work/cloudarq.wasm" | wc -c | tr -d ' ')
 before=$(stat -f %z "$work/engine.wasm" 2>/dev/null || stat -c %s "$work/engine.wasm")
 echo "tinygo:   $before bytes raw"
 echo "wasm-opt: $raw bytes raw, $gz bytes gzip -9, $br bytes brotli -q 11"
@@ -154,7 +110,7 @@ echo "size: $gz bytes gzipped is within the budget of $budget_gzip"
 
 echo
 echo "── differential, memory, engine timing, recovery ──"
-if ! differential=$(node web/diff.mjs "$dist/cloudarq.wasm" "$work/native" "$work" "$work/trapping.wasm" 2>&1); then
+if ! differential=$(node web/diff.mjs "$work/cloudarq.wasm" "$work/native" "$work" "$work/trapping.wasm" 2>&1); then
   echo "$differential"
   exit 1
 fi
@@ -175,18 +131,17 @@ wasm-opt -Oz --enable-bulk-memory --enable-nontrapping-float-to-int --enable-sig
   --enable-mutable-globals --enable-reference-types --enable-multivalue \
   "$work/engine-z.wasm" -o "$work/cloudarq-z.wasm"
 gz_z=$(gzip -9 -c "$work/cloudarq-z.wasm" | wc -c | tr -d ' ')
-shipped="$dist/cloudarq.wasm" for_size="$work/cloudarq-z.wasm" fifty="$work/fifty-statements.json" \
+shipped="$work/cloudarq.wasm" for_size="$work/cloudarq-z.wasm" fifty="$work/fifty-statements.json" \
 gz_shipped="$gz" gz_for_size="$gz_z" budget="$budget_gzip" node --input-type=module -e '
 import { readFileSync } from "node:fs";
-await import("./web/wasm_exec.js");
-const { loadEngine } = await import("./web/app.js");
+const { loadEngine } = await import("./web/packages/explorer/src/lib/engine.ts");
 const { shipped, for_size, fifty: fiftyPath, gz_shipped, gz_for_size, budget } = process.env;
 const fifty = readFileSync(fiftyPath, "utf8");
 const medianMs = async path => {
-  await loadEngine(await WebAssembly.compile(readFileSync(path)));
-  for (let i = 0; i < 20; i++) admits(fifty);
+  const engine = await loadEngine(await WebAssembly.compile(readFileSync(path)));
+  for (let i = 0; i < 20; i++) engine.admits(fifty);
   const runs = [];
-  for (let i = 0; i < 50; i++) { const t = performance.now(); admits(fifty); runs.push(performance.now() - t); }
+  for (let i = 0; i < 50; i++) { const t = performance.now(); engine.admits(fifty); runs.push(performance.now() - t); }
   return runs.sort((a, b) => a - b)[25];
 };
 const s = await medianMs(shipped);
@@ -195,6 +150,47 @@ console.log(`-opt=s, shipped:     ${gz_shipped} bytes gzipped, admits on 50 stat
 console.log(`-opt=z, not shipped: ${gz_for_size} bytes gzipped, median ${z.toFixed(2)} ms`);
 console.log(`the trade: ${gz_shipped - gz_for_size} bytes saved for ${(z - s).toFixed(2)} ms added to the engine call inside every keystroke, against ${budget - gz_shipped} bytes of headroom in the ${budget} byte budget`);
 '
+
+echo
+echo "── the explorer package and the page it builds ──"
+# The page in $dist is this package's. `npm run build` packages the library
+# and then builds the page, which empties $dist first — so the engine and the
+# hosted headers go in afterwards. _headers is what Cloudflare Pages reads
+# from the root of what it serves; it is kept in web/ so that a clean build
+# writes it rather than inheriting it.
+if [ ! -d node_modules ]; then
+  echo "FAIL: node_modules is not installed; run npm ci --ignore-scripts"
+  exit 1
+fi
+npm run check --workspace @cloudarq/explorer
+CLOUDARQ_WASM="$work/cloudarq.wasm" CLOUDARQ_TRAPPING_WASM="$work/trapping.wasm" npm test --workspace @cloudarq/explorer
+npm run build --workspace @cloudarq/explorer
+cp "$work/cloudarq.wasm" web/packages/explorer/dist/
+cp "$work/cloudarq.wasm" web/_headers "$dist/"
+echo "the package built into web/packages/explorer/dist and the standalone page into $dist, with the engine and the hosted headers beside it"
+
+echo
+echo "── the package's own rules ──"
+node web/package-check.mjs
+
+echo
+echo "── the rendering differential ──"
+# Every corpus document through the page, compared word for word against what
+# the shipped page rendered. web/text-fixture.json was read out of that page
+# in Chrome before the component existed and is committed, so this needs no
+# second page alive: the same sentences, the same claim tables, the same
+# caveats, the same witnesses and the same readouts.
+node web/text-diff.mjs compare "$dist" web/text-fixture.json
+
+echo
+echo "── the tarball ──"
+# What a consumer installs: built by this gate, packed here, and named by its
+# digest. npm pack is byte-reproducible for a given tree, so the digest below
+# identifies the bytes rather than the moment they were made.
+tarball=$(cd web/packages/explorer && npm pack --ignore-scripts --pack-destination "$work" --silent | tail -1)
+tarball_sha=$(shasum -a 256 "$work/$tarball" | cut -d" " -f1)
+tarball_bytes=$(stat -f %z "$work/$tarball" 2>/dev/null || stat -c %s "$work/$tarball")
+echo "tarball: $tarball, $tarball_bytes bytes, sha256 $tarball_sha"
 
 echo
 echo "── axe-core ──"
@@ -240,11 +236,61 @@ fi
 echo "wrangler: $wrangler_version, tarball sha256 $wrangler_got; MIT OR Apache-2.0, build machine only, not in $dist"
 
 echo
-echo "── page check ──"
-node web/page-check.mjs "$dist" "$work/axe.min.js" "npx --yes wrangler@$wrangler_version"
+echo "── page check, the page in $dist ──"
+node web/page-check.mjs "$dist" "$work/axe.min.js" "npx --yes wrangler@$wrangler_version" --tokens web/packages/explorer/src/lib/tokens.css
+
+echo
+echo "── page check, the same page over a URL ──"
+# The other half of the harness's one argument: a server somebody else is
+# already running. It is the path unit 2b points at a real origin, and a path
+# nothing exercises is a path that has never run. The emulator is started here
+# rather than by the harness, because over a URL the server under test is the
+# one already answering.
+# The command is a launcher that starts a wrangler that starts a workerd, so
+# stopping it means stopping the tree and not the launcher: a signal to the
+# launcher alone leaves a server holding the port.
+pages_port=8799
+# Both lines end in `|| true` because both are allowed to find nothing: under
+# `set -e` a pkill that matched no process is a build that stops here without
+# saying why, which is what it did.
+stop_pages_dev() {
+  [ -n "${pages_dev:-}" ] && kill "$pages_dev" 2>/dev/null || true
+  pkill -f "pages dev $dist --ip 127.0.0.1 --port $pages_port" 2>/dev/null || true
+}
+npx --yes "wrangler@$wrangler_version" pages dev "$dist" --ip 127.0.0.1 --port "$pages_port" --compatibility-date=2025-10-01 >"$work/pages-dev.log" 2>&1 &
+pages_dev=$!
+# off the shell's job table, so that stopping it is not reported as a failure
+# in the middle of the gate's output
+disown "$pages_dev" 2>/dev/null || true
+trap stop_pages_dev EXIT
+for _ in $(seq 1 120); do
+  curl -fsS -o /dev/null "http://127.0.0.1:$pages_port/" 2>/dev/null && break
+  sleep 1
+done
+if ! curl -fsS -o /dev/null "http://127.0.0.1:$pages_port/" 2>/dev/null; then
+  echo "FAIL: the pages emulator did not serve http://127.0.0.1:$pages_port/ within 120 s"
+  tail -20 "$work/pages-dev.log"
+  exit 1
+fi
+node web/page-check.mjs "http://127.0.0.1:$pages_port/" "$work/axe.min.js" --tokens web/packages/explorer/src/lib/tokens.css
+stop_pages_dev
+trap - EXIT
+
+echo
+echo "── the consumer ──"
+# What a host installs, driven where it runs: the tarball above extracted
+# into a scratch project, every subpath the README names resolved through
+# node's own resolver, and a page built from it with the component mounted
+# twice. Two mounts is the case the component's defaults are written for and
+# the one no single-mount page can check.
+node web/consumer-check.mjs "$work/$tarball" "$work/axe.min.js"
 
 echo
 echo "── page timing ──"
+# The keystroke is measured where the reader will meet it. It is a
+# release-time measurement on an idle machine and never a CI job — the CPU
+# guard refuses a number taken on a busy one, and a job that always refuses is
+# a vacuous pass wearing a green tick.
 if timing=$(node web/page-timing.mjs "$dist" "$work/fifty-statements.json" 2>&1); then
   within_budget=yes
 else

@@ -32,19 +32,23 @@ if (!wasmPath || !nativeBin || !work) {
   process.exit(2);
 }
 
-// wasm_exec.js defines globalThis.Go as a side effect of being evaluated;
-// the page's own loader then installs admits and explain, so the glue the
-// differential exercises is the glue the page runs
-await import("./wasm_exec.js");
-const { loadEngine } = await import("./app.js");
+// The loader under test is the package's, which is the loader the page runs:
+// it returns an engine object and writes nothing to globalThis, so the glue
+// this differential exercises is the glue that ships.
+const { loadEngine } = await import("./packages/explorer/src/lib/engine.ts");
 const engineModule = await WebAssembly.compile(readFileSync(wasmPath));
 const engine = await loadEngine(engineModule);
 for (const name of ["admits", "explain"]) {
-  if (typeof globalThis[name] !== "function") {
-    console.error(`the engine did not install ${name} on globalThis`);
+  if (typeof engine[name] !== "function") {
+    console.error(`the loader did not return ${name}`);
     process.exit(1);
   }
 }
+if (globalThis.admits !== undefined || globalThis.explain !== undefined) {
+  console.error("the loader wrote the engine onto globalThis; it is handed to the caller, not left where anything can reach it");
+  process.exit(1);
+}
+const { admits, explain } = engine;
 
 const native = (...args) => execFileSync(nativeBin, args, { maxBuffer: 64 << 20 });
 
@@ -268,8 +272,9 @@ const largestSettledBytes = 576 * 1048576;
 // reached its last doubling at call 5 in one and call 84 in another, and its
 // peak read 144 MB in one and 288 in the next. What the gate asserts is
 // underneath them and holds on every run.
-async function heap(label, phases, bound = memoryBound) {
+async function heap(label, phasesOf, bound = memoryBound) {
   const instance = await loadEngine(engineModule, { memoryBound: bound });
+  const phases = phasesOf(instance);
   const after = {};
   const readings = phases.map(([name, call]) => {
     const at = {};
@@ -285,9 +290,9 @@ async function heap(label, phases, bound = memoryBound) {
 }
 
 const grantsOfLargest = JSON.parse(admits(largest)).grants.length;
-const reader = await heap(`the 50-statement policy (${fifty.length} bytes), 200 admits then 200 explain`, [
-  ["admits", () => admits(fifty)],
-  ["explain", () => explain(fifty, tokens["foreign-token.json"])],
+const reader = await heap(`the 50-statement policy (${fifty.length} bytes), 200 admits then 200 explain`, engine => [
+  ["admits", () => engine.admits(fifty)],
+  ["explain", () => engine.explain(fifty, tokens["foreign-token.json"])],
 ]);
 if (reader.replaced > 0) {
   console.error(`FAIL: the document a reader types into cost ${reader.replaced} instance replacement(s) over 400 calls; each one costs the keystroke after it about 80 ms`);
@@ -302,16 +307,16 @@ if (reader.settled > readerSettledBytes) {
   process.exit(1);
 }
 console.log(`memory: the 50-statement policy cost no replacement over 400 calls, stood at ${mb(reader.after.admits)} after its 200 admits and settled at ${mb(reader.settled)}, at or under the ${mb(readerAdmitsBytes)} and ${mb(readerSettledBytes)} recorded for them; nothing was replaced, so those levels are one instance's own`);
-const biggest = await heap(`the largest document (${largest.length} bytes, ${grantsOfLargest} grants), 200 admits then 200 explain`, [
-  ["admits", () => admits(largest)],
-  ["explain", () => explain(largest, tokens["foreign-token.json"])],
+const biggest = await heap(`the largest document (${largest.length} bytes, ${grantsOfLargest} grants), 200 admits then 200 explain`, engine => [
+  ["admits", () => engine.admits(largest)],
+  ["explain", () => engine.explain(largest, tokens["foreign-token.json"])],
 ]);
 // the same document again with the ceiling lifted: nothing is replaced, so
 // what memoryBytes() reads is what the engine asked for rather than what
 // the instance after it starts at
-const unbounded = await heap(`the largest document again, with the ${mb(memoryBound)} ceiling lifted`, [
-  ["admits", () => admits(largest)],
-  ["explain", () => explain(largest, tokens["foreign-token.json"])],
+const unbounded = await heap(`the largest document again, with the ${mb(memoryBound)} ceiling lifted`, engine => [
+  ["admits", () => engine.admits(largest)],
+  ["explain", () => engine.explain(largest, tokens["foreign-token.json"])],
 ], noCeiling);
 if (unbounded.replaced > 0) {
   console.error(`FAIL: the instance measured without a ceiling was replaced ${unbounded.replaced} time(s), so its level is not one instance's; raise noCeiling past ${mb(unbounded.peak)}`);
@@ -332,10 +337,10 @@ console.log(`memory: the largest document settled at ${mb(unbounded.settled)} wi
   const small = await loadEngine(engineModule, { memoryBound: 1 << 25 });
   let calls = 0;
   while (small.replacements() === 0 && calls < 50) {
-    explain(largest, tokens["foreign-token.json"]);
+    small.explain(largest, tokens["foreign-token.json"]);
     calls++;
   }
-  const after = admits(readFileSync("testdata/grants/03-whole-organisation/aws.json", "utf8"));
+  const after = small.admits(readFileSync("testdata/grants/03-whole-organisation/aws.json", "utf8"));
   const same = Buffer.from(after, "utf8").equals(native("admits", "testdata/grants/03-whole-organisation/aws.json"));
   console.log(`replacement: on a ${mb(1 << 25)} bound the engine was replaced after ${calls} explain ${calls === 1 ? "call" : "calls"} on the largest document (peak ${mb(small.peakMemoryBytes())}, now ${mb(small.memoryBytes())}); the call after ${same ? "answered as native does" : "DID NOT answer as native does"}`);
   if (small.replacements() === 0) {
@@ -366,12 +371,12 @@ console.log(`memory: under the ${mb(memoryBound)} bound neither document exceede
 // inside the entry's bound, overflows: the call throws, and the next call
 // meets a live engine whose answer is the native one.
 if (trappingPath) {
-  await loadEngine(await WebAssembly.compile(readFileSync(trappingPath)));
+  const trapping = await loadEngine(await WebAssembly.compile(readFileSync(trappingPath)));
   const deep = deepObjects(125);
   const good = readFileSync("testdata/grants/03-whole-organisation/aws.json", "utf8");
   let trapped = null;
   try {
-    admits(deep);
+    trapping.admits(deep);
   } catch (err) {
     trapped = err;
   }
@@ -379,7 +384,7 @@ if (trappingPath) {
     console.error("FAIL: the trapping build did not trap on the document nested 125 levels deep; the recovery path went unexercised");
     process.exit(1);
   }
-  const after = [admits(good), explain(good, tokens["foreign-token.json"])];
+  const after = [trapping.admits(good), trapping.explain(good, tokens["foreign-token.json"])];
   const expected = [native("admits", "testdata/grants/03-whole-organisation/aws.json"), native("explain", "testdata/grants/03-whole-organisation/aws.json", join(work, "foreign-token.json"))];
   const recovered = after.every((text, i) => Buffer.from(text, "utf8").equals(expected[i]));
   console.log(`recovery: the 64 KB-stack build trapped (${trapped.constructor.name}: ${trapped.message}); the next admits and explain ${recovered ? "answered as native does" : "DID NOT answer as native does"}`);

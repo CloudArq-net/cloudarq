@@ -132,7 +132,11 @@ textarea::placeholder { color: var(--ink-2); }
 
 /* ---- the panes: the policy and the answer; the fragment decides what each holds ---- */
 
-main {
+/* The element is the page's when the page is the explorer and a plain one when
+   the explorer is embedded in a page of someone else's, so the rule names both:
+   a component that rendered <main> wherever it was mounted would give a host
+   page a second answer to where the page begins. */
+main, .panes {
   flex: 1;
   min-height: 0;
   display: grid;
@@ -360,7 +364,7 @@ button.mark[aria-pressed="true"] { background: inherit; color: var(--ink); }
 
 @media (max-width: 800px) {
   body { height: auto; }
-  main { display: block; }
+  main, .panes { display: block; }
   .divider { display: none; }
   .pane-body { overflow: visible; }
   .pane + .pane { border-top: var(--hairline) solid var(--line); }
@@ -402,7 +406,7 @@ button.mark[aria-pressed="true"] { background: inherit; color: var(--ink); }
 @media print {
   body { height: auto; display: block; }
   .bar-actions, .share, .views, .pane-head a, .divider { display: none; }
-  main { display: block; }
+  main, .panes { display: block; }
   .pane-head { min-height: 0; white-space: normal; }
   .pane-body { overflow: visible; }
   .l { min-width: 0; white-space: pre-wrap; }

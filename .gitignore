@@ -9,3 +9,6 @@ coverage.*
 !.env.example
 node_modules/
 web/dist/
+web/packages/*/dist/
+web/packages/*/.svelte-kit/
+.wrangler/

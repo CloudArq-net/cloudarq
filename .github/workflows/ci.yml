@@ -27,3 +27,36 @@ jobs:
         run: make cover
       - name: forbidden visual idioms (docs/ENGINEERING.md s9)
         run: make css
+
+  # The explorer package, checked where a pull request can see it. What is not
+  # here is deliberate: web/build.sh stays the release gate because it needs
+  # TinyGo and Binaryen to produce the engine, and web/page-timing.mjs refuses
+  # a number taken on a busy machine, which a shared runner is - a job that
+  # always refuses is a vacuous pass wearing a green tick.
+  explorer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22.21.0'
+      - name: install, scripts off (DECISIONS s B.8)
+        run: npm ci --ignore-scripts
+      - name: svelte-check and tsc
+        run: npm run check --workspace @cloudarq/explorer
+      # The engine's own tests are not here: they read the engine TinyGo and
+      # Binaryen produce and this runner has neither. Neither is the consumer
+      # check, which needs a Chrome and a tarball built from a package whose
+      # dist holds that same engine, nor web/chrome.test.mjs, which needs a
+      # Chrome of its own. Naming them in web/build.sh rather than skipping
+      # them here keeps "a test that did not run is not a test that passed"
+      # true in both places. Installing TinyGo 0.42.0 and Binaryen 132 at
+      # pinned digests would move them here and is an approval to ask for, not
+      # a thing to discover in a build.
+      - name: the fragment grammar, the corpus examples, the globals and the exports map, in node
+        run: node --test web/packages/explorer/test/fragment.test.ts web/packages/explorer/test/examples.test.ts web/packages/explorer/test/globals.test.ts web/packages/explorer/test/glue-window.test.ts web/packages/explorer/test/exports.test.ts
+      - name: build the package and its page
+        run: npm run build --workspace @cloudarq/explorer
+      - name: the package's own rules, the installed licences, G-tokens, G-routes and the byte budget
+        run: node web/package-check.mjs

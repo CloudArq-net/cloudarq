@@ -41,12 +41,13 @@
 // not idle, or when no Chrome can be found: a measurement that did not run
 // is not a pass. Set CHROME to the browser's path when it is not at one
 // of the usual ones.
-import { spawn, spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, rmSync, statSync } from "node:fs";
-import { createServer } from "node:http";
-import { cpus, tmpdir, totalmem } from "node:os";
-import { extname, join, resolve } from "node:path";
+import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { cpus, totalmem } from "node:os";
+import { resolve } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
+
+import { findChrome, HEADLESS_FLAGS, launch, serveDirectory } from "./chrome.mjs";
 
 const [dist, fiftyPath] = process.argv.slice(2);
 if (!dist || !fiftyPath) {
@@ -125,19 +126,10 @@ const describe = s =>
   `${s.total === null ? "total not read" : s.total.toFixed(1) + "% busy across " + cpus().length + " cores"}, ` +
   `busiest process ${s.busiest === null ? "not read" : `${s.busiest.name} at ${s.busiest.percent.toFixed(1)}% of a core`}`;
 
-function findChrome() {
-  const candidates = [
-    process.env.CHROME,
-    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-    "/Applications/Chromium.app/Contents/MacOS/Chromium",
-  ].filter(Boolean);
-  for (const c of candidates) if (existsSync(c)) return c;
-  for (const name of ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser"]) {
-    const found = spawnSync("which", [name], { encoding: "utf8" }).stdout.trim();
-    if (found) return found;
-  }
-  return null;
-}
+// Elements are addressed as [id$=name] rather than #name: the component
+// spells every id under the instance that rendered it, so that two explorers
+// on one page do not name the same element twice. The suffix is the part that
+// does not depend on which instance rendered it.
 const chromePath = findChrome();
 if (!chromePath) {
   console.error("page timing: not measured, no Chrome found; set CHROME to the browser's path");
@@ -161,59 +153,18 @@ if (loaded(before)) {
 
 // the built page, served from the dist directory over loopback; the policy
 // under test is served beside it so the page can fetch it
-const types = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".wasm": "application/wasm", ".json": "application/json" };
-const server = createServer((req, res) => {
-  const path = req.url === "/fifty.json" ? resolve(fiftyPath) : join(resolve(dist), req.url === "/" ? "index.html" : req.url.split("?")[0]);
-  if (!path.startsWith(resolve(dist)) && path !== resolve(fiftyPath) || !existsSync(path) || statSync(path).isDirectory()) {
-    res.writeHead(404).end();
-    return;
-  }
-  res.writeHead(200, { "content-type": types[extname(path)] || "application/octet-stream" }).end(readFileSync(path));
-});
-await new Promise(ready => server.listen(0, "127.0.0.1", ready));
-const url = `http://127.0.0.1:${server.address().port}/index.html`;
-
-// extensions are off: one installed for every profile of the machine's Chrome
-// injected a content script whose own exception was read as the page's
-const flags = [
-  "--headless=new", "--no-first-run", "--no-default-browser-check", "--disable-extensions", "--disable-gpu", "--hide-scrollbars",
-];
-const port = 9600 + Math.floor(Math.random() * 300);
-const profile = mkdtempSync(join(tmpdir(), "cloudarq-page-timing-"));
-const chrome = spawn(chromePath, [...flags, `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, "--window-size=1440,900", "about:blank"], { stdio: "ignore" });
-
-async function target() {
-  for (let i = 0; i < 100; i++) {
-    try {
-      const list = await (await fetch(`http://127.0.0.1:${port}/json`)).json();
-      const page = list.find(t => t.type === "page");
-      if (page) return page.webSocketDebuggerUrl;
-    } catch {}
-    await sleep(100);
-  }
-  throw new Error("chrome did not come up");
-}
+const server = await serveDirectory(dist, { alias: { "/fifty.json": resolve(fiftyPath) } });
+const url = server.base;
 
 // Runtime.enable only: attaching the debugger (Debugger.enable) keeps V8's
 // wasm on its baseline tier, which measured at 14 ms where the optimised
 // tier measures at 5 ms; a debugger is not what a reader's tab has.
-const ws = new WebSocket(await target());
-await new Promise(open => (ws.onopen = open));
-let seq = 0;
-const pending = new Map();
-const errors = [];
-ws.onmessage = m => {
-  const msg = JSON.parse(m.data);
-  if (msg.id && pending.has(msg.id)) { pending.get(msg.id)(msg); pending.delete(msg.id); }
-  if (msg.method === "Runtime.exceptionThrown") errors.push(msg.params.exceptionDetails.exception?.description || msg.params.exceptionDetails.text);
+const flags = HEADLESS_FLAGS;
+const browser = await launch(chromePath, { label: "cloudarq-page-timing", flags });
+const { errors, send, evaluate } = browser;
+browser.on(msg => {
   if (msg.method === "Log.entryAdded" && msg.params.entry.level === "error") errors.push(msg.params.entry.text);
-};
-const send = (method, params = {}) => new Promise(resolve => { const id = ++seq; pending.set(id, resolve); ws.send(JSON.stringify({ id, method, params })); });
-const evaluate = async expression => {
-  const r = await send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true });
-  if (r.result?.exceptionDetails) throw new Error(r.result.exceptionDetails.exception?.description || r.result.exceptionDetails.text);
-  return r.result?.result?.value;
-};
+});
 
 // three positions in the document, cycled: an edit in the first statement
 // moves every later byte offset, one in the last moves none
@@ -232,21 +183,11 @@ const setUp = `(async () => {
   void document.body.offsetHeight;
   const paste = performance.now() - t0;
   await new Promise(r => setTimeout(r, 200));
-  document.querySelector("#policy-edit").click();
+  document.querySelector("[id$=policy-edit]").click();
   await new Promise(r => setTimeout(r, 200));
 
   const editor = document.querySelector("textarea[name=policy]");
   window.__edits = [];
-  window.__engine = [];
-  // the engine's own call inside the frame, so the page's share of the
-  // budget can be read from the same edits rather than from a tight loop
-  const engine = globalThis.admits;
-  globalThis.admits = policy => {
-    const t = performance.now();
-    const answer = engine(policy);
-    window.__engine.push(performance.now() - t);
-    return answer;
-  };
   // The keystroke's own clock starts where the browser's does, before the
   // character is inserted; this listener is on the way down, ahead of the
   // page's own. The frame callback registered here runs first in the frame
@@ -270,10 +211,15 @@ const setUp = `(async () => {
     pressed = performance.now();
     requestAnimationFrame(() => { frameBegan = performance.now(); });
   }, true);
-  // registered after the page's input listener and therefore heard after
-  // it, so this frame callback is queued behind the page's and runs once
-  // the answer has been re-rendered
-  editor.addEventListener("input", () => {
+  // Registered on the document, in the bubble phase, and after the page has
+  // registered its own, so it is heard after the page's answer either way the
+  // page listens: a handler on the box itself runs in the target phase, ahead
+  // of this one, and a framework that delegates its events registers on this
+  // same root before this line runs. A listener on the box would be heard
+  // before a delegated handler, and everything the page did would land in
+  // "waiting for the frame" instead of in the page's own work — which is the
+  // under-count this measurement exists to prevent.
+  document.addEventListener("input", () => {
     typed = performance.now();
     requestAnimationFrame(() => {
       const callback = performance.now() - pressed;
@@ -312,7 +258,7 @@ const setUp = `(async () => {
     editor.setSelectionRange(at, at);
     return at;
   };
-  return { chrome: navigator.userAgent.match(/Chrome\\/[\\d.]+/)[0], grants: document.querySelectorAll("article.answer").length, readout: document.querySelector("#answer-readout").textContent, paste, frameInterval: intervals[intervals.length >> 1], lines: editor.value.split("\\n").length, bytes: editor.value.length };
+  return { chrome: navigator.userAgent.match(/Chrome\\/[\\d.]+/)[0], grants: document.querySelectorAll("article.answer").length, readout: document.querySelector("[id$=answer-readout]").textContent, policyReadout: document.querySelector("[id$=policy-readout]").textContent, paste, frameInterval: intervals[intervals.length >> 1], lines: editor.value.split("\\n").length, bytes: editor.value.length };
 })()`;
 
 const key = type => ({ type, key: "x", code: "KeyX", windowsVirtualKeyCode: 88, nativeVirtualKeyCode: 88, ...(type === "keyDown" ? { text: "x", unmodifiedText: "x" } : {}) });
@@ -328,11 +274,13 @@ try {
   await send("Log.enable");
   await send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
   await send("Page.navigate", { url });
-  for (let i = 0; i < 100 && !(await evaluate("typeof globalThis.admits === 'function'")); i++) await sleep(100);
+  // What says the engine has arrived is the page, not a global: the loader
+  // returns an engine object and writes nothing to globalThis.
+  for (let i = 0; i < 100 && !(await evaluate("(document.querySelector('[id$=policy-readout]') || {}).textContent !== 'loading the engine' && (document.querySelector('[id$=answer-body]') || {}).childElementCount > 0")); i++) await sleep(100);
   await sleep(200);
   // the page opens on a document of its own; the box is emptied first so
   // that the policy under test is what is measured
-  await evaluate("document.querySelector('#policy-clear').click()");
+  await evaluate("document.querySelector('[id$=policy-clear]').click()");
   await sleep(200);
   setup = await evaluate(setUp);
   for (let i = 0; i < edits; i++) {
@@ -343,14 +291,11 @@ try {
     await sleep(40);
   }
   setup.edits = await evaluate("window.__edits");
-  setup.engine = await evaluate("window.__engine");
   setup.paints = await evaluate("window.__paints");
+  setup.finalReadout = await evaluate("document.querySelector('[id$=policy-readout]').textContent");
 } finally {
-  ws.close();
-  chrome.kill("SIGKILL");
-  server.close();
-  await sleep(100);
-  rmSync(profile, { recursive: true, force: true });
+  server.stop();
+  await browser.stop();
 }
 // after the browser is gone, so that the run's own Chrome is not read as the
 // machine's load, and while ps still carries the last minute of anything that
@@ -369,11 +314,17 @@ if (setup.edits.length !== edits) {
   console.error(`page timing: ${setup.edits.length} of ${edits} keystrokes were answered; the rest were not measured`);
   process.exit(1);
 }
-// the engine's call is made once per edit, inside the frame the edit is
-// measured over; a count that does not match means the page skipped work
-// the measurement assumes it did
-if (setup.engine.length !== edits) {
-  console.error(`page timing: the engine was called ${setup.engine.length} times over ${edits} edits; one call per edit is what is being timed`);
+// Every keystroke inserts one byte into the document, and the policy readout
+// prints the document's size as the engine read it. So the size at the end
+// must be the size at the start plus one per keystroke: a page that answered
+// fewer keystrokes than it was given would be measured on work it did not do.
+// This is read off the page rather than off a wrapper around the engine,
+// because the loader writes no global and there is nothing to wrap.
+const bytesIn = text => Number(/· (\d+) bytes/.exec(text)?.[1] ?? NaN);
+const bytesBefore = bytesIn(setup.policyReadout);
+const bytesAfter = bytesIn(setup.finalReadout);
+if (!(bytesAfter - bytesBefore === edits)) {
+  console.error(`page timing: the document went from ${bytesBefore} to ${bytesAfter} bytes over ${edits} keystrokes; one re-evaluation per keystroke is what is being timed ("${setup.policyReadout}" -> "${setup.finalReadout}")`);
   process.exit(1);
 }
 
@@ -402,7 +353,7 @@ console.log(`  a typed character, answer re-evaluated, over ${edits} keystrokes:
 console.log(`    with style and layout: median ${ms(median(withLayout))}, first 8 median ${ms(median(withLayout.slice(0, 8)))}, p90 ${ms(quantile(withLayout, 0.9))}, max ${ms(Math.max(...withLayout))}`);
 console.log(`    to the end of the frame callback: median ${ms(median(callback))}`);
 console.log(`    where it goes: ${ms(median(setup.edits.map(e => e.editing)))} the browser's editing and the page's answer, ${ms(median(setup.edits.map(e => e.waiting)))} waiting for the frame, ${ms(median(setup.edits.map(e => e.frame)))} in the frame itself, ${ms(median(setup.edits.map(e => e.forcedLayout)))} the style and layout forced after it`);
-console.log(`    the engine's call inside it: median ${ms(median(setup.engine))}, first 8 median ${ms(median(setup.engine.slice(0, 8)))}, max ${ms(Math.max(...setup.engine))}`);
+console.log(`    the engine's own call is not carved out here: it is timed in node by web/diff.mjs, and the page's share of the frame is the first figure on the line above`);
 console.log(`    the page's own work, the wait for the frame excluded: median ${ms(median(work))}, first 8 median ${ms(median(work.slice(0, 8)))}, p90 ${ms(quantile(work, 0.9))}, max ${ms(Math.max(...work))}`);
 console.log(`    from the key to the paint that answers it, as the browser reports it: ${setup.paints.length} of ${edits} keystrokes reached the 16 ms the event-timing API reports at all${setup.paints.length ? `, median ${ms(median(setup.paints))}` : ""}`);
 console.log(`    every edit, with layout: ${withLayout.map(x => x.toFixed(1)).join(", ")}`);

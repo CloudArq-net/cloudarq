@@ -1,0 +1,17 @@
+{
+  "name": "cloudarq-web",
+  "private": true,
+  "type": "module",
+  "description": "The npm workspace root for the web surface. It ships nothing: it exists so that there is exactly one lockfile to commit and one npm ci --ignore-scripts to run.",
+  "workspaces": [
+    "web/packages/*"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "check": "npm run check --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present"
+  }
+}
