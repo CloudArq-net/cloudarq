@@ -221,8 +221,11 @@ Same for claim keys: a new key is a new dimension in the lattice, not a new bran
   as a bug in us until proven otherwise, and record the resolution either way.
 - **No LocalStack.** Its free tier ended March 2026. Use `go-vcr` cassettes with redaction hooks,
   plus a weekly job that re-records and fails if the response *shape* changed.
-- **Dependencies and licences.** MPL-2.0 is acceptable for test-only dependencies; `rapid` is
-  one. Nothing under MPL, and nothing under AGPL or GPL ever, ships in the binary or is vendored.
+- **Dependencies and licences.** MPL-2.0 is acceptable for test-only dependencies (`rapid`) and,
+  by Abdallah's decision of 23 September, for `github.com/hashicorp/hcl/v2` in the binary: every
+  release carries a third-party notice naming it and where its source is, as MPL-2.0 §3.2 requires.
+  Nothing else under MPL ships in the binary, and nothing under AGPL or GPL ships or is vendored,
+  ever.
   Adding any dependency is a stop-and-ask, and the answer is recorded here.
 
 ---
