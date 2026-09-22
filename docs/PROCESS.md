@@ -333,14 +333,17 @@ being right where others are wrong.
 Every surface is finished to the same bar. "Internal" is not an excuse; the admin console is
 the one a compromised session would attack first.
 
-**CLI** — aligned columns, scannable in two seconds. Colour only for severity, severity only
-when earned. `--explain` prints every API call before making it. `--offline` is the default on
-first run. Exit codes are documented and stable. The JSON schema is a public API: versioned,
-with a written deprecation policy.
+**CLI** — aligned columns, scannable in two seconds. Colour only for the three semantic marks —
+exact, beyond, unknown — and each only when earned. `--explain` prints every API call before making
+it. `--offline` is the default on first run. Exit codes are documented and stable. The JSON schema
+is a public API: versioned, with a written deprecation policy.
 
 **Web explorer** — re-evaluates in under 16ms for a 50-statement policy, measured by
-`web/page-timing.mjs` in Chrome on an idle machine as the median of 100 real keystrokes. No account, no cookie, no storage, no telemetry beyond a first-party counter.
-All state in the URL fragment so a link reproduces an analysis exactly.
+`web/page-timing.mjs` in Chrome on an idle machine as the median of 100 real keystrokes. The
+explorer package itself makes no network request, sets no cookie and stores nothing. The page that
+hosts it on cloudarq.net carries the site's analytics — anonymous, cookieless, and named on
+`/what-we-store` (constitution §15). All state in the URL fragment so a link reproduces an analysis
+exactly.
 
 **Control plane** — ingest is idempotent by content hash. It holds no cloud credential, ever.
 Row-level security with `FORCE` on every tenant table from the day the table is created, proven

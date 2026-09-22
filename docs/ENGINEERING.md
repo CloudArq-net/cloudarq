@@ -116,7 +116,7 @@ Silence must never read as clean. Four layers enforce it, and all four stay:
 2. The renderer refuses to print a clean verdict on an inexact result.
 3. The control plane returns 422 on a payload claiming `exact` while carrying caveats —
    checked by a different process than the one that computed it.
-4. Severity is computed twice by independent paths; the worse result is reported.
+4. The admitted set is computed twice by independent paths; the wider result is reported.
 
 `IsEmpty()` returns true only when emptiness is **proven**. Whenever it cannot be decided it
 returns false. Getting this backwards makes the tool report a dangerous policy as admitting
@@ -255,6 +255,10 @@ Same for claim keys: a new key is a new dimension in the lattice, not a new bran
 
 ## 9. Interface rules
 
+These are the **instrument register** of constitution §10: the explorer, the console's data views and
+the report. Editorial surfaces — the landing, about, pricing, sign-in — follow §10's editorial
+register instead: named tokens, and a named reference beside every screen.
+
 Reference: godbolt's linked panes, jwt.io's decoder, regex101's match explanation. **Not a
 security dashboard.**
 
@@ -262,7 +266,8 @@ security dashboard.**
 - Panes, not cards. Resizable, keyboard-navigable.
 - **Three semantic colours, total**: admitted-beyond-intent, exact, unknown. `Unknown` earns
   its own colour because it is a lattice element, not a soft failure.
-- **One animation**: re-evaluation as you type. Nothing else moves.
+- **Motion explains state and never decorates** (§10): every duration is a named motion token, and
+  nothing moves in the re-evaluation path — at 16 ms, motion on a keystroke is latency.
 - The witness is always concrete — a decoded token the deployed policy accepts, never "this
   policy is broad."
 - Hairlines. Radius ≤3px. No shadows, no gradients, nothing floats.
@@ -272,8 +277,10 @@ security dashboard.**
 - Strip C0/C1 escapes except `\n` and `\t` from any resource tag before printing. Terminal
   escapes in tags can rewrite CLI output, including making a dangerous finding look clean.
 
-**CI greps the CSS and fails on**: `gradient`, `blur-[`, `backdrop-filter`, `cyber-`,
-`drop-shadow`. Taste under deadline pressure is unreliable; a grep is not.
+**CI greps the CSS, per register.** Instrument surfaces fail on `gradient`, `blur-[`,
+`backdrop-filter`, `cyber-`, `drop-shadow`. Editorial surfaces fail on any gradient, shadow, blur or
+radius above 3px that is not a named token in the design system. Taste under deadline pressure is
+unreliable; a grep is not.
 
 **Performance budget**: the explorer re-evaluates in **under 16ms** for a 50-statement policy,
 measured by `web/page-timing.mjs` in Chrome on an idle machine as the median of 100 real
