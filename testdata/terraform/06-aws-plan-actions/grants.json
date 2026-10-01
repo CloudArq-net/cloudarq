@@ -1,0 +1,444 @@
+[
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.kept"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"sts.amazonaws.com\", sub=\"repo:acme/infra:ref:refs/heads/main\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "plan-incomplete",
+        "Claim": "",
+        "Construct": "complete",
+        "Message": "the plan is marked complete: false, as a targeted or partial plan is, so resources it does not list are not absent; the grants read from it are a lower bound on the configuration's",
+        "Source": "plan"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.kept is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.kept"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.kept\",\"arn\":\"arn:aws:iam::123456789012:role/kept\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"kept\",\"source\":\"06-aws-plan-actions/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "cc1710252fed80937d623452bace2b4ece6e893b955f251f1f8d43528cd87c4a",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:ref:refs/heads/main\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:ref:refs/heads/main\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.old"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"sts.amazonaws.com\", sub=\"repo:acme/old:*\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "planned-delete",
+        "Claim": "",
+        "Construct": "delete",
+        "Message": "the plan deletes aws_iam_role.old; the grant is what the prior state holds and will not exist once the plan is applied",
+        "Source": "aws_iam_role.old"
+      },
+      {
+        "Kind": "plan-incomplete",
+        "Claim": "",
+        "Construct": "complete",
+        "Message": "the plan is marked complete: false, as a targeted or partial plan is, so resources it does not list are not absent; the grants read from it are a lower bound on the configuration's",
+        "Source": "plan"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.old is read from the plan's prior state, as Terraform last recorded it; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.old"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.old\",\"arn\":\"arn:aws:iam::123456789012:role/old\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"before\",\"name\":\"old\",\"source\":\"06-aws-plan-actions/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "4a685a1f2554bc2cb7e02eb99d60610d1d520d21e689689aefaa09553dd53b26",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/old:*\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/old:*\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.old"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"sts.amazonaws.com\", sub=\"repo:acme/old:*\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "planned-delete",
+        "Claim": "",
+        "Construct": "delete",
+        "Message": "the plan deletes aws_iam_role.old; the grant is what the prior state holds and will not exist once the plan is applied",
+        "Source": "aws_iam_role.old"
+      },
+      {
+        "Kind": "plan-incomplete",
+        "Claim": "",
+        "Construct": "complete",
+        "Message": "the plan is marked complete: false, as a targeted or partial plan is, so resources it does not list are not absent; the grants read from it are a lower bound on the configuration's",
+        "Source": "plan"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.old is read from the plan's prior state, as Terraform last recorded it; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.old"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.old\",\"arn\":\"arn:aws:iam::123456789012:role/old-deposed\",\"attributes\":[\"assume_role_policy\"],\"deposed\":\"deadbeef\",\"format_version\":\"1.2\",\"from\":\"before\",\"name\":\"old-deposed\",\"source\":\"06-aws-plan-actions/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "4a685a1f2554bc2cb7e02eb99d60610d1d520d21e689689aefaa09553dd53b26",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/old:*\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/old:*\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.replaced"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"sts.amazonaws.com\", sub=\"repo:acme/replaced:v2\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "plan-incomplete",
+        "Claim": "",
+        "Construct": "complete",
+        "Message": "the plan is marked complete: false, as a targeted or partial plan is, so resources it does not list are not absent; the grants read from it are a lower bound on the configuration's",
+        "Source": "plan"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.replaced is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.replaced"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.replaced\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"replaced\",\"source\":\"06-aws-plan-actions/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "2ecc06c6b8d58e437554b469627ca33d04612a4daf014f2b94a691ea687458f9",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/replaced:v2\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/replaced:v2\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.rotated"
+    },
+    "issuer": "",
+    "effect": "Allow",
+    "admits": "{}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "assume_role_policy of aws_iam_role.rotated is known only after apply; the expression references aws_iam_openid_connect_provider.gh.arn, so what the grant admits is not stated and it is read as admitting everything",
+        "source": "aws_iam_role.rotated"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "known-after-apply",
+        "Claim": "",
+        "Construct": "assume_role_policy",
+        "Message": "assume_role_policy of aws_iam_role.rotated is known only after apply; the expression references aws_iam_openid_connect_provider.gh.arn, so what the grant admits is not stated and it is read as admitting everything",
+        "Source": "aws_iam_role.rotated"
+      },
+      {
+        "Kind": "plan-incomplete",
+        "Claim": "",
+        "Construct": "complete",
+        "Message": "the plan is marked complete: false, as a targeted or partial plan is, so resources it does not list are not absent; the grants read from it are a lower bound on the configuration's",
+        "Source": "plan"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.rotated is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.rotated"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.rotated\",\"arn\":\"arn:aws:iam::123456789012:role/rotated\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"rotated\",\"source\":\"06-aws-plan-actions/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "8b5af8b2360c83c4e9b1433ec5545f89d2035cc713200f758810f7cd54ddc71c",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"references\":[\"aws_iam_openid_connect_provider.gh.arn\"],\"unknown\":[\"assume_role_policy\"]}"
+      }
+    ],
+    "source": "{\"references\":[\"aws_iam_openid_connect_provider.gh.arn\"],\"unknown\":[\"assume_role_policy\"]}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.forgotten"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"sts.amazonaws.com\", sub=\"repo:acme/legacy:ref:refs/heads/main\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "planned-forget",
+        "Claim": "",
+        "Construct": "forget",
+        "Message": "the plan forgets aws_iam_role.forgotten: Terraform will discard its tracking information for it and will not delete it, so the object and what it admits continue to exist, unmanaged, once the plan is applied",
+        "Source": "aws_iam_role.forgotten"
+      },
+      {
+        "Kind": "plan-incomplete",
+        "Claim": "",
+        "Construct": "complete",
+        "Message": "the plan is marked complete: false, as a targeted or partial plan is, so resources it does not list are not absent; the grants read from it are a lower bound on the configuration's",
+        "Source": "plan"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.forgotten is read from the plan's prior state, as Terraform last recorded it; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.forgotten"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.forgotten\",\"arn\":\"arn:aws:iam::123456789012:role/forgotten\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"before\",\"name\":\"forgotten\",\"source\":\"06-aws-plan-actions/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "b3091ca6dcd04174a7d171f6f59ec0ac515641be5aa398f27086475088a76e1e",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/legacy:ref:refs/heads/main\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/legacy:ref:refs/heads/main\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.reborn"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"sts.amazonaws.com\", sub=\"repo:acme/reborn:environment:prod\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "plan-incomplete",
+        "Claim": "",
+        "Construct": "complete",
+        "Message": "the plan is marked complete: false, as a targeted or partial plan is, so resources it does not list are not absent; the grants read from it are a lower bound on the configuration's",
+        "Source": "plan"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.reborn is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.reborn"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.reborn\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"reborn\",\"source\":\"06-aws-plan-actions/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "03200c107492de7065d14c75a30e050e8cea5f8b926802a49f9afc8c75413743",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/reborn:environment:prod\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/reborn:environment:prod\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.reborn"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"sts.amazonaws.com\", sub=\"repo:acme/reborn:ref:refs/heads/main\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "planned-forget",
+        "Claim": "",
+        "Construct": "forget",
+        "Message": "the plan forgets aws_iam_role.reborn: Terraform will discard its tracking information for it and will not delete it, so the object and what it admits continue to exist, unmanaged, once the plan is applied",
+        "Source": "aws_iam_role.reborn"
+      },
+      {
+        "Kind": "plan-incomplete",
+        "Claim": "",
+        "Construct": "complete",
+        "Message": "the plan is marked complete: false, as a targeted or partial plan is, so resources it does not list are not absent; the grants read from it are a lower bound on the configuration's",
+        "Source": "plan"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.reborn is read from the plan's prior state, as Terraform last recorded it; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.reborn"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.reborn\",\"arn\":\"arn:aws:iam::123456789012:role/reborn\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"before\",\"name\":\"reborn\",\"source\":\"06-aws-plan-actions/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "5284b5c654f64442e748935ce233fa3331885b256ca35870e42283750226827b",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/reborn:ref:refs/heads/main\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/reborn:ref:refs/heads/main\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.hollow"
+    },
+    "issuer": "",
+    "effect": "Allow",
+    "admits": "∅",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "no-statements",
+        "Claim": "",
+        "Construct": "Statement",
+        "Message": "assume_role_policy of aws_iam_role.hollow projects no statement, so it grants nobody anything: the one emptiness a policy proves",
+        "Source": "aws_iam_role.hollow"
+      },
+      {
+        "Kind": "malformed",
+        "Claim": "",
+        "Construct": "Statement",
+        "Message": "Statement is an empty list, so the document grants nothing",
+        "Source": "document"
+      },
+      {
+        "Kind": "plan-incomplete",
+        "Claim": "",
+        "Construct": "complete",
+        "Message": "the plan is marked complete: false, as a targeted or partial plan is, so resources it does not list are not absent; the grants read from it are a lower bound on the configuration's",
+        "Source": "plan"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.hollow is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.hollow"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.hollow\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"hollow\",\"source\":\"06-aws-plan-actions/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "a48803b796029b4ad945f4aec0d1641ad8dcabcb95df2ec87594ffcb95d0eeb8",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Statement\":[],\"Version\":\"2012-10-17\"}"
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "aws_iam_role.untargeted"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"sts.amazonaws.com\", sub=like:\"repo:acme/untargeted:*\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "no-change-listed",
+        "Claim": "",
+        "Construct": "prior_state",
+        "Message": "the plan lists no change for aws_iam_role.untargeted, as a refresh-only plan lists none and a targeted plan lists only its targets; the grant is what the plan's prior state holds, which the plan leaves as it is",
+        "Source": "aws_iam_role.untargeted"
+      },
+      {
+        "Kind": "plan-incomplete",
+        "Claim": "",
+        "Construct": "complete",
+        "Message": "the plan is marked complete: false, as a targeted or partial plan is, so resources it does not list are not absent; the grants read from it are a lower bound on the configuration's",
+        "Source": "plan"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "aws_iam_role.untargeted is read from the plan's prior state, as Terraform last recorded it; the deployed resource was not fetched from the cloud",
+        "Source": "aws_iam_role.untargeted"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"aws_iam_role.untargeted\",\"arn\":\"arn:aws:iam::123456789012:role/untargeted\",\"attributes\":[\"assume_role_policy\"],\"format_version\":\"1.2\",\"from\":\"prior_state\",\"name\":\"untargeted\",\"source\":\"06-aws-plan-actions/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "21ad17d6dfa41fee7396606f5a35db1ca8a40ce8162f082f894b225af885255e",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringLike\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/untargeted:*\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+      }
+    ],
+    "source": "{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringLike\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/untargeted:*\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}"
+  }
+]

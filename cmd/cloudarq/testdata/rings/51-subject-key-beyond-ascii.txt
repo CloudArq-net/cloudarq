@@ -1,0 +1,60 @@
+read as an aws trust policy · version 2012-10-17 · 1010 bytes · 33 lines · 2 statements
+sha256 55c52937cf7d5c720a7f967bb1aa4704799c16473c35f21078f48048f8bb8e1d
+
+Anyone on GitHub could assume this role.
+
+  Anyone            exact                 No grant is placed with people who have no account anywhere.
+  Anyone on GitHub  unknown  grants 1, 2  Anyone on GitHub could assume this role; one of its conditions was not read.
+  A named outsider  exact                 No grant is placed with a named outsider.
+  Your pipelines    exact                 No grant is confined to owners declared as yours.
+  Your people       exact                 No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 2 · statement[1] "ProviderKeyWithALongS" · Allow · https://token.actions.githubusercontent.com · platform · unknown
+This role admits any token from token.actions.githubusercontent.com whose aud is sts.amazonaws.com and whose token.actions.githubuſercontent.com:repository_owner was not evaluated, so the set shown is an upper bound.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM                                                 ADMITS                                                                     IN WORDS · AS WRITTEN
+aud                                                   "sts.amazonaws.com"                                                        exactly this audience · line 27 StringEquals
+token.actions.githubuſercontent.com:repository_owner  ?("folding of token.actions.githubu\u017fercontent.com:repository_owner")  not evaluated · note 1 · line 28 StringEquals
+any other claim                                       any                                                                        unconstrained · no condition names it
+
+notes
+  1  the condition key "token.actions.githubu\u017fercontent.com:repository_owner" holds a letter outside ASCII with case variants of its own; AWS documents no folding for it, so which key it names is not known and the claim is not constrained
+     caveat · token.actions.githubuſercontent.com:repository_owner · statement[1].Condition
+  2  same as note 1
+     anomaly · unmodelled-construct · token.actions.githubuſercontent.com:repository_owner · token.actions.githubuſercontent.com:repository_owner · statement[1].Condition
+
+a token this grant admits
+  {
+    "iss": "https://token.actions.githubusercontent.com",
+    "aud": "sts.amazonaws.com"
+  }
+The decoded payload. A claim not shown and not named by the grant is unconstrained, but for azp; token.actions.githubuſercontent.com:repository_owner is not shown because it was not evaluated, so whether it excludes a token is not decided here. It sets no azp: AWS reads aud from azp whenever a token sets one.
+
+statement[1] "ProviderKeyWithALongS" · offset 538 · 465 bytes · lines 18-31 · issuer at line 22 Principal.Federated · sha256 3fcb7d2bbcfaaf55a028fcff441919db8508216f00d1970251a80db47184e688
+
+grant 2 of 2 · statement[0] "SubjectKeyWithALongS" · Allow · https://token.actions.githubusercontent.com · platform · unknown
+This role admits any token from token.actions.githubusercontent.com whose aud is sts.amazonaws.com and whose ſub was not evaluated, so the set shown is an upper bound.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS                                                        IN WORDS · AS WRITTEN
+aud              "sts.amazonaws.com"                                           exactly this audience · line 13 StringEquals
+ſub              ?("folding of token.actions.githubusercontent.com:\u017fub")  not evaluated · note 1 · line 14 StringEquals
+any other claim  any                                                           unconstrained · no condition names it
+
+notes
+  1  the condition key "token.actions.githubusercontent.com:\u017fub" holds a letter outside ASCII with case variants of its own; AWS documents no folding for it, so which key it names is not known and the claim is not constrained
+     caveat · ſub · statement[0].Condition
+  2  same as note 1
+     anomaly · unmodelled-construct · ſub · token.actions.githubusercontent.com:ſub · statement[0].Condition
+
+a token this grant admits
+  {
+    "iss": "https://token.actions.githubusercontent.com",
+    "aud": "sts.amazonaws.com"
+  }
+The decoded payload. A claim not shown and not named by the grant is unconstrained, but for azp; ſub is not shown because it was not evaluated, so whether it excludes a token is not decided here. It sets no azp: AWS reads aud from azp whenever a token sets one.
+
+statement[0] "SubjectKeyWithALongS" · offset 50 · 482 bytes · lines 4-17 · issuer at line 8 Principal.Federated · sha256 6fa499e20e07653c2c3012a5843611d14beedb9259f89a1aa7d5e9c6e750f61a

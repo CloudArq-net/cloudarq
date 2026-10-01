@@ -1,0 +1,50 @@
+read as an aws trust policy · version 2012-10-17 · 1016 bytes · 35 lines · 2 statements
+sha256 76a151b435f04a1fc93038b2287cadd36686d47f073cdfda8ab152009c670118
+
+A named outsider can assume this role.
+
+  Anyone                exact               No grant is placed with people who have no account anywhere.
+  Anyone on a platform  exact               No grant is placed at a whole platform.
+  A named outsider      exact  grants 1, 2  github:acme and github:@123456 can assume this role and are not declared as yours.
+  Your pipelines        exact               No grant is confined to owners declared as yours.
+  Your people           exact               No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 2 · statement[0] "OwnerLedByName" · Allow · https://token.actions.githubusercontent.com · outsider · exact
+This role admits any token from token.actions.githubusercontent.com whose aud is sts.amazonaws.com and whose sub is repository_owner:acme.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM            ADMITS                   IN WORDS · AS WRITTEN
+aud              "sts.amazonaws.com"      exactly this audience · line 13 StringEquals
+sub              "repository_owner:acme"  exactly this subject · line 14 StringEquals
+any other claim  any                      unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "iss": "https://token.actions.githubusercontent.com",
+    "aud": "sts.amazonaws.com",
+    "sub": "repository_owner:acme"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant, but for azp. It sets no azp: AWS reads aud from azp whenever a token sets one.
+
+statement[0] "OwnerLedByName" · offset 50 · 457 bytes · lines 4-17 · issuer at line 8 Principal.Federated · sha256 ff3c28e7359c57438f6ba14c48ee94a7cfcb40520445303108d386fba7dcf6a6
+
+grant 2 of 2 · statement[1] "OwnerLedByID" · Allow · https://token.actions.githubusercontent.com · outsider · exact
+This role admits any token from token.actions.githubusercontent.com whose aud is sts.amazonaws.com and whose sub matches repository_owner_id:123456:*.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM            ADMITS                               IN WORDS · AS WRITTEN
+aud              "sts.amazonaws.com"                  exactly this audience · line 27 StringEquals
+sub              like:"repository_owner_id:123456:*"  any subject beginning repository_owner_id:123456: · line 30 StringLike
+any other claim  any                                  unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "iss": "https://token.actions.githubusercontent.com",
+    "aud": "sts.amazonaws.com",
+    "sub": "repository_owner_id:123456:"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant, but for azp. It sets no azp: AWS reads aud from azp whenever a token sets one.
+
+statement[1] "OwnerLedByID" · offset 513 · 496 bytes · lines 18-33 · issuer at line 22 Principal.Federated · sha256 3ef77703e65d3c2e263bb9778402e6a147eaf0dac4dcbe6a47be49a39ab0605a

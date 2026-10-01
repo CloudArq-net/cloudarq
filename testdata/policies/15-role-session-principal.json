@@ -1,0 +1,42 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "SessionWithTheRoleArnInACondition",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:sts::123456789012:assumed-role/ci/build-42"
+      },
+      "Action": "sts:AssumeRole",
+      "Condition": {
+        "StringEquals": {
+          "aws:PrincipalArn": "arn:aws:iam::123456789012:role/ci"
+        }
+      }
+    },
+    {
+      "Sid": "SessionAlone",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:sts::123456789012:assumed-role/ci/build-42"
+      },
+      "Action": "sts:AssumeRole"
+    },
+    {
+      "Sid": "AllowTheRole",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::123456789012:role/ci"
+      },
+      "Action": "sts:AssumeRole"
+    },
+    {
+      "Sid": "DenyOneSessionOfIt",
+      "Effect": "Deny",
+      "Principal": {
+        "AWS": "arn:aws:sts::123456789012:assumed-role/ci/build-42"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}

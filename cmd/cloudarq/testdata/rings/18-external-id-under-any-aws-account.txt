@@ -1,0 +1,55 @@
+read as an aws trust policy · version 2012-10-17 · 322 bytes · 18 lines · 1 statement
+sha256 839bdd0d843f3e80a443352afe4b6186df5ef9c199b37b2c6985cc8fe1437e4f
+
+Anyone on AWS can assume this role; so can cloud services.
+
+  Anyone            unknown           No grant is placed with people who have no account anywhere.
+  Anyone on AWS     exact    grant 2  Anyone on AWS can assume this role; no condition confines callers to one account or organisation.
+  A named outsider  exact             No grant is placed with a named outsider.
+  Your pipelines    exact             No grant is confined to owners declared as yours.
+  Your people       exact             No grant trusts a SAML provider declared as yours.
+  ──
+  Cloud services    unknown  grant 1  Any cloud service can assume this role; which ones, and for whom, is not read.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 2 · statement[0] "AnyAccountWithTheExternalID" · Allow · service · unknown
+Who this statement admits is not known: the condition key "sts:ExternalId" is a fact about the request, not a claim of the token, so this parser does not evaluate it and the claim is not constrained; the statement applies to every principal, and which AWS services it covers through sts:AssumeRole is not known.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  the condition key "sts:ExternalId" is a fact about the request, not a claim of the token, so this parser does not evaluate it and the claim is not constrained
+     caveat · sts:externalid · statement[0].Condition
+  2  the statement applies to every principal, and which AWS services it covers through sts:AssumeRole is not known
+     caveat · statement[0].Principal
+  3  the statement applies to every principal, including anonymous ones
+     anomaly · any-principal · Principal · statement[0].Principal
+  4  same as note 2
+     anomaly · unmodelled-construct · Principal · statement[0].Principal
+  5  same as note 1
+     anomaly · unmodelled-construct · sts:externalid · sts:ExternalId · statement[0].Condition
+
+statement[0] "AnyAccountWithTheExternalID" · offset 50 · 265 bytes · lines 4-16 · issuer at line 7 Principal · sha256 2a0d8a9b7235fd32e9ae06664b52e1620d8ac5d7a94c6b1a714e24fa4d0cce24
+
+grant 2 of 2 · statement[0] "AnyAccountWithTheExternalID" · Allow · aws:sts · platform · exact
+This role admits any AWS principal whose sts:externalid is vendor-abc.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM            ADMITS        IN WORDS · AS WRITTEN
+sts:externalid   "vendor-abc"  exactly this value · line 13 StringEquals
+any other claim  any           unconstrained · no condition names it
+
+notes
+  1  the statement applies to every principal, including anonymous ones
+     anomaly · any-principal · Principal · statement[0].Principal
+
+a token this grant admits
+  {
+    "sts:externalid": "vendor-abc"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant.
+
+statement[0] "AnyAccountWithTheExternalID" · offset 50 · 265 bytes · lines 4-16 · issuer at line 7 Principal · sha256 2a0d8a9b7235fd32e9ae06664b52e1620d8ac5d7a94c6b1a714e24fa4d0cce24

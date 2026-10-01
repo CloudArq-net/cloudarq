@@ -1,0 +1,16 @@
+{
+  "name": "projects/123456789012/locations/global/workloadIdentityPools/github/providers/github",
+  "displayName": "GitHub Actions",
+  "description": "&& binds tighter than ||",
+  "state": "ACTIVE",
+  "attributeMapping": {
+    "google.subject": "assertion.sub"
+  },
+  "attributeCondition": "assertion.sub == 'repo:acme/infra:ref:refs/heads/main' && assertion.repository_id == '456789' || assertion.repository_owner_id == '123456'",
+  "oidc": {
+    "issuerUri": "https://token.actions.githubusercontent.com",
+    "allowedAudiences": [
+      "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github"
+    ]
+  }
+}

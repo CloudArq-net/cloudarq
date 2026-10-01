@@ -1,0 +1,21 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "PersonalMicrosoftAccounts",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/login.microsoftonline.com/9188040d-6c67-4c5b-b112-36a304b66dad/v2.0"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity"
+    },
+    {
+      "Sid": "OneWorkTenant",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/login.microsoftonline.com/ffffffff-eeee-dddd-cccc-bbbbbbbbbbb0/v2.0"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity"
+    }
+  ]
+}

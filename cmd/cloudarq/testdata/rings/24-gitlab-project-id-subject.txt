@@ -1,0 +1,31 @@
+read as an aws trust policy · version 2012-10-17 · 479 bytes · 21 lines · 1 statement
+sha256 9cf4ff22871399c6a921e0907a9ede7a6646af274b6162194fb9f75b2f60ad59
+
+Anyone could assume this role.
+
+  Anyone                unknown  grant 1  Anyone could assume this role: nothing read shows GitLab.com requires an account.
+  Anyone on a platform  exact             No grant is placed at a whole platform.
+  A named outsider      exact             No grant is placed with a named outsider.
+  Your pipelines        exact             No grant is confined to owners declared as yours.
+  Your people           exact             No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] "GitLabProjectByID" · Allow · https://gitlab.com · anyone · unknown
+Who this statement admits is not known: the claim vocabulary of "https://gitlab.com" is not known to this parser, so the spelling "aud" of the condition key "gitlab.com:aud" cannot be reconciled with the token's and the claim is not constrained; the claim vocabulary of "https://gitlab.com" is not known to this parser, so the spelling "sub" of the condition key "gitlab.com:sub" cannot be reconciled with the token's and the claim is not constrained.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  the claim vocabulary of "https://gitlab.com" is not known to this parser, so the spelling "aud" of the condition key "gitlab.com:aud" cannot be reconciled with the token's and the claim is not constrained
+     caveat · aud · statement[0].Condition
+  2  the claim vocabulary of "https://gitlab.com" is not known to this parser, so the spelling "sub" of the condition key "gitlab.com:sub" cannot be reconciled with the token's and the claim is not constrained
+     caveat · sub · statement[0].Condition
+  3  same as note 1
+     anomaly · unmodelled-construct · aud · gitlab.com:aud · statement[0].Condition
+  4  same as note 2
+     anomaly · unmodelled-construct · sub · gitlab.com:sub · statement[0].Condition
+
+statement[0] "GitLabProjectByID" · offset 50 · 422 bytes · lines 4-19 · issuer at line 8 Principal.Federated · sha256 c8da9ab7a6532df46232100fef7730ac39de536727e67ba8e48a24087ad47514

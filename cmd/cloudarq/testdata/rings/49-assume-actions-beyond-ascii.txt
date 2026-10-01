@@ -1,0 +1,168 @@
+read as an aws trust policy · version 2012-10-17 · 1432 bytes · 57 lines · 7 statements
+sha256 5324839d5c2be0a29252c823c1b49c61a1bd046d838273207d3552c4846d1e9c
+
+Anyone could assume this role; so can SAML and cloud services.
+
+  Anyone            unknown  grants 1, 2, 8  Anyone could assume this role: some credentials it trusts may need no account.
+  Anyone on GitHub  unknown  grant 9         Anyone on GitHub could assume this role; one of its conditions was not read.
+  A named outsider  exact    grant 5         aws:111122223333 can assume this role and is not declared as yours.
+  Your pipelines    exact                    No grant is confined to owners declared as yours.
+  Your people       exact                    No grant trusts a SAML provider declared as yours.
+  ──
+  SAML sign-ins     unknown  grant 3         People VendorSSO signs in can assume this role; who they are is set in VendorSSO.
+  Cloud services    unknown  grant 4         ec2.amazonaws.com can assume this role; who can make it act is not read.
+
+Grants 6 and 7 admit nobody, so they are in no ring.
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies, this account's identity providers and the settings of each audience this role accepts from cognito-identity.amazonaws.com.
+
+grant 1 of 9 · statement[1] "AnyoneThroughALongS" · Allow · anyone · unknown
+Who this statement admits is not known: the action "sts:A\u017f\u017fumeRoleWithWebIdentity" holds a letter outside ASCII with case variants of its own; AWS documents no folding for it, so whether it names sts:AssumeRoleWithWebIdentity is not known; the statement applies to every principal, and which identity providers' tokens it covers through sts:AssumeRoleWithWebIdentity is not known.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  the action "sts:A\u017f\u017fumeRoleWithWebIdentity" holds a letter outside ASCII with case variants of its own; AWS documents no folding for it, so whether it names sts:AssumeRoleWithWebIdentity is not known
+     caveat · statement[1].Action
+  2  the statement applies to every principal, and which identity providers' tokens it covers through sts:AssumeRoleWithWebIdentity is not known
+     caveat · statement[1].Principal
+  3  the statement applies to every principal, including anonymous ones
+     anomaly · any-principal · Principal · statement[1].Principal
+  4  same as note 2
+     anomaly · unmodelled-construct · Principal · statement[1].Principal
+  5  same as note 1
+     anomaly · unmodelled-construct · Action · statement[1].Action
+
+statement[1] "AnyoneThroughALongS" · offset 309 · 150 bytes · lines 12-17 · issuer at line 15 Principal · sha256 4c6089e7f964e3043bcc27f5daaa152ce08d14f2108a788dbe390c7c605bbf57
+
+grant 2 of 9 · statement[2] "AnySAMLThroughADotlessI" · Allow · anyone · unknown
+Who this statement admits is not known: the action "sts:AssumeRoleW\u0131thSAML" holds a letter outside ASCII with case variants of its own; AWS documents no folding for it, so whether it names sts:AssumeRoleWithSAML is not known; the statement applies to every principal, and which identity providers' tokens it covers through sts:AssumeRoleWithSAML is not known.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  the action "sts:AssumeRoleW\u0131thSAML" holds a letter outside ASCII with case variants of its own; AWS documents no folding for it, so whether it names sts:AssumeRoleWithSAML is not known
+     caveat · statement[2].Action
+  2  the statement applies to every principal, and which identity providers' tokens it covers through sts:AssumeRoleWithSAML is not known
+     caveat · statement[2].Principal
+  3  the statement applies to every principal, including anonymous ones
+     anomaly · any-principal · Principal · statement[2].Principal
+  4  same as note 2
+     anomaly · unmodelled-construct · Principal · statement[2].Principal
+  5  same as note 1
+     anomaly · unmodelled-construct · Action · statement[2].Action
+
+statement[2] "AnySAMLThroughADotlessI" · offset 465 · 142 bytes · lines 18-23 · issuer at line 21 Principal · sha256 68483e5f29ccc0eb4dcd9ee755556b09932c8d1af4e874929127979c52c6e251
+
+grant 3 of 9 · statement[4] "SAMLProviderThroughADotlessI" · Allow · arn:aws:iam::123456789012:saml-provider/VendorSSO · saml · unknown
+Who this statement admits is not known: the action "sts:AssumeRoleW\u0131thSAML" holds a letter outside ASCII with case variants of its own; AWS documents no folding for it, so whether it names sts:AssumeRoleWithSAML is not known; SAML federation through "arn:aws:iam::123456789012:saml-provider/VendorSSO" is not modelled by this parser, so which identities it admits is not known.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  the action "sts:AssumeRoleW\u0131thSAML" holds a letter outside ASCII with case variants of its own; AWS documents no folding for it, so whether it names sts:AssumeRoleWithSAML is not known
+     caveat · statement[4].Action
+  2  SAML federation through "arn:aws:iam::123456789012:saml-provider/VendorSSO" is not modelled by this parser, so which identities it admits is not known
+     caveat · statement[4].Principal
+  3  same as note 2
+     anomaly · unmodelled-construct · SAML · statement[4].Principal
+  4  same as note 1
+     anomaly · unmodelled-construct · Action · statement[4].Action
+
+statement[4] "SAMLProviderThroughADotlessI" · offset 791 · 226 bytes · lines 32-39 · issuer at line 36 Principal.Federated · sha256 24f44c3e79778243b94e1d5147930f68ae10756a8031e7a5ac8ddc406de34978
+
+grant 4 of 9 · statement[5] "ServiceThroughALongS" · Allow · aws:service:ec2.amazonaws.com · service · unknown
+Who this statement admits is not known: the action "sts:A\u017f\u017fumeRole" holds a letter outside ASCII with case variants of its own; AWS documents no folding for it, so whether it names sts:AssumeRole is not known.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  the action "sts:A\u017f\u017fumeRole" holds a letter outside ASCII with case variants of its own; AWS documents no folding for it, so whether it names sts:AssumeRole is not known
+     caveat · statement[5].Action
+  2  ec2.amazonaws.com is an AWS service principal; who can make it act, or receives its session, is not read
+     anomaly · service-principal · Service · statement[5].Principal
+  3  same as note 1
+     anomaly · unmodelled-construct · Action · statement[5].Action
+
+statement[5] "ServiceThroughALongS" · offset 1023 · 181 bytes · lines 40-47 · issuer at line 43 Principal · sha256 b7f173edda86d1f58974da7e72169e60b61ac7cd0e67c4b44a0a79627fbd5f34
+
+grant 5 of 9 · statement[3] "AccountThroughALongS" · Allow · aws:sts · outsider · exact
+This role admits any AWS principal whose aws:principalaccount is 111122223333, so the set shown is an upper bound.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM                 ADMITS          IN WORDS · AS WRITTEN
+aws:principalaccount  "111122223333"  exactly this value · from Principal
+any other claim       any             unconstrained · no condition names it
+
+notes
+  1  the action "sts:A\u017f\u017fumeRole" holds a letter outside ASCII with case variants of its own; AWS documents no folding for it, so whether it names sts:AssumeRole is not known
+     caveat · statement[3].Action
+  2  same as note 1
+     anomaly · unmodelled-construct · Action · statement[3].Action
+
+a token this grant admits
+  {
+    "aws:principalaccount": "111122223333"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant; the set is an upper bound, so the token is admitted by the bound, not proven admitted by the policy.
+
+statement[3] "AccountThroughALongS" · offset 613 · 172 bytes · lines 24-31 · issuer at line 27 Principal · sha256 40c6ed85d43a3844f255fa4b7ce95f83448d3f313a4508e35d046652c45bfdd9
+
+grant 6 of 9 · statement[1] "AnyoneThroughALongS" · Allow · aws:sts · nobody
+This statement admits nobody through an AWS principal: the actions do not include sts:AssumeRole, so this statement lets nobody assume the role through this principal.
+
+notes
+  1  the statement applies to every principal, including anonymous ones
+     anomaly · any-principal · Principal · statement[1].Principal
+  2  the actions do not include sts:AssumeRole, so this statement lets nobody assume the role through this principal
+     anomaly · not-an-assume-action · Action · statement[1].Action
+
+statement[1] "AnyoneThroughALongS" · offset 309 · 150 bytes · lines 12-17 · issuer at line 15 Principal · sha256 4c6089e7f964e3043bcc27f5daaa152ce08d14f2108a788dbe390c7c605bbf57
+
+grant 7 of 9 · statement[2] "AnySAMLThroughADotlessI" · Allow · aws:sts · nobody
+This statement admits nobody through an AWS principal: the actions do not include sts:AssumeRole, so this statement lets nobody assume the role through this principal.
+
+notes
+  1  the statement applies to every principal, including anonymous ones
+     anomaly · any-principal · Principal · statement[2].Principal
+  2  the actions do not include sts:AssumeRole, so this statement lets nobody assume the role through this principal
+     anomaly · not-an-assume-action · Action · statement[2].Action
+
+statement[2] "AnySAMLThroughADotlessI" · offset 465 · 142 bytes · lines 18-23 · issuer at line 21 Principal · sha256 68483e5f29ccc0eb4dcd9ee755556b09932c8d1af4e874929127979c52c6e251
+
+grant 8 of 9 · statement[6] "CognitoThroughADottedCapitalI" · Allow · https://cognito-identity.amazonaws.com · anyone · unknown
+Who this statement admits is not known: the action "sts:AssumeRoleW\u0130thWebIdentity" holds a letter outside ASCII with case variants of its own; AWS documents no folding for it, so whether it names sts:AssumeRoleWithWebIdentity is not known.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  the action "sts:AssumeRoleW\u0130thWebIdentity" holds a letter outside ASCII with case variants of its own; AWS documents no folding for it, so whether it names sts:AssumeRoleWithWebIdentity is not known
+     caveat · statement[6].Action
+  2  same as note 1
+     anomaly · unmodelled-construct · Action · statement[6].Action
+
+statement[6] "CognitoThroughADottedCapitalI" · offset 1210 · 215 bytes · lines 48-55 · issuer at line 52 Principal.Federated · sha256 d0f5822317cb385cab0fe26262b5ef0fad0cc5fc8c785fba769444567f426b02
+
+grant 9 of 9 · statement[0] "GitHubThroughADotlessI" · Allow · https://token.actions.githubusercontent.com · platform · unknown
+Who this statement admits is not known: the action "sts:AssumeRoleW\u0131thWebIdentity" holds a letter outside ASCII with case variants of its own; AWS documents no folding for it, so whether it names sts:AssumeRoleWithWebIdentity is not known.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  the action "sts:AssumeRoleW\u0131thWebIdentity" holds a letter outside ASCII with case variants of its own; AWS documents no folding for it, so whether it names sts:AssumeRoleWithWebIdentity is not known
+     caveat · statement[0].Action
+  2  same as note 1
+     anomaly · unmodelled-construct · Action · statement[0].Action
+
+statement[0] "GitHubThroughADotlessI" · offset 50 · 253 bytes · lines 4-11 · issuer at line 8 Principal.Federated · sha256 833d78701d6d058ac0cb8e78ef73823b99a0d9e9b9233dbc23e44ee28be8b915

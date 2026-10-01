@@ -1,0 +1,17 @@
+{
+  "name": "projects/123456789012/locations/global/workloadIdentityPools/github/providers/github",
+  "displayName": "GitHub Actions",
+  "description": "a soft-deleted provider, as a get with the provider name returns it",
+  "state": "DELETED",
+  "expireTime": "2026-10-13T09:00:00Z",
+  "attributeMapping": {
+    "google.subject": "assertion.sub"
+  },
+  "attributeCondition": "assertion.sub == 'repo:acme/infra:ref:refs/heads/main'",
+  "oidc": {
+    "issuerUri": "https://token.actions.githubusercontent.com",
+    "allowedAudiences": [
+      "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github"
+    ]
+  }
+}

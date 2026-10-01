@@ -1,0 +1,32 @@
+read as an aws trust policy · version 2012-10-17 · 195 bytes · 12 lines · 1 statement
+sha256 cca48ae789d9980e13384e4b3c523574bc84f765e2851b14d4388983405fdedd
+
+transfer.amazonaws.com can assume this role.
+
+  Anyone                unknown           No grant is placed with people who have no account anywhere.
+  Anyone on a platform  exact             No grant is placed at a whole platform.
+  A named outsider      exact             No grant is placed with a named outsider.
+  Your pipelines        exact             No grant is confined to owners declared as yours.
+  Your people           exact             No grant trusts a SAML provider declared as yours.
+  ──
+  Cloud services        unknown  grant 1  transfer.amazonaws.com can assume this role; who can make it act is not read.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] · Allow · aws:service:transfer.amazonaws.com · service · unknown
+This role admits transfer.amazonaws.com, acting for whoever can make it act: no condition constrains this statement.
+Who can make the service act, or receives its session, is not read: who gets in through it is not known.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+sub              any     any subject · no condition names it
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  transfer.amazonaws.com can assume a role for the users of a Transfer Family server, and act with its session for them, among other uses; who can make it act, or receives its session, is not read
+     anomaly · service-principal · Service · statement[0].Principal
+
+a token this grant admits
+  {}
+The decoded payload. A claim not shown is unconstrained by this grant, and none of the claims shown names an identity: whoever holds a token like this is admitted.
+
+statement[0] · offset 49 · 139 bytes · lines 4-10 · issuer at line 6 Principal · sha256 cf2863cfa62226fdb2a8cea71e0078bb4ffa54358c02d471756f71ab935160e1

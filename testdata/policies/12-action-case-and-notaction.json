@@ -1,0 +1,86 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ActionNameIsCaseInsensitive",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "STS:assumeROLEwithwebidentity",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:sub": "repo:acme/infra:ref:refs/heads/main"
+        }
+      }
+    },
+    {
+      "Sid": "WildcardAnywhereInTheName",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": [
+        "sts:TagSession",
+        "sts:*WithWebIdentity"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:sub": "repo:acme/infra:ref:refs/heads/main"
+        }
+      }
+    },
+    {
+      "Sid": "EveryAction",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "*",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:sub": "repo:acme/infra:ref:refs/heads/main"
+        }
+      }
+    },
+    {
+      "Sid": "SingleCharacterWildcard",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:Assume?oleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:sub": "repo:acme/infra:ref:refs/heads/main"
+        }
+      }
+    },
+    {
+      "Sid": "AssumeRoleIsNotTheWebIdentityAction",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRole",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:sub": "repo:acme/infra:ref:refs/heads/main"
+        }
+      }
+    },
+    {
+      "Sid": "NotActionInverts",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "NotAction": "s3:*",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:sub": "repo:acme/infra:ref:refs/heads/main"
+        }
+      }
+    }
+  ]
+}

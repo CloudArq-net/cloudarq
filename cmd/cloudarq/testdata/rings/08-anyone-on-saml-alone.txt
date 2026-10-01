@@ -1,0 +1,43 @@
+read as an aws trust policy · version 2012-10-17 · 184 bytes · 11 lines · 1 statement
+sha256 6cf0a76bf44dfa7c1d54c89c33a628708d78886048724d3d22703efb1c34536e
+
+People any SAML provider in this account signs in can assume this role.
+
+  Anyone                unknown           No grant is placed with people who have no account anywhere.
+  Anyone on a platform  exact             No grant is placed at a whole platform.
+  A named outsider      exact             No grant is placed with a named outsider.
+  Your pipelines        exact             No grant is confined to owners declared as yours.
+  Your people           exact             No grant trusts a SAML provider declared as yours.
+  ──
+  SAML sign-ins         unknown  grant 1  People any SAML provider in this account signs in can assume this role.
+
+Grant 2 admits nobody, so it is in no ring.
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 2 · statement[0] "AnySAMLSignIn" · Allow · saml · unknown
+Who this statement admits is not known: the statement applies to every principal, and which identity providers' tokens it covers through sts:AssumeRoleWithSAML is not known.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  the statement applies to every principal, and which identity providers' tokens it covers through sts:AssumeRoleWithSAML is not known
+     caveat · statement[0].Principal
+  2  the statement applies to every principal, including anonymous ones
+     anomaly · any-principal · Principal · statement[0].Principal
+  3  same as note 1
+     anomaly · unmodelled-construct · Principal · statement[0].Principal
+
+statement[0] "AnySAMLSignIn" · offset 50 · 127 bytes · lines 4-9 · issuer at line 7 Principal · sha256 5ddd12547ee19bf285892bad5a697f1b9b8c50927896d6ee84e0e950f959b309
+
+grant 2 of 2 · statement[0] "AnySAMLSignIn" · Allow · aws:sts · nobody
+This statement admits nobody through an AWS principal: the actions do not include sts:AssumeRole, so this statement lets nobody assume the role through this principal.
+
+notes
+  1  the statement applies to every principal, including anonymous ones
+     anomaly · any-principal · Principal · statement[0].Principal
+  2  the actions do not include sts:AssumeRole, so this statement lets nobody assume the role through this principal
+     anomaly · not-an-assume-action · Action · statement[0].Action
+
+statement[0] "AnySAMLSignIn" · offset 50 · 127 bytes · lines 4-9 · issuer at line 7 Principal · sha256 5ddd12547ee19bf285892bad5a697f1b9b8c50927896d6ee84e0e950f959b309

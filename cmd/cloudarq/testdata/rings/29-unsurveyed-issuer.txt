@@ -1,0 +1,31 @@
+read as an aws trust policy · version 2012-10-17 · 442 bytes · 19 lines · 1 statement
+sha256 d9620ca63e4c0e236d138acd6ed236dd66d86991522270a6c4be317b5112b142
+
+Anyone could assume this role.
+
+  Anyone                unknown  grant 1  Anyone could assume this role: whether ci.example.com requires an account was not surveyed.
+  Anyone on a platform  exact             No grant is placed at a whole platform.
+  A named outsider      exact             No grant is placed with a named outsider.
+  Your pipelines        exact             No grant is confined to owners declared as yours.
+  Your people           exact             No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] "UnsurveyedIssuer" · Allow · https://ci.example.com · anyone · unknown
+Who this statement admits is not known: the claim vocabulary of "https://ci.example.com" is not known to this parser, so the spelling "aud" of the condition key "ci.example.com:aud" cannot be reconciled with the token's and the claim is not constrained; the claim vocabulary of "https://ci.example.com" is not known to this parser, so the spelling "sub" of the condition key "ci.example.com:sub" cannot be reconciled with the token's and the claim is not constrained.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  the claim vocabulary of "https://ci.example.com" is not known to this parser, so the spelling "aud" of the condition key "ci.example.com:aud" cannot be reconciled with the token's and the claim is not constrained
+     caveat · aud · statement[0].Condition
+  2  the claim vocabulary of "https://ci.example.com" is not known to this parser, so the spelling "sub" of the condition key "ci.example.com:sub" cannot be reconciled with the token's and the claim is not constrained
+     caveat · sub · statement[0].Condition
+  3  same as note 1
+     anomaly · unmodelled-construct · aud · ci.example.com:aud · statement[0].Condition
+  4  same as note 2
+     anomaly · unmodelled-construct · sub · ci.example.com:sub · statement[0].Condition
+
+statement[0] "UnsurveyedIssuer" · offset 50 · 385 bytes · lines 4-17 · issuer at line 8 Principal.Federated · sha256 550893c26ff24b86947f7e6a0a9894d6761870e4213185cd274a05101c234983

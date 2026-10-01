@@ -1,0 +1,31 @@
+read as an aws trust policy · version 2012-10-17 · 527 bytes · 19 lines · 1 statement
+sha256 c66717222b70197031bfc29361d186fa017b1ef293875a670ced41e9fbdfbb62
+
+A named outsider can assume this role.
+
+  Anyone                exact           No grant is placed with people who have no account anywhere.
+  Anyone on a platform  exact           No grant is placed at a whole platform.
+  A named outsider      exact  grant 1  github:acme can assume this role and is not declared as yours.
+  Your pipelines        exact           No grant is confined to owners declared as yours.
+  Your people           exact           No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] "AudienceByOaud" · Allow · https://token.actions.githubusercontent.com · outsider · exact
+This role admits any token from token.actions.githubusercontent.com whose oaud is sts.amazonaws.com and whose sub is repo:acme/app:ref:refs/heads/main.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM            ADMITS                               IN WORDS · AS WRITTEN
+oaud             "sts.amazonaws.com"                  exactly this value · line 13 StringEquals
+sub              "repo:acme/app:ref:refs/heads/main"  exactly this subject · line 14 StringEquals
+any other claim  any                                  unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "iss": "https://token.actions.githubusercontent.com",
+    "aud": "sts.amazonaws.com",
+    "sub": "repo:acme/app:ref:refs/heads/main"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant.
+
+statement[0] "AudienceByOaud" · offset 50 · 470 bytes · lines 4-17 · issuer at line 8 Principal.Federated · sha256 04a9c2c9c8013a35c9bd38b5180911f4203c6efc44be2f89050938034ff5a497

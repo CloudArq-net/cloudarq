@@ -1,0 +1,953 @@
+{
+  "format_version": "1.2",
+  "terraform_version": "1.15.5",
+  "planned_values": {
+    "root_module": {
+      "resources": [
+        {
+          "address": "google_iam_workload_identity_pool_provider.conformance[\"01\"]",
+          "mode": "managed",
+          "type": "google_iam_workload_identity_pool_provider",
+          "name": "conformance",
+          "index": "01",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "attribute_condition": "assertion.sub == 'repo:acme/infra:ref:refs/heads/main'",
+            "attribute_mapping": {
+              "google.subject": "assertion.sub",
+              "attribute.repository": "assertion.repository",
+              "attribute.repository_id": "assertion.repository_id",
+              "attribute.repository_owner_id": "assertion.repository_owner_id"
+            },
+            "aws": [],
+            "deletion_policy": "DELETE",
+            "description": "one repo, one branch",
+            "disabled": null,
+            "display_name": "GitHub Actions",
+            "oidc": [
+              {
+                "allowed_audiences": [
+                  "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github"
+                ],
+                "issuer_uri": "https://token.actions.githubusercontent.com",
+                "jwks_json": null
+              }
+            ],
+            "project": "acme-prod",
+            "saml": [],
+            "timeouts": null,
+            "workload_identity_pool_id": "github",
+            "workload_identity_pool_provider_id": "github-01",
+            "x509": []
+          },
+          "sensitive_values": {
+            "attribute_mapping": {},
+            "aws": [],
+            "oidc": [
+              {
+                "allowed_audiences": [
+                  false
+                ]
+              }
+            ],
+            "saml": [],
+            "x509": []
+          }
+        },
+        {
+          "address": "google_iam_workload_identity_pool_provider.conformance[\"02\"]",
+          "mode": "managed",
+          "type": "google_iam_workload_identity_pool_provider",
+          "name": "conformance",
+          "index": "02",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "attribute_condition": "assertion.sub.startsWith('repo:acme/infra:')",
+            "attribute_mapping": {
+              "google.subject": "assertion.sub",
+              "attribute.repository": "assertion.repository",
+              "attribute.repository_id": "assertion.repository_id",
+              "attribute.repository_owner_id": "assertion.repository_owner_id"
+            },
+            "aws": [],
+            "deletion_policy": "DELETE",
+            "description": "one repo, any branch; Azure cannot state a subject pattern without an immutable claim",
+            "disabled": null,
+            "display_name": "GitHub Actions",
+            "oidc": [
+              {
+                "allowed_audiences": [
+                  "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github"
+                ],
+                "issuer_uri": "https://token.actions.githubusercontent.com",
+                "jwks_json": null
+              }
+            ],
+            "project": "acme-prod",
+            "saml": [],
+            "timeouts": null,
+            "workload_identity_pool_id": "github",
+            "workload_identity_pool_provider_id": "github-02",
+            "x509": []
+          },
+          "sensitive_values": {
+            "attribute_mapping": {},
+            "aws": [],
+            "oidc": [
+              {
+                "allowed_audiences": [
+                  false
+                ]
+              }
+            ],
+            "saml": [],
+            "x509": []
+          }
+        },
+        {
+          "address": "google_iam_workload_identity_pool_provider.conformance[\"03\"]",
+          "mode": "managed",
+          "type": "google_iam_workload_identity_pool_provider",
+          "name": "conformance",
+          "index": "03",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "attribute_condition": "assertion.sub.startsWith('repo:acme/') && assertion.repository_owner_id == '123456'",
+            "attribute_mapping": {
+              "google.subject": "assertion.sub",
+              "attribute.repository": "assertion.repository",
+              "attribute.repository_id": "assertion.repository_id",
+              "attribute.repository_owner_id": "assertion.repository_owner_id"
+            },
+            "aws": [],
+            "deletion_policy": "DELETE",
+            "description": "a whole organisation",
+            "disabled": null,
+            "display_name": "GitHub Actions",
+            "oidc": [
+              {
+                "allowed_audiences": [
+                  "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github"
+                ],
+                "issuer_uri": "https://token.actions.githubusercontent.com",
+                "jwks_json": null
+              }
+            ],
+            "project": "acme-prod",
+            "saml": [],
+            "timeouts": null,
+            "workload_identity_pool_id": "github",
+            "workload_identity_pool_provider_id": "github-03",
+            "x509": []
+          },
+          "sensitive_values": {
+            "attribute_mapping": {},
+            "aws": [],
+            "oidc": [
+              {
+                "allowed_audiences": [
+                  false
+                ]
+              }
+            ],
+            "saml": [],
+            "x509": []
+          }
+        },
+        {
+          "address": "google_iam_workload_identity_pool_provider.conformance[\"04\"]",
+          "mode": "managed",
+          "type": "google_iam_workload_identity_pool_provider",
+          "name": "conformance",
+          "index": "04",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "attribute_condition": "assertion.sub == 'repo:acme@123456/infra@456789:ref:refs/heads/main'",
+            "attribute_mapping": {
+              "google.subject": "assertion.sub",
+              "attribute.repository": "assertion.repository",
+              "attribute.repository_id": "assertion.repository_id",
+              "attribute.repository_owner_id": "assertion.repository_owner_id"
+            },
+            "aws": [],
+            "deletion_policy": "DELETE",
+            "description": "the immutable subject format",
+            "disabled": null,
+            "display_name": "GitHub Actions",
+            "oidc": [
+              {
+                "allowed_audiences": [
+                  "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github"
+                ],
+                "issuer_uri": "https://token.actions.githubusercontent.com",
+                "jwks_json": null
+              }
+            ],
+            "project": "acme-prod",
+            "saml": [],
+            "timeouts": null,
+            "workload_identity_pool_id": "github",
+            "workload_identity_pool_provider_id": "github-04",
+            "x509": []
+          },
+          "sensitive_values": {
+            "attribute_mapping": {},
+            "aws": [],
+            "oidc": [
+              {
+                "allowed_audiences": [
+                  false
+                ]
+              }
+            ],
+            "saml": [],
+            "x509": []
+          }
+        },
+        {
+          "address": "google_iam_workload_identity_pool_provider.conformance[\"05\"]",
+          "mode": "managed",
+          "type": "google_iam_workload_identity_pool_provider",
+          "name": "conformance",
+          "index": "05",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "attribute_condition": "assertion.repository_id == '456789'",
+            "attribute_mapping": {
+              "google.subject": "assertion.sub",
+              "attribute.repository": "assertion.repository",
+              "attribute.repository_id": "assertion.repository_id",
+              "attribute.repository_owner_id": "assertion.repository_owner_id"
+            },
+            "aws": [],
+            "deletion_policy": "DELETE",
+            "description": "constrained on repository_id rather than sub",
+            "disabled": null,
+            "display_name": "GitHub Actions",
+            "oidc": [
+              {
+                "allowed_audiences": [
+                  "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github"
+                ],
+                "issuer_uri": "https://token.actions.githubusercontent.com",
+                "jwks_json": null
+              }
+            ],
+            "project": "acme-prod",
+            "saml": [],
+            "timeouts": null,
+            "workload_identity_pool_id": "github",
+            "workload_identity_pool_provider_id": "github-05",
+            "x509": []
+          },
+          "sensitive_values": {
+            "attribute_mapping": {},
+            "aws": [],
+            "oidc": [
+              {
+                "allowed_audiences": [
+                  false
+                ]
+              }
+            ],
+            "saml": [],
+            "x509": []
+          }
+        },
+        {
+          "address": "google_iam_workload_identity_pool_provider.conformance[\"06\"]",
+          "mode": "managed",
+          "type": "google_iam_workload_identity_pool_provider",
+          "name": "conformance",
+          "index": "06",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "attribute_condition": null,
+            "attribute_mapping": {
+              "google.subject": "assertion.sub",
+              "attribute.repository": "assertion.repository",
+              "attribute.repository_id": "assertion.repository_id",
+              "attribute.repository_owner_id": "assertion.repository_owner_id"
+            },
+            "aws": [],
+            "deletion_policy": "DELETE",
+            "description": "issuer trusted, no subject pin",
+            "disabled": null,
+            "display_name": "GitHub Actions",
+            "oidc": [
+              {
+                "allowed_audiences": [
+                  "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github"
+                ],
+                "issuer_uri": "https://token.actions.githubusercontent.com",
+                "jwks_json": null
+              }
+            ],
+            "project": "acme-prod",
+            "saml": [],
+            "timeouts": null,
+            "workload_identity_pool_id": "github",
+            "workload_identity_pool_provider_id": "github-06",
+            "x509": []
+          },
+          "sensitive_values": {
+            "attribute_mapping": {},
+            "aws": [],
+            "oidc": [
+              {
+                "allowed_audiences": [
+                  false
+                ]
+              }
+            ],
+            "saml": [],
+            "x509": []
+          }
+        },
+        {
+          "address": "google_iam_workload_identity_pool_provider.conformance[\"07\"]",
+          "mode": "managed",
+          "type": "google_iam_workload_identity_pool_provider",
+          "name": "conformance",
+          "index": "07",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "attribute_condition": "assertion.sub.startsWith('repo:acme/infra:') && assertion.repository_id == '456789'",
+            "attribute_mapping": {
+              "google.subject": "assertion.sub",
+              "attribute.repository": "assertion.repository",
+              "attribute.repository_id": "assertion.repository_id",
+              "attribute.repository_owner_id": "assertion.repository_owner_id"
+            },
+            "aws": [],
+            "deletion_policy": "DELETE",
+            "description": "one repo, any branch; AWS states it with ForAllValues, which no other provider can",
+            "disabled": null,
+            "display_name": "GitHub Actions",
+            "oidc": [
+              {
+                "allowed_audiences": [
+                  "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github"
+                ],
+                "issuer_uri": "https://token.actions.githubusercontent.com",
+                "jwks_json": null
+              }
+            ],
+            "project": "acme-prod",
+            "saml": [],
+            "timeouts": null,
+            "workload_identity_pool_id": "github",
+            "workload_identity_pool_provider_id": "github-07",
+            "x509": []
+          },
+          "sensitive_values": {
+            "attribute_mapping": {},
+            "aws": [],
+            "oidc": [
+              {
+                "allowed_audiences": [
+                  false
+                ]
+              }
+            ],
+            "saml": [],
+            "x509": []
+          }
+        }
+      ]
+    }
+  },
+  "resource_changes": [
+    {
+      "address": "google_iam_workload_identity_pool_provider.conformance[\"01\"]",
+      "mode": "managed",
+      "type": "google_iam_workload_identity_pool_provider",
+      "name": "conformance",
+      "index": "01",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "attribute_condition": "assertion.sub == 'repo:acme/infra:ref:refs/heads/main'",
+          "attribute_mapping": {
+            "google.subject": "assertion.sub",
+            "attribute.repository": "assertion.repository",
+            "attribute.repository_id": "assertion.repository_id",
+            "attribute.repository_owner_id": "assertion.repository_owner_id"
+          },
+          "aws": [],
+          "deletion_policy": "DELETE",
+          "description": "one repo, one branch",
+          "disabled": null,
+          "display_name": "GitHub Actions",
+          "oidc": [
+            {
+              "allowed_audiences": [
+                "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github"
+              ],
+              "issuer_uri": "https://token.actions.githubusercontent.com",
+              "jwks_json": null
+            }
+          ],
+          "project": "acme-prod",
+          "saml": [],
+          "timeouts": null,
+          "workload_identity_pool_id": "github",
+          "workload_identity_pool_provider_id": "github-01",
+          "x509": []
+        },
+        "after_unknown": {
+          "attribute_mapping": {},
+          "aws": [],
+          "id": true,
+          "name": true,
+          "oidc": [
+            {
+              "allowed_audiences": [
+                false
+              ]
+            }
+          ],
+          "saml": [],
+          "state": true,
+          "x509": []
+        },
+        "before_sensitive": false,
+        "after_sensitive": {
+          "attribute_mapping": {},
+          "aws": [],
+          "oidc": [
+            {
+              "allowed_audiences": [
+                false
+              ]
+            }
+          ],
+          "saml": [],
+          "x509": []
+        }
+      }
+    },
+    {
+      "address": "google_iam_workload_identity_pool_provider.conformance[\"02\"]",
+      "mode": "managed",
+      "type": "google_iam_workload_identity_pool_provider",
+      "name": "conformance",
+      "index": "02",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "attribute_condition": "assertion.sub.startsWith('repo:acme/infra:')",
+          "attribute_mapping": {
+            "google.subject": "assertion.sub",
+            "attribute.repository": "assertion.repository",
+            "attribute.repository_id": "assertion.repository_id",
+            "attribute.repository_owner_id": "assertion.repository_owner_id"
+          },
+          "aws": [],
+          "deletion_policy": "DELETE",
+          "description": "one repo, any branch; Azure cannot state a subject pattern without an immutable claim",
+          "disabled": null,
+          "display_name": "GitHub Actions",
+          "oidc": [
+            {
+              "allowed_audiences": [
+                "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github"
+              ],
+              "issuer_uri": "https://token.actions.githubusercontent.com",
+              "jwks_json": null
+            }
+          ],
+          "project": "acme-prod",
+          "saml": [],
+          "timeouts": null,
+          "workload_identity_pool_id": "github",
+          "workload_identity_pool_provider_id": "github-02",
+          "x509": []
+        },
+        "after_unknown": {
+          "attribute_mapping": {},
+          "aws": [],
+          "id": true,
+          "name": true,
+          "oidc": [
+            {
+              "allowed_audiences": [
+                false
+              ]
+            }
+          ],
+          "saml": [],
+          "state": true,
+          "x509": []
+        },
+        "before_sensitive": false,
+        "after_sensitive": {
+          "attribute_mapping": {},
+          "aws": [],
+          "oidc": [
+            {
+              "allowed_audiences": [
+                false
+              ]
+            }
+          ],
+          "saml": [],
+          "x509": []
+        }
+      }
+    },
+    {
+      "address": "google_iam_workload_identity_pool_provider.conformance[\"03\"]",
+      "mode": "managed",
+      "type": "google_iam_workload_identity_pool_provider",
+      "name": "conformance",
+      "index": "03",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "attribute_condition": "assertion.sub.startsWith('repo:acme/') && assertion.repository_owner_id == '123456'",
+          "attribute_mapping": {
+            "google.subject": "assertion.sub",
+            "attribute.repository": "assertion.repository",
+            "attribute.repository_id": "assertion.repository_id",
+            "attribute.repository_owner_id": "assertion.repository_owner_id"
+          },
+          "aws": [],
+          "deletion_policy": "DELETE",
+          "description": "a whole organisation",
+          "disabled": null,
+          "display_name": "GitHub Actions",
+          "oidc": [
+            {
+              "allowed_audiences": [
+                "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github"
+              ],
+              "issuer_uri": "https://token.actions.githubusercontent.com",
+              "jwks_json": null
+            }
+          ],
+          "project": "acme-prod",
+          "saml": [],
+          "timeouts": null,
+          "workload_identity_pool_id": "github",
+          "workload_identity_pool_provider_id": "github-03",
+          "x509": []
+        },
+        "after_unknown": {
+          "attribute_mapping": {},
+          "aws": [],
+          "id": true,
+          "name": true,
+          "oidc": [
+            {
+              "allowed_audiences": [
+                false
+              ]
+            }
+          ],
+          "saml": [],
+          "state": true,
+          "x509": []
+        },
+        "before_sensitive": false,
+        "after_sensitive": {
+          "attribute_mapping": {},
+          "aws": [],
+          "oidc": [
+            {
+              "allowed_audiences": [
+                false
+              ]
+            }
+          ],
+          "saml": [],
+          "x509": []
+        }
+      }
+    },
+    {
+      "address": "google_iam_workload_identity_pool_provider.conformance[\"04\"]",
+      "mode": "managed",
+      "type": "google_iam_workload_identity_pool_provider",
+      "name": "conformance",
+      "index": "04",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "attribute_condition": "assertion.sub == 'repo:acme@123456/infra@456789:ref:refs/heads/main'",
+          "attribute_mapping": {
+            "google.subject": "assertion.sub",
+            "attribute.repository": "assertion.repository",
+            "attribute.repository_id": "assertion.repository_id",
+            "attribute.repository_owner_id": "assertion.repository_owner_id"
+          },
+          "aws": [],
+          "deletion_policy": "DELETE",
+          "description": "the immutable subject format",
+          "disabled": null,
+          "display_name": "GitHub Actions",
+          "oidc": [
+            {
+              "allowed_audiences": [
+                "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github"
+              ],
+              "issuer_uri": "https://token.actions.githubusercontent.com",
+              "jwks_json": null
+            }
+          ],
+          "project": "acme-prod",
+          "saml": [],
+          "timeouts": null,
+          "workload_identity_pool_id": "github",
+          "workload_identity_pool_provider_id": "github-04",
+          "x509": []
+        },
+        "after_unknown": {
+          "attribute_mapping": {},
+          "aws": [],
+          "id": true,
+          "name": true,
+          "oidc": [
+            {
+              "allowed_audiences": [
+                false
+              ]
+            }
+          ],
+          "saml": [],
+          "state": true,
+          "x509": []
+        },
+        "before_sensitive": false,
+        "after_sensitive": {
+          "attribute_mapping": {},
+          "aws": [],
+          "oidc": [
+            {
+              "allowed_audiences": [
+                false
+              ]
+            }
+          ],
+          "saml": [],
+          "x509": []
+        }
+      }
+    },
+    {
+      "address": "google_iam_workload_identity_pool_provider.conformance[\"05\"]",
+      "mode": "managed",
+      "type": "google_iam_workload_identity_pool_provider",
+      "name": "conformance",
+      "index": "05",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "attribute_condition": "assertion.repository_id == '456789'",
+          "attribute_mapping": {
+            "google.subject": "assertion.sub",
+            "attribute.repository": "assertion.repository",
+            "attribute.repository_id": "assertion.repository_id",
+            "attribute.repository_owner_id": "assertion.repository_owner_id"
+          },
+          "aws": [],
+          "deletion_policy": "DELETE",
+          "description": "constrained on repository_id rather than sub",
+          "disabled": null,
+          "display_name": "GitHub Actions",
+          "oidc": [
+            {
+              "allowed_audiences": [
+                "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github"
+              ],
+              "issuer_uri": "https://token.actions.githubusercontent.com",
+              "jwks_json": null
+            }
+          ],
+          "project": "acme-prod",
+          "saml": [],
+          "timeouts": null,
+          "workload_identity_pool_id": "github",
+          "workload_identity_pool_provider_id": "github-05",
+          "x509": []
+        },
+        "after_unknown": {
+          "attribute_mapping": {},
+          "aws": [],
+          "id": true,
+          "name": true,
+          "oidc": [
+            {
+              "allowed_audiences": [
+                false
+              ]
+            }
+          ],
+          "saml": [],
+          "state": true,
+          "x509": []
+        },
+        "before_sensitive": false,
+        "after_sensitive": {
+          "attribute_mapping": {},
+          "aws": [],
+          "oidc": [
+            {
+              "allowed_audiences": [
+                false
+              ]
+            }
+          ],
+          "saml": [],
+          "x509": []
+        }
+      }
+    },
+    {
+      "address": "google_iam_workload_identity_pool_provider.conformance[\"06\"]",
+      "mode": "managed",
+      "type": "google_iam_workload_identity_pool_provider",
+      "name": "conformance",
+      "index": "06",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "attribute_condition": null,
+          "attribute_mapping": {
+            "google.subject": "assertion.sub",
+            "attribute.repository": "assertion.repository",
+            "attribute.repository_id": "assertion.repository_id",
+            "attribute.repository_owner_id": "assertion.repository_owner_id"
+          },
+          "aws": [],
+          "deletion_policy": "DELETE",
+          "description": "issuer trusted, no subject pin",
+          "disabled": null,
+          "display_name": "GitHub Actions",
+          "oidc": [
+            {
+              "allowed_audiences": [
+                "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github"
+              ],
+              "issuer_uri": "https://token.actions.githubusercontent.com",
+              "jwks_json": null
+            }
+          ],
+          "project": "acme-prod",
+          "saml": [],
+          "timeouts": null,
+          "workload_identity_pool_id": "github",
+          "workload_identity_pool_provider_id": "github-06",
+          "x509": []
+        },
+        "after_unknown": {
+          "attribute_mapping": {},
+          "aws": [],
+          "id": true,
+          "name": true,
+          "oidc": [
+            {
+              "allowed_audiences": [
+                false
+              ]
+            }
+          ],
+          "saml": [],
+          "state": true,
+          "x509": []
+        },
+        "before_sensitive": false,
+        "after_sensitive": {
+          "attribute_mapping": {},
+          "aws": [],
+          "oidc": [
+            {
+              "allowed_audiences": [
+                false
+              ]
+            }
+          ],
+          "saml": [],
+          "x509": []
+        }
+      }
+    },
+    {
+      "address": "google_iam_workload_identity_pool_provider.conformance[\"07\"]",
+      "mode": "managed",
+      "type": "google_iam_workload_identity_pool_provider",
+      "name": "conformance",
+      "index": "07",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "attribute_condition": "assertion.sub.startsWith('repo:acme/infra:') && assertion.repository_id == '456789'",
+          "attribute_mapping": {
+            "google.subject": "assertion.sub",
+            "attribute.repository": "assertion.repository",
+            "attribute.repository_id": "assertion.repository_id",
+            "attribute.repository_owner_id": "assertion.repository_owner_id"
+          },
+          "aws": [],
+          "deletion_policy": "DELETE",
+          "description": "one repo, any branch; AWS states it with ForAllValues, which no other provider can",
+          "disabled": null,
+          "display_name": "GitHub Actions",
+          "oidc": [
+            {
+              "allowed_audiences": [
+                "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github"
+              ],
+              "issuer_uri": "https://token.actions.githubusercontent.com",
+              "jwks_json": null
+            }
+          ],
+          "project": "acme-prod",
+          "saml": [],
+          "timeouts": null,
+          "workload_identity_pool_id": "github",
+          "workload_identity_pool_provider_id": "github-07",
+          "x509": []
+        },
+        "after_unknown": {
+          "attribute_mapping": {},
+          "aws": [],
+          "id": true,
+          "name": true,
+          "oidc": [
+            {
+              "allowed_audiences": [
+                false
+              ]
+            }
+          ],
+          "saml": [],
+          "state": true,
+          "x509": []
+        },
+        "before_sensitive": false,
+        "after_sensitive": {
+          "attribute_mapping": {},
+          "aws": [],
+          "oidc": [
+            {
+              "allowed_audiences": [
+                false
+              ]
+            }
+          ],
+          "saml": [],
+          "x509": []
+        }
+      }
+    }
+  ],
+  "configuration": {
+    "provider_config": {
+      "google": {
+        "name": "google",
+        "full_name": "registry.terraform.io/hashicorp/google"
+      }
+    },
+    "root_module": {
+      "resources": [
+        {
+          "address": "google_iam_workload_identity_pool_provider.conformance",
+          "mode": "managed",
+          "type": "google_iam_workload_identity_pool_provider",
+          "name": "conformance",
+          "provider_config_key": "google",
+          "expressions": {
+            "attribute_condition": {
+              "references": [
+                "each.value"
+              ]
+            },
+            "attribute_mapping": {
+              "references": [
+                "each.value"
+              ]
+            },
+            "display_name": {
+              "references": [
+                "each.value"
+              ]
+            },
+            "description": {
+              "references": [
+                "each.value"
+              ]
+            },
+            "oidc": [
+              {
+                "allowed_audiences": {
+                  "references": [
+                    "each.value"
+                  ]
+                },
+                "issuer_uri": {
+                  "references": [
+                    "each.value"
+                  ]
+                }
+              }
+            ],
+            "workload_identity_pool_id": {
+              "constant_value": "github"
+            },
+            "workload_identity_pool_provider_id": {
+              "references": [
+                "each.key"
+              ]
+            }
+          },
+          "schema_version": 0,
+          "for_each_expression": {
+            "references": [
+              "local.cases"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "timestamp": "2026-09-14T00:00:00Z",
+  "applyable": true,
+  "complete": true,
+  "errored": false
+}

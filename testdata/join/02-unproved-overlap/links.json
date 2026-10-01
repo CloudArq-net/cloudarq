@@ -1,0 +1,92 @@
+[
+  {
+    "kind": "counterparty-fan-out",
+    "grants": [
+      {
+        "target": {
+          "kind": "application",
+          "id": "6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d"
+        },
+        "issuer": "https://token.actions.githubusercontent.com",
+        "effect": "Allow",
+        "admits": "{aud=\"api://AzureADTokenExchange\", repository_owner_id=\"999999\", sub=like:\"repo:acme-evil/*\"}",
+        "caveats": []
+      },
+      {
+        "target": {
+          "kind": "role",
+          "id": "arn:aws:iam::111111111111:role/deploy"
+        },
+        "issuer": "https://token.actions.githubusercontent.com",
+        "effect": "Allow",
+        "admits": "{aud=\"sts.amazonaws.com\", sub=like:\"repo:acme/*\"}",
+        "caveats": []
+      }
+    ],
+    "subject": {
+      "issuer": "https://token.actions.githubusercontent.com",
+      "overlap": "{repository_owner_id=\"999999\", sub=(like:\"repo:acme-evil/*\" & like:\"repo:acme/*\")}",
+      "witness": null
+    },
+    "confidence": "indeterminate",
+    "reason": "no example identity could be constructed for identities from https://token.actions.githubusercontent.com with repository_owner_id 999999 and sub matching all of repo:acme-evil/* and repo:acme/*",
+    "sentence": "Identities admitted by application 6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d may also be admitted by role arn:aws:iam::111111111111:role/deploy from https://token.actions.githubusercontent.com; no example identity could be constructed for identities from https://token.actions.githubusercontent.com with repository_owner_id 999999 and sub matching all of repo:acme-evil/* and repo:acme/*.",
+    "provenance": [
+      {
+        "api": "graph:federatedIdentityCredentials.list",
+        "params": "{\"applicationId\":\"6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d\"}",
+        "status": "ok",
+        "bytes": {
+          "value": [
+            {
+              "name": "github-org",
+              "claimsMatchingExpression": {
+                "value": "claims['sub'] matches 'repo:acme-evil/*' and claims['repository_owner_id'] eq '999999'",
+                "languageVersion": 1
+              },
+              "issuer": "https://token.actions.githubusercontent.com",
+              "audiences": [
+                "api://AzureADTokenExchange"
+              ]
+            }
+          ]
+        },
+        "sha256": "652df784f8047aa2fb044cf5a1a96cd9b5f6a80722a12b7d47b87c70a2e50571",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      },
+      {
+        "api": "iam:GetRole",
+        "params": "{\"RoleName\":\"deploy\"}",
+        "status": "ok",
+        "bytes": {
+          "Role": {
+            "Arn": "arn:aws:iam::111111111111:role/deploy",
+            "RoleName": "deploy",
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Federated": "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com"
+                  },
+                  "Action": "sts:AssumeRoleWithWebIdentity",
+                  "Condition": {
+                    "StringEquals": {
+                      "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                    },
+                    "StringLike": {
+                      "token.actions.githubusercontent.com:sub": "repo:acme/*"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "sha256": "1516a160aad29e35d67330198eab58acc2460ad12d06512aa142f91a0b6411a1",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      }
+    ]
+  }
+]

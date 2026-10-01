@@ -1,0 +1,27 @@
+read as an aws trust policy · version 2012-10-17 · 556 bytes · 18 lines · 1 statement
+sha256 3f193879070685fba0cb2e52a030452839be3cbf68bfa0b19c3508cbbf4a874b
+
+Anyone on Bitbucket could assume this role.
+
+  Anyone               exact             No grant is placed with people who have no account anywhere.
+  Anyone on Bitbucket  unknown  grant 1  Anyone on Bitbucket could assume this role; who can join its tenant is not established.
+  A named outsider     exact             No grant is placed with a named outsider.
+  Your pipelines       exact             No grant is confined to owners declared as yours.
+  Your people          exact             No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] "BitbucketWorkspace" · Allow · https://api.bitbucket.org/2.0/workspaces/acme/pipelines-config/identity/oidc · platform · unknown
+Who this statement admits is not known: StringEquals on aud has no set prefix, and a token of "https://api.bitbucket.org/2.0/workspaces/acme/pipelines-config/identity/oidc" may carry several values in the claim AWS reads the condition key "api.bitbucket.org/2.0/workspaces/acme/pipelines-config/identity/oidc:aud" from; how many of them AWS compares, and what an operator without a set prefix does on them, AWS does not document, so the claim is not constrained.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  StringEquals on aud has no set prefix, and a token of "https://api.bitbucket.org/2.0/workspaces/acme/pipelines-config/identity/oidc" may carry several values in the claim AWS reads the condition key "api.bitbucket.org/2.0/workspaces/acme/pipelines-config/identity/oidc:aud" from; how many of them AWS compares, and what an operator without a set prefix does on them, AWS does not document, so the claim is not constrained
+     caveat · aud · statement[0].Condition
+  2  same as note 1
+     anomaly · unmodelled-construct · aud · api.bitbucket.org/2.0/workspaces/acme/pipelines-config/identity/oidc:aud · statement[0].Condition
+
+statement[0] "BitbucketWorkspace" · offset 50 · 499 bytes · lines 4-16 · issuer at line 8 Principal.Federated · sha256 ebb962e8d17f2a20fb7c3fa235b71c523f414115c882723eb41d28b73890e9f0

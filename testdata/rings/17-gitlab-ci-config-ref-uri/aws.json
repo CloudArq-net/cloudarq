@@ -1,0 +1,19 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "GitLabPipelineDefinition",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/gitlab.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "gitlab.com:aud": "https://gitlab.com",
+          "gitlab.com:ci_config_ref_uri": "gitlab.com/acme/pipelines//.gitlab-ci.yml@refs/heads/main"
+        }
+      }
+    }
+  ]
+}

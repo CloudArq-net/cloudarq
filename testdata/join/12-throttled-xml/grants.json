@@ -1,0 +1,103 @@
+[
+  {
+    "target": {
+      "kind": "role",
+      "id": "arn:aws:iam::111111111111:role/deploy"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": [
+      {
+        "aud": {
+          "exact": "sts.amazonaws.com"
+        },
+        "sub": {
+          "like": "repo:acme/*:ref:refs/heads/main"
+        }
+      }
+    ],
+    "provenance": [
+      {
+        "api": "iam:GetRole",
+        "params": "{\"RoleName\":\"deploy\"}",
+        "status": "ok",
+        "bytes": {
+          "Role": {
+            "Arn": "arn:aws:iam::111111111111:role/deploy",
+            "RoleName": "deploy",
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Federated": "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com"
+                  },
+                  "Action": "sts:AssumeRoleWithWebIdentity",
+                  "Condition": {
+                    "StringEquals": {
+                      "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                    },
+                    "StringLike": {
+                      "token.actions.githubusercontent.com:sub": "repo:acme/*:ref:refs/heads/main"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "fetched_at": "2026-09-13T00:00:00Z"
+      },
+      {
+        "api": "iam:ListRolePolicies",
+        "params": "{\"RoleName\":\"deploy\"}",
+        "status": "throttled",
+        "bytes_base64": "PEVycm9yUmVzcG9uc2UgeG1sbnM9Imh0dHBzOi8vaWFtLmFtYXpvbmF3cy5jb20vZG9jLzIwMTAtMDUtMDgvIj4KICA8RXJyb3I+CiAgICA8VHlwZT5TZW5kZXI8L1R5cGU+CiAgICA8Q29kZT5UaHJvdHRsaW5nPC9Db2RlPgogICAgPE1lc3NhZ2U+UmF0ZSBleGNlZWRlZDwvTWVzc2FnZT4KICA8L0Vycm9yPgogIDxSZXF1ZXN0SWQ+MDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDEyPC9SZXF1ZXN0SWQ+CjwvRXJyb3JSZXNwb25zZT4K",
+        "fetched_at": "2026-09-13T00:00:01Z"
+      }
+    ]
+  },
+  {
+    "target": {
+      "kind": "application",
+      "id": "6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": [
+      {
+        "aud": {
+          "exact": "api://AzureADTokenExchange"
+        },
+        "sub": {
+          "like": "repo:acme/infra:*"
+        }
+      }
+    ],
+    "provenance": [
+      {
+        "api": "graph:federatedIdentityCredentials.list",
+        "params": "{\"applicationId\":\"6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d\"}",
+        "status": "ok",
+        "bytes": {
+          "value": [
+            {
+              "name": "github-infra",
+              "subject": null,
+              "claimsMatchingExpression": {
+                "value": "claims['sub'] matches 'repo:acme/infra:*'",
+                "languageVersion": 1
+              },
+              "issuer": "https://token.actions.githubusercontent.com",
+              "audiences": [
+                "api://AzureADTokenExchange"
+              ]
+            }
+          ]
+        },
+        "fetched_at": "2026-09-13T00:00:00Z"
+      }
+    ]
+  }
+]

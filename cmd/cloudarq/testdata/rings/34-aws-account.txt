@@ -1,0 +1,28 @@
+read as an aws trust policy · version 2012-10-17 · 231 bytes · 13 lines · 1 statement
+sha256 d06b5cb89a5c902483da1904871c30fd367bfabfdd041b18c45a969d48a86f74
+
+A named outsider can assume this role.
+
+  Anyone                exact           No grant is placed with people who have no account anywhere.
+  Anyone on a platform  exact           No grant is placed at a whole platform.
+  A named outsider      exact  grant 1  aws:111122223333 can assume this role and is not declared as yours.
+  Your pipelines        exact           No grant is confined to owners declared as yours.
+  Your people           exact           No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] "PartnerAccount" · Allow · aws:sts · outsider · exact
+This role admits any AWS principal whose aws:principalaccount is 111122223333.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM                 ADMITS          IN WORDS · AS WRITTEN
+aws:principalaccount  "111122223333"  exactly this value · from Principal
+any other claim       any             unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "aws:principalaccount": "111122223333"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant.
+
+statement[0] "PartnerAccount" · offset 50 · 174 bytes · lines 4-11 · issuer at line 7 Principal · sha256 e04b99a57d3c65e009b2eadfd6e0986538207c3a18dbf6b958dea138a7e7ddd2

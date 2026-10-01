@@ -1,0 +1,18 @@
+{
+  "name": "projects/123456789012/locations/global/workloadIdentityPools/mtls/providers/mtls",
+  "displayName": "Corporate CA",
+  "description": "an X.509 provider",
+  "state": "ACTIVE",
+  "attributeMapping": {
+    "google.subject": "assertion.subject.dn.cn"
+  },
+  "x509": {
+    "trustStore": {
+      "trustAnchors": [
+        {
+          "pemCertificate": "-----BEGIN CERTIFICATE-----\nMIIB\n-----END CERTIFICATE-----"
+        }
+      ]
+    }
+  }
+}

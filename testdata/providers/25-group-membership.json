@@ -1,0 +1,17 @@
+{
+  "name": "projects/123456789012/locations/global/workloadIdentityPools/okta/providers/okta",
+  "displayName": "Okta",
+  "description": "Google's own example condition: a mapped group",
+  "state": "ACTIVE",
+  "attributeMapping": {
+    "google.subject": "assertion.sub",
+    "google.groups": "assertion.groups"
+  },
+  "attributeCondition": "'admins' in google.groups",
+  "oidc": {
+    "issuerUri": "https://acme.okta.com/oauth2/default",
+    "allowedAudiences": [
+      "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/okta/providers/okta"
+    ]
+  }
+}

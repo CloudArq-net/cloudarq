@@ -1,0 +1,26 @@
+{
+    "Version":"2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Principal": {
+          "Service": "rolesanywhere.amazonaws.com"
+        },
+        "Action": [
+          "sts:AssumeRole",
+          "sts:TagSession",
+          "sts:SetSourceIdentity"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "aws:PrincipalTag/x509Subject/CN": "Alice"
+          },
+          "ArnEquals": {
+            "aws:SourceArn": [
+              "arn:aws:rolesanywhere:us-east-1:123456789012:trust-anchor/TA_ID"
+            ]
+          }
+        }
+      }
+    ]
+  }

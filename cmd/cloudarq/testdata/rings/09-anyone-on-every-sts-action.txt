@@ -1,0 +1,47 @@
+read as an aws trust policy · version 2012-10-17 · 172 bytes · 11 lines · 1 statement
+sha256 cbf1f4025982f6fe8e937967160e58128970bc1582a5daf82555f8e28a6de6d2
+
+Anyone could assume this role.
+
+  Anyone            unknown  grant 1  Anyone could assume this role: by the engine's reading of AWS's documentation, identity-pool guests may.
+  Anyone on AWS     exact    grant 2  Anyone on AWS can assume this role; no condition confines callers to one account or organisation.
+  A named outsider  exact             No grant is placed with a named outsider.
+  Your pipelines    exact             No grant is confined to owners declared as yours.
+  Your people       exact             No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 2 · statement[0] "AnyoneAnySTSAction" · Allow · anyone · unknown
+Who this statement admits is not known: the statement applies to every principal, and which AWS services and identity providers' tokens it covers through sts:AssumeRole, sts:AssumeRoleWithWebIdentity or sts:AssumeRoleWithSAML is not known.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  the statement applies to every principal, and which AWS services and identity providers' tokens it covers through sts:AssumeRole, sts:AssumeRoleWithWebIdentity or sts:AssumeRoleWithSAML is not known
+     caveat · statement[0].Principal
+  2  the statement applies to every principal, including anonymous ones
+     anomaly · any-principal · Principal · statement[0].Principal
+  3  same as note 1
+     anomaly · unmodelled-construct · Principal · statement[0].Principal
+
+statement[0] "AnyoneAnySTSAction" · offset 50 · 115 bytes · lines 4-9 · issuer at line 7 Principal · sha256 0bd2c5fc752c2f7d2fbc2e730604c5a8f4c9609a964d6facb46dd474a9b3b44d
+
+grant 2 of 2 · statement[0] "AnyoneAnySTSAction" · Allow · aws:sts · platform · exact
+This role admits every AWS principal, in any account: no condition constrains this statement.
+Exact means the set is known exactly, not that it is small: no construct went unevaluated.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+sub              any     any subject · no condition names it
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  the statement applies to every principal, including anonymous ones
+     anomaly · any-principal · Principal · statement[0].Principal
+
+a token this grant admits
+  {}
+The decoded payload. A claim not shown is unconstrained by this grant, and none of the claims shown names an identity: whoever holds a token like this is admitted.
+
+statement[0] "AnyoneAnySTSAction" · offset 50 · 115 bytes · lines 4-9 · issuer at line 7 Principal · sha256 0bd2c5fc752c2f7d2fbc2e730604c5a8f4c9609a964d6facb46dd474a9b3b44d

@@ -1,0 +1,15 @@
+CloudArq
+Copyright 2026 Abdallah Khaldi
+
+This product includes data from the Unicode Character Database,
+Copyright © 1991-2026 Unicode, Inc., used under the Unicode License v3.
+
+This product includes an example response from the Azure REST API
+specifications, Copyright (c) 2017 Microsoft, used under the MIT License.
+
+This product includes wasm_exec.js from TinyGo, Copyright (c) 2018-2026
+The TinyGo Authors and Copyright 2018 The Go Authors, used under the
+BSD 3-Clause License.
+
+Third-party material, where it is and its licences are listed in
+THIRD_PARTY_NOTICES.

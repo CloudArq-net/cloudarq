@@ -1,0 +1,50 @@
+read as an aws trust policy · version 2012-10-17 · 257 bytes · 13 lines · 1 statement
+sha256 5bb8a10194c61573cadae730905941a9158663483d5560b7716b8f9a2ccbc03e
+
+2 cloud services can assume this role.
+
+  Anyone                unknown               No grant is placed with people who have no account anywhere.
+  Anyone on a platform  exact                 No grant is placed at a whole platform.
+  A named outsider      exact                 No grant is placed with a named outsider.
+  Your pipelines        exact                 No grant is confined to owners declared as yours.
+  Your people           exact                 No grant trusts a SAML provider declared as yours.
+  ──
+  Cloud services        unknown  grants 1, 2  2 cloud services can assume this role; who can make them act is not read.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 2 · statement[0] "InstancesAndHybridMachines" · Allow · aws:service:ec2.amazonaws.com · service · unknown
+This role admits ec2.amazonaws.com, acting for whoever can make it act: no condition constrains this statement.
+Who can make the service act, or receives its session, is not read: who gets in through it is not known.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+sub              any     any subject · no condition names it
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  ec2.amazonaws.com is an AWS service principal; who can make it act, or receives its session, is not read
+     anomaly · service-principal · Service · statement[0].Principal
+
+a token this grant admits
+  {}
+The decoded payload. A claim not shown is unconstrained by this grant, and none of the claims shown names an identity: whoever holds a token like this is admitted.
+
+statement[0] "InstancesAndHybridMachines" · offset 50 · 200 bytes · lines 4-11 · issuer at line 7 Principal · sha256 1e3e61d2d88af9fa4e07263b9777ee3bd32af296455448bcfed0105f934ef09a
+
+grant 2 of 2 · statement[0] "InstancesAndHybridMachines" · Allow · aws:service:ssm.amazonaws.com · service · unknown
+This role admits ssm.amazonaws.com, acting for whoever can make it act: no condition constrains this statement.
+Who can make the service act, or receives its session, is not read: who gets in through it is not known.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+sub              any     any subject · no condition names it
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  ssm.amazonaws.com can assume a role for machines registered by a hybrid activation, and pass them its session, among other uses; who can make it act, or receives its session, is not read
+     anomaly · service-principal · Service · statement[0].Principal
+
+a token this grant admits
+  {}
+The decoded payload. A claim not shown is unconstrained by this grant, and none of the claims shown names an identity: whoever holds a token like this is admitted.
+
+statement[0] "InstancesAndHybridMachines" · offset 50 · 200 bytes · lines 4-11 · issuer at line 7 Principal · sha256 1e3e61d2d88af9fa4e07263b9777ee3bd32af296455448bcfed0105f934ef09a

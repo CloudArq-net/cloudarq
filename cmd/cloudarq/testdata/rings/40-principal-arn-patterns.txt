@@ -1,0 +1,96 @@
+read as an aws trust policy · version 2012-10-17 · 609 bytes · 31 lines · 2 statements
+sha256 940cc3d1552ea3c48e124c58290dbc5357789c64bec954fed4799c98b7740a42
+
+Anyone on AWS can assume this role; so can cloud services.
+
+  Anyone            unknown               No grant is placed with people who have no account anywhere.
+  Anyone on AWS     exact    grant 3      Anyone on AWS can assume this role; no condition confines callers to one account or organisation.
+  A named outsider  exact    grant 4      aws:111122223333 can assume this role and is not declared as yours.
+  Your pipelines    exact                 No grant is confined to owners declared as yours.
+  Your people       exact                 No grant trusts a SAML provider declared as yours.
+  ──
+  Cloud services    unknown  grants 1, 2  Any cloud service can assume this role; which ones, and for whom, is not read.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 4 · statement[0] "RolesOfOneAccount" · Allow · service · unknown
+Who this statement admits is not known: the condition key "aws:PrincipalArn" is a fact about the request, not a claim of the token, so this parser does not evaluate it and the claim is not constrained; the statement applies to every principal, and which AWS services it covers through sts:AssumeRole is not known.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  the condition key "aws:PrincipalArn" is a fact about the request, not a claim of the token, so this parser does not evaluate it and the claim is not constrained
+     caveat · aws:principalarn · statement[0].Condition
+  2  the statement applies to every principal, and which AWS services it covers through sts:AssumeRole is not known
+     caveat · statement[0].Principal
+  3  the statement applies to every principal, including anonymous ones
+     anomaly · any-principal · Principal · statement[0].Principal
+  4  same as note 2
+     anomaly · unmodelled-construct · Principal · statement[0].Principal
+  5  same as note 1
+     anomaly · unmodelled-construct · aws:principalarn · aws:PrincipalArn · statement[0].Condition
+
+statement[0] "RolesOfOneAccount" · offset 50 · 277 bytes · lines 4-16 · issuer at line 7 Principal · sha256 c056792188b7ac69f002f742646046ec4bf001501caff79d66731b9d82dafa65
+
+grant 2 of 4 · statement[1] "AccountNotClosed" · Allow · service · unknown
+Who this statement admits is not known: the condition key "aws:PrincipalArn" is a fact about the request, not a claim of the token, so this parser does not evaluate it and the claim is not constrained; the statement applies to every principal, and which AWS services it covers through sts:AssumeRole is not known.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  the condition key "aws:PrincipalArn" is a fact about the request, not a claim of the token, so this parser does not evaluate it and the claim is not constrained
+     caveat · aws:principalarn · statement[1].Condition
+  2  the statement applies to every principal, and which AWS services it covers through sts:AssumeRole is not known
+     caveat · statement[1].Principal
+  3  the statement applies to every principal, including anonymous ones
+     anomaly · any-principal · Principal · statement[1].Principal
+  4  same as note 2
+     anomaly · unmodelled-construct · Principal · statement[1].Principal
+  5  same as note 1
+     anomaly · unmodelled-construct · aws:principalarn · aws:PrincipalArn · statement[1].Condition
+
+statement[1] "AccountNotClosed" · offset 333 · 269 bytes · lines 17-29 · issuer at line 20 Principal · sha256 f1491908f40ca53f6b29f5a5a6ecd6edeff2c5b768a86ad7635e62665b0aff52
+
+grant 3 of 4 · statement[1] "AccountNotClosed" · Allow · aws:sts · platform · exact
+This role admits any AWS principal whose aws:principalarn matches arn:aws:iam::11112222333*.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM             ADMITS                            IN WORDS · AS WRITTEN
+aws:principalarn  like:"arn:aws:iam::11112222333*"  any value beginning arn:aws:iam::11112222333 · line 26 StringLike
+any other claim   any                               unconstrained · no condition names it
+
+notes
+  1  the statement applies to every principal, including anonymous ones
+     anomaly · any-principal · Principal · statement[1].Principal
+
+a token this grant admits
+  {
+    "aws:principalarn": "arn:aws:iam::11112222333"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant.
+
+statement[1] "AccountNotClosed" · offset 333 · 269 bytes · lines 17-29 · issuer at line 20 Principal · sha256 f1491908f40ca53f6b29f5a5a6ecd6edeff2c5b768a86ad7635e62665b0aff52
+
+grant 4 of 4 · statement[0] "RolesOfOneAccount" · Allow · aws:sts · outsider · exact
+This role admits any AWS principal whose aws:principalarn matches arn:aws:iam::111122223333:role/*.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM             ADMITS                                   IN WORDS · AS WRITTEN
+aws:principalarn  like:"arn:aws:iam::111122223333:role/*"  any value beginning arn:aws:iam::111122223333:role/ · line 13 StringLike
+any other claim   any                                      unconstrained · no condition names it
+
+notes
+  1  the statement applies to every principal, including anonymous ones
+     anomaly · any-principal · Principal · statement[0].Principal
+
+a token this grant admits
+  {
+    "aws:principalarn": "arn:aws:iam::111122223333:role/"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant.
+
+statement[0] "RolesOfOneAccount" · offset 50 · 277 bytes · lines 4-16 · issuer at line 7 Principal · sha256 c056792188b7ac69f002f742646046ec4bf001501caff79d66731b9d82dafa65

@@ -1,0 +1,39 @@
+read as an aws trust policy · version 2012-10-17 · 466 bytes · 21 lines · 1 statement
+sha256 b692d794eb9c0b58bf6efce316703b54e90af6d1b2ce7363a3edad79993bb919
+
+ssm.amazonaws.com can assume this role.
+
+  Anyone                unknown           No grant is placed with people who have no account anywhere.
+  Anyone on a platform  exact             No grant is placed at a whole platform.
+  A named outsider      exact             No grant is placed with a named outsider.
+  Your pipelines        exact             No grant is confined to owners declared as yours.
+  Your people           exact             No grant trusts a SAML provider declared as yours.
+  ──
+  Cloud services        unknown  grant 1  ssm.amazonaws.com can assume this role; who can make it act is not read.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] · Allow · aws:service:ssm.amazonaws.com · service · unknown
+Who this statement admits is not known: the condition key "aws:SourceAccount" is a fact about the request, not a claim of the token, so this parser does not evaluate it and the claim is not constrained; operator ArnEquals on aws:sourcearn is not modelled by this parser, so the claim is not constrained; the condition key "aws:SourceArn" is a fact about the request, not a claim of the token, so this parser does not evaluate it and the claim is not constrained.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  the condition key "aws:SourceAccount" is a fact about the request, not a claim of the token, so this parser does not evaluate it and the claim is not constrained
+     caveat · aws:sourceaccount · statement[0].Condition
+  2  operator ArnEquals on aws:sourcearn is not modelled by this parser, so the claim is not constrained
+     caveat · aws:sourcearn · statement[0].Condition
+  3  the condition key "aws:SourceArn" is a fact about the request, not a claim of the token, so this parser does not evaluate it and the claim is not constrained
+     caveat · aws:sourcearn · statement[0].Condition
+  4  ssm.amazonaws.com can assume a role for machines registered by a hybrid activation, and pass them its session, among other uses; who can make it act, or receives its session, is not read
+     anomaly · service-principal · Service · statement[0].Principal
+  5  same as note 1
+     anomaly · unmodelled-construct · aws:sourceaccount · aws:SourceAccount · statement[0].Condition
+  6  same as note 3
+     anomaly · unmodelled-construct · aws:sourcearn · aws:SourceArn · statement[0].Condition
+  7  same as note 2
+     anomaly · unmodelled-construct · aws:sourcearn · ArnEquals · statement[0].Condition
+
+statement[0] · offset 52 · 406 bytes · lines 4-19 · issuer at line 7 Principal · sha256 23670de728a68e2f776b23613d318f59bfc728e3c4d96a902129a6f9aa77d444

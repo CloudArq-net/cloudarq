@@ -1,0 +1,29 @@
+read as an aws trust policy · version 2012-10-17 · 435 bytes · 18 lines · 1 statement
+sha256 43f77d60b9c38c58a9eb8ecdc5a9e06d6f9a54bda03f3c27ce788129689d0da9
+
+Anyone on GitHub could assume this role.
+
+  Anyone            exact             No grant is placed with people who have no account anywhere.
+  Anyone on GitHub  unknown  grant 1  Anyone on GitHub could assume this role; one of its conditions was not read.
+  A named outsider  exact             No grant is placed with a named outsider.
+  Your pipelines    exact             No grant is confined to owners declared as yours.
+  Your people       exact             No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] "AnyRepositoryOfAcme" · Allow · https://token.actions.githubusercontent.com · platform · unknown
+This role admits any token from token.actions.githubusercontent.com whose repository matches acme/*.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM            ADMITS         IN WORDS · AS WRITTEN
+repository       like:"acme/*"  any value beginning acme/ · line 13 StringLike
+any other claim  any            unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "iss": "https://token.actions.githubusercontent.com",
+    "repository": "acme/"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant.
+
+statement[0] "AnyRepositoryOfAcme" · offset 50 · 378 bytes · lines 4-16 · issuer at line 8 Principal.Federated · sha256 390f2858427f395daa9b978d92353773427d1b38f6dd2030d2d9655ba1f37550

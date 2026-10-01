@@ -1,0 +1,4 @@
+github.com/CloudArq-net/issuers v0.2.0 h1:4COAG4FC6aVfI5jpaqJqUcNKRZnK4IPKMuwr6y0Pu+M=
+github.com/CloudArq-net/issuers v0.2.0/go.mod h1:aWIisECyUo2ol6TI/Y7SHcYCu6WSMOaCWpidEmSKkjE=
+pgregory.net/rapid v1.3.0 h1:vBvO0VSqti75J1jjYqpgPNBLKMd1+gxa9fYo7vk/Exc=
+pgregory.net/rapid v1.3.0/go.mod h1:dPlE4OBBxgXPqkP79flB6sJL1dx5azpI7HQ9MY9Z7uk=

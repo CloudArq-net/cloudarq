@@ -1,0 +1,17 @@
+{
+  "name": "projects/123456789012/locations/global/workloadIdentityPools/github/providers/github",
+  "displayName": "GitHub Actions",
+  "description": "a whole organisation, pinned by the immutable owner id",
+  "state": "ACTIVE",
+  "attributeMapping": {
+    "google.subject": "assertion.sub",
+    "attribute.repository_owner_id": "assertion.repository_owner_id"
+  },
+  "attributeCondition": "assertion.sub.startsWith('repo:acme/') && assertion.repository_owner_id == '123456'",
+  "oidc": {
+    "issuerUri": "https://token.actions.githubusercontent.com",
+    "allowedAudiences": [
+      "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github"
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+read as an aws trust policy · version 2012-10-17 · 532 bytes · 21 lines · 1 statement
+sha256 34441d8fb671b4b4aad5059a33181f76cf204ad446c1fa7b45ad756c23d4bc3e
+
+Anyone could assume this role.
+
+  Anyone                unknown  grant 1  Anyone could assume this role: cognito-identity.amazonaws.com gives tokens to guests and to whoever signs in.
+  Anyone on a platform  exact             No grant is placed at a whole platform.
+  A named outsider      exact             No grant is placed with a named outsider.
+  Your pipelines        exact             No grant is confined to owners declared as yours.
+  Your people           exact             No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies, this account's identity providers and the settings of each audience this role accepts from cognito-identity.amazonaws.com.
+
+grant 1 of 1 · statement[0] "IdentityPoolGuests" · Allow · https://cognito-identity.amazonaws.com · anyone · unknown
+This role admits any token from cognito-identity.amazonaws.com whose amr was not evaluated and whose aud is us-east-1:12345678-abcd-abcd-abcd-123456789012, so the set shown is an upper bound.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS                                            IN WORDS · AS WRITTEN
+amr              ?("ForAnyValue:StringLike")                       not evaluated · note 1 · line 16 ForAnyValue:StringLike
+aud              "us-east-1:12345678-abcd-abcd-abcd-123456789012"  exactly this audience · line 13 StringEquals
+any other claim  any                                               unconstrained · no condition names it
+
+notes
+  1  ForAnyValue:StringLike on amr compares a set of request values, which this parser does not model, so the claim is not constrained
+     caveat · amr · statement[0].Condition
+  2  same as note 1
+     anomaly · unmodelled-construct · amr · ForAnyValue:StringLike · statement[0].Condition
+
+a token this grant admits
+  {
+    "iss": "https://cognito-identity.amazonaws.com",
+    "aud": "us-east-1:12345678-abcd-abcd-abcd-123456789012"
+  }
+The decoded payload. A claim not shown and not named by the grant is unconstrained; amr is not shown because it was not evaluated, so whether it excludes a token is not decided here.
+
+statement[0] "IdentityPoolGuests" · offset 50 · 475 bytes · lines 4-19 · issuer at line 8 Principal.Federated · sha256 6c7ba3481ae3ffa786a00e0db8725361ea9424ad96e86b3102cdcd72de513541

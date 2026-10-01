@@ -1,0 +1,32 @@
+read as an aws trust policy · version 2012-10-17 · 414 bytes · 18 lines · 1 statement
+sha256 75d81b90ed5d19394bb1b01ac64462a5b80ff0b376e80d9aa14031472cb06ce8
+
+Anyone on Spacelift could assume this role.
+
+  Anyone               exact             No grant is placed with people who have no account anywhere.
+  Anyone on Spacelift  unknown  grant 1  Anyone on Spacelift could assume this role; who can join its tenant is not established.
+  A named outsider     exact             No grant is placed with a named outsider.
+  Your pipelines       exact             No grant is confined to owners declared as yours.
+  Your people          exact             No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+owners declared  issuer:https://acme.app.spacelift.io
+owner unmatched  issuer:https://acme.app.spacelift.io · no grant that admits is pinned to it, so declaring it moves nothing
+
+grant 1 of 1 · statement[0] "SpaceliftAccount" · Allow · https://acme.app.spacelift.io · platform · unknown
+This role admits every identity acme.app.spacelift.io issues a token to, whoever holds it: the only claim named is aud, and an audience is not a boundary.
+Exact means the set is known exactly, not that it is small: no construct went unevaluated.
+
+CLAIM            ADMITS                   IN WORDS · AS WRITTEN
+aud              "acme.app.spacelift.io"  exactly this audience · line 13 StringEquals
+sub              any                      any subject · no condition names it
+any other claim  any                      unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "iss": "https://acme.app.spacelift.io",
+    "aud": "acme.app.spacelift.io"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant, but for azp, and none of the claims shown names an identity: whoever holds a token like this is admitted. It sets no azp: AWS reads aud from azp whenever a token sets one.
+
+statement[0] "SpaceliftAccount" · offset 50 · 357 bytes · lines 4-16 · issuer at line 8 Principal.Federated · sha256 a64b72647a8cd8c2f41c05faec5ece91f7ab8403a2dfecc2186a7ea8bdbf1160

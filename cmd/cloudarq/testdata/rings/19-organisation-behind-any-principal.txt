@@ -1,0 +1,55 @@
+read as an aws trust policy · version 2012-10-17 · 291 bytes · 16 lines · 1 statement
+sha256 c8d81d7350c50561753b4a927205f0ccc3d2b0d2011ea7ebc05f8afcc671159d
+
+A named outsider can assume this role; so can cloud services.
+
+  Anyone                unknown           No grant is placed with people who have no account anywhere.
+  Anyone on a platform  exact             No grant is placed at a whole platform.
+  A named outsider      exact    grant 2  aws:o-a1b2c3d4e5 can assume this role and is not declared as yours.
+  Your pipelines        exact             No grant is confined to owners declared as yours.
+  Your people           exact             No grant trusts a SAML provider declared as yours.
+  ──
+  Cloud services        unknown  grant 1  Any cloud service can assume this role; which ones, and for whom, is not read.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 2 · statement[0] "OneOrganisation" · Allow · service · unknown
+Who this statement admits is not known: the condition key "aws:PrincipalOrgID" is a fact about the request, not a claim of the token, so this parser does not evaluate it and the claim is not constrained; the statement applies to every principal, and which AWS services it covers through sts:AssumeRole is not known.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  the condition key "aws:PrincipalOrgID" is a fact about the request, not a claim of the token, so this parser does not evaluate it and the claim is not constrained
+     caveat · aws:principalorgid · statement[0].Condition
+  2  the statement applies to every principal, and which AWS services it covers through sts:AssumeRole is not known
+     caveat · statement[0].Principal
+  3  the statement applies to every principal, including anonymous ones
+     anomaly · any-principal · Principal · statement[0].Principal
+  4  same as note 2
+     anomaly · unmodelled-construct · Principal · statement[0].Principal
+  5  same as note 1
+     anomaly · unmodelled-construct · aws:principalorgid · aws:PrincipalOrgID · statement[0].Condition
+
+statement[0] "OneOrganisation" · offset 50 · 234 bytes · lines 4-14 · issuer at line 7 Principal · sha256 bec5d958c96601691b87b373b89dcd18e87bd90246dee15748a4ddd529021175
+
+grant 2 of 2 · statement[0] "OneOrganisation" · Allow · aws:sts · outsider · exact
+This role admits any AWS principal whose aws:principalorgid is o-a1b2c3d4e5.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM               ADMITS          IN WORDS · AS WRITTEN
+aws:principalorgid  "o-a1b2c3d4e5"  exactly this value · line 11 StringEquals
+any other claim     any             unconstrained · no condition names it
+
+notes
+  1  the statement applies to every principal, including anonymous ones
+     anomaly · any-principal · Principal · statement[0].Principal
+
+a token this grant admits
+  {
+    "aws:principalorgid": "o-a1b2c3d4e5"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant.
+
+statement[0] "OneOrganisation" · offset 50 · 234 bytes · lines 4-14 · issuer at line 7 Principal · sha256 bec5d958c96601691b87b373b89dcd18e87bd90246dee15748a4ddd529021175

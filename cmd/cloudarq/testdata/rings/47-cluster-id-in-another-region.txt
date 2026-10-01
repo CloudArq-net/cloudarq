@@ -1,0 +1,47 @@
+read as an aws trust policy · version 2012-10-17 · 993 bytes · 31 lines · 2 statements
+sha256 e5451058bce7ea1bd62d1096c763f2b6be6c80310f8cafa2226a2be78e6a9a2c
+
+A named outsider can assume this role.
+
+  Anyone                exact           No grant is placed with people who have no account anywhere.
+  Anyone on a platform  exact           No grant is placed at a whole platform.
+  A named outsider      exact  grant 1  issuer:https://oidc.eks.eu-west-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE can assume this role and is not declared as yours.
+  Your pipelines        exact  grant 2  issuer:https://oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE, declared as yours, can assume this role.
+  Your people           exact           No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+owners declared  issuer:https://oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE
+
+grant 1 of 2 · statement[1] "SameIDOtherRegion" · Allow · https://oidc.eks.eu-west-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE · outsider · exact
+This role admits any token from oidc.eks.eu-west-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE whose sub is system:serviceaccount:deploy:runner.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM            ADMITS                                 IN WORDS · AS WRITTEN
+sub              "system:serviceaccount:deploy:runner"  exactly this subject · line 26 StringEquals
+any other claim  any                                    unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "iss": "https://oidc.eks.eu-west-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE",
+    "sub": "system:serviceaccount:deploy:runner"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant.
+
+statement[1] "SameIDOtherRegion" · offset 520 · 466 bytes · lines 17-29 · issuer at line 21 Principal.Federated · sha256 0860c32ec2ae8ca0eaeb8bd5c147ce842cea9d643d3e9fbe5e687a9e4deaeb8d
+
+grant 2 of 2 · statement[0] "DeclaredCluster" · Allow · https://oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE · yours · exact
+This role admits any token from oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE whose sub is system:serviceaccount:deploy:runner.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM            ADMITS                                 IN WORDS · AS WRITTEN
+sub              "system:serviceaccount:deploy:runner"  exactly this subject · line 13 StringEquals
+any other claim  any                                    unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "iss": "https://oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE",
+    "sub": "system:serviceaccount:deploy:runner"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant.
+
+statement[0] "DeclaredCluster" · offset 50 · 464 bytes · lines 4-16 · issuer at line 8 Principal.Federated · sha256 1337341d8840bfc163a91d29a19f0dc928013d0018757a833766071fa136f3b2

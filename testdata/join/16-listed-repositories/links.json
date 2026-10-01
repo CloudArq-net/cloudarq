@@ -1,0 +1,101 @@
+[
+  {
+    "kind": "counterparty-fan-out",
+    "grants": [
+      {
+        "target": {
+          "kind": "application",
+          "id": "6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d"
+        },
+        "issuer": "https://token.actions.githubusercontent.com",
+        "effect": "Allow",
+        "admits": "{aud=\"api://AzureADTokenExchange\", sub=like:\"repo:acme/*:ref:refs/heads/main\"}",
+        "caveats": []
+      },
+      {
+        "target": {
+          "kind": "role",
+          "id": "arn:aws:iam::111111111111:role/deploy"
+        },
+        "issuer": "https://token.actions.githubusercontent.com",
+        "effect": "Allow",
+        "admits": "{aud=\"sts.amazonaws.com\", sub=(like:\"repo:acme/api:*\" | like:\"repo:acme/app:*\" | like:\"repo:acme/cli:*\" | like:\"repo:acme/docs:*\" | like:\"repo:acme/infra:*\" | like:\"repo:acme/web:*\")}",
+        "caveats": []
+      }
+    ],
+    "subject": {
+      "issuer": "https://token.actions.githubusercontent.com",
+      "overlap": "{sub=((like:\"repo:acme/*:ref:refs/heads/main\" & like:\"repo:acme/api:*\") | (like:\"repo:acme/*:ref:refs/heads/main\" & like:\"repo:acme/app:*\") | (like:\"repo:acme/*:ref:refs/heads/main\" & like:\"repo:acme/cli:*\") | (like:\"repo:acme/*:ref:refs/heads/main\" & like:\"repo:acme/docs:*\") | (like:\"repo:acme/*:ref:refs/heads/main\" & like:\"repo:acme/infra:*\") | (like:\"repo:acme/*:ref:refs/heads/main\" & like:\"repo:acme/web:*\"))}",
+      "witness": {
+        "sub": "repo:acme/api:ref:refs/heads/main"
+      }
+    },
+    "confidence": "established",
+    "reason": "both admit identities from https://token.actions.githubusercontent.com with sub matching all of repo:acme/*:ref:refs/heads/main and repo:acme/api:* or matching all of repo:acme/*:ref:refs/heads/main and repo:acme/app:* or matching all of repo:acme/*:ref:refs/heads/main and repo:acme/cli:* or one of 3 more alternatives, for example sub=repo:acme/api:ref:refs/heads/main",
+    "sentence": "Identities admitted by application 6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d are also admitted by role arn:aws:iam::111111111111:role/deploy: both admit identities from https://token.actions.githubusercontent.com with sub matching all of repo:acme/*:ref:refs/heads/main and repo:acme/api:* or matching all of repo:acme/*:ref:refs/heads/main and repo:acme/app:* or matching all of repo:acme/*:ref:refs/heads/main and repo:acme/cli:* or one of 3 more alternatives, for example sub=repo:acme/api:ref:refs/heads/main.",
+    "provenance": [
+      {
+        "api": "graph:federatedIdentityCredentials.list",
+        "params": "{\"applicationId\":\"6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d\"}",
+        "status": "ok",
+        "bytes": {
+          "value": [
+            {
+              "name": "github-main",
+              "claimsMatchingExpression": {
+                "value": "claims['sub'] matches 'repo:acme/*:ref:refs/heads/main'",
+                "languageVersion": 1
+              },
+              "issuer": "https://token.actions.githubusercontent.com",
+              "audiences": [
+                "api://AzureADTokenExchange"
+              ]
+            }
+          ]
+        },
+        "sha256": "90771d92b5f97d9b82f71dee2a3331a5c5a2b21f4af430b1ebbce765418667f7",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      },
+      {
+        "api": "iam:GetRole",
+        "params": "{\"RoleName\":\"deploy\"}",
+        "status": "ok",
+        "bytes": {
+          "Role": {
+            "Arn": "arn:aws:iam::111111111111:role/deploy",
+            "RoleName": "deploy",
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Federated": "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com"
+                  },
+                  "Action": "sts:AssumeRoleWithWebIdentity",
+                  "Condition": {
+                    "StringEquals": {
+                      "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                    },
+                    "StringLike": {
+                      "token.actions.githubusercontent.com:sub": [
+                        "repo:acme/api:*",
+                        "repo:acme/app:*",
+                        "repo:acme/cli:*",
+                        "repo:acme/docs:*",
+                        "repo:acme/infra:*",
+                        "repo:acme/web:*"
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "sha256": "a2d6464fa71fffbf404acd4625f353f3f3751a586feff4c69649158709d625ff",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      }
+    ]
+  }
+]

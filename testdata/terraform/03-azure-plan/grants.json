@@ -1,0 +1,184 @@
+[
+  {
+    "target": {
+      "kind": "application",
+      "id": "/applications/6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d"
+    },
+    "issuer": "https://gitlab.com",
+    "effect": "Allow",
+    "admits": "{aud=\"api://AzureADTokenExchange\", sub=\"project_path:acme/web:ref_type:branch:ref:main\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "azuread_application_federated_identity_credential.existing is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "azuread_application_federated_identity_credential.existing"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"azuread_application_federated_identity_credential.existing\",\"application_id\":\"/applications/6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d\",\"attributes\":[\"audiences\",\"issuer\",\"subject\"],\"display_name\":\"gitlab-web\",\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"03-azure-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "8469b6dd6b1b8b55c2f19cc3d06959c0fd31878482a2cc1a14e96a292a1a7cb6",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"audiences\":[\"api://AzureADTokenExchange\"],\"issuer\":\"https://gitlab.com\",\"name\":\"gitlab-web\",\"subject\":\"project_path:acme/web:ref_type:branch:ref:main\"}"
+      }
+    ],
+    "source": "{\"audiences\":[\"api://AzureADTokenExchange\"],\"issuer\":\"https://gitlab.com\",\"name\":\"gitlab-web\",\"subject\":\"project_path:acme/web:ref_type:branch:ref:main\"}"
+  },
+  {
+    "target": {
+      "kind": "application",
+      "id": "azuread_application_registration.infra"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"api://AzureADTokenExchange\", sub=\"repo:acme@123456/infra@456789:ref:refs/heads/main\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "target-after-apply",
+        "Claim": "",
+        "Construct": "application_id",
+        "Message": "application_id of azuread_application_federated_identity_credential.immutable is known only after apply; the target is named by the address of the resource the expression references, azuread_application_registration.infra",
+        "Source": "azuread_application_federated_identity_credential.immutable"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "azuread_application_federated_identity_credential.immutable is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "azuread_application_federated_identity_credential.immutable"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"azuread_application_federated_identity_credential.immutable\",\"attributes\":[\"audiences\",\"issuer\",\"subject\"],\"display_name\":\"github-infra-main-immutable\",\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"03-azure-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "bb8810e34a5e14c0130d4e8a73f99345d7e2eeb5c5d968518520e02580950111",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"audiences\":[\"api://AzureADTokenExchange\"],\"issuer\":\"https://token.actions.githubusercontent.com\",\"name\":\"github-infra-main-immutable\",\"subject\":\"repo:acme@123456/infra@456789:ref:refs/heads/main\"}"
+      }
+    ],
+    "source": "{\"audiences\":[\"api://AzureADTokenExchange\"],\"issuer\":\"https://token.actions.githubusercontent.com\",\"name\":\"github-infra-main-immutable\",\"subject\":\"repo:acme@123456/infra@456789:ref:refs/heads/main\"}"
+  },
+  {
+    "target": {
+      "kind": "application",
+      "id": "azuread_application_registration.infra"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"api://AzureADTokenExchange\", sub=\"repo:acme/infra:ref:refs/heads/main\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "target-after-apply",
+        "Claim": "",
+        "Construct": "application_id",
+        "Message": "application_id of azuread_application_federated_identity_credential.main is known only after apply; the target is named by the address of the resource the expression references, azuread_application_registration.infra",
+        "Source": "azuread_application_federated_identity_credential.main"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "azuread_application_federated_identity_credential.main is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "azuread_application_federated_identity_credential.main"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"azuread_application_federated_identity_credential.main\",\"attributes\":[\"audiences\",\"issuer\",\"subject\"],\"display_name\":\"github-infra-main\",\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"03-azure-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "67fb9ee74cb08446243f0ae9ad95ade2edb4334393c61cc2d2ac9ef773f3e90c",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"audiences\":[\"api://AzureADTokenExchange\"],\"description\":\"one repo, one branch\",\"issuer\":\"https://token.actions.githubusercontent.com\",\"name\":\"github-infra-main\",\"subject\":\"repo:acme/infra:ref:refs/heads/main\"}"
+      }
+    ],
+    "source": "{\"audiences\":[\"api://AzureADTokenExchange\"],\"description\":\"one repo, one branch\",\"issuer\":\"https://token.actions.githubusercontent.com\",\"name\":\"github-infra-main\",\"subject\":\"repo:acme/infra:ref:refs/heads/main\"}"
+  },
+  {
+    "target": {
+      "kind": "application",
+      "id": "/applications/6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "subject of azuread_application_federated_identity_credential.unknown_subject is known only after apply; the expression references azuread_application_registration.infra.client_id, so what the grant admits is not stated and it is read as admitting everything",
+        "source": "azuread_application_federated_identity_credential.unknown_subject"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "known-after-apply",
+        "Claim": "",
+        "Construct": "subject",
+        "Message": "subject of azuread_application_federated_identity_credential.unknown_subject is known only after apply; the expression references azuread_application_registration.infra.client_id, so what the grant admits is not stated and it is read as admitting everything",
+        "Source": "azuread_application_federated_identity_credential.unknown_subject"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "azuread_application_federated_identity_credential.unknown_subject is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "azuread_application_federated_identity_credential.unknown_subject"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"azuread_application_federated_identity_credential.unknown_subject\",\"application_id\":\"/applications/6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d\",\"attributes\":[\"audiences\",\"issuer\",\"subject\"],\"display_name\":\"computed\",\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"03-azure-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "a4aecdc27e5c116a01f6e0b59a651ec17716420e969d5d5b4542568a07764667",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"references\":[\"azuread_application_registration.infra.client_id\"],\"unknown\":[\"subject\"]}"
+      }
+    ],
+    "source": "{\"references\":[\"azuread_application_registration.infra.client_id\"],\"unknown\":[\"subject\"]}"
+  },
+  {
+    "target": {
+      "kind": "userAssignedIdentity",
+      "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/ci/providers/Microsoft.ManagedIdentity/userAssignedIdentities/runner"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"api://AzureADTokenExchange\", sub=\"repo:acme/infra:environment:prod\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "azurerm_federated_identity_credential.runner is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "azurerm_federated_identity_credential.runner"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"azurerm_federated_identity_credential.runner\",\"attributes\":[\"audience\",\"issuer\",\"subject\"],\"format_version\":\"1.2\",\"from\":\"after\",\"name\":\"github-runner\",\"source\":\"03-azure-plan/plan.json\",\"terraform_version\":\"1.15.5\",\"user_assigned_identity_id\":\"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/ci/providers/Microsoft.ManagedIdentity/userAssignedIdentities/runner\"}",
+        "status": "ok",
+        "sha256": "2d66011a9f96c900164105c056d15dbec5f9e8222a0941fea16cafc9d515eba7",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"audiences\":[\"api://AzureADTokenExchange\"],\"issuer\":\"https://token.actions.githubusercontent.com\",\"name\":\"github-runner\",\"subject\":\"repo:acme/infra:environment:prod\"}"
+      }
+    ],
+    "source": "{\"audiences\":[\"api://AzureADTokenExchange\"],\"issuer\":\"https://token.actions.githubusercontent.com\",\"name\":\"github-runner\",\"subject\":\"repo:acme/infra:environment:prod\"}"
+  }
+]

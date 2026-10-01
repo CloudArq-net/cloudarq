@@ -1,0 +1,69 @@
+read as an aws trust policy · version 2012-10-17 · 1423 bytes · 47 lines · 3 statements
+sha256 d23882c9f5f46af549b6f514438db4930043f53fcb194925bfb576b44ba6fe33
+
+A named outsider can assume this role.
+
+  Anyone                exact                  No grant is placed with people who have no account anywhere.
+  Anyone on a platform  exact                  No grant is placed at a whole platform.
+  A named outsider      exact  grants 1, 2, 3  3 named outsiders can assume this role; 2 cannot be declared.
+  Your pipelines        exact                  No grant is confined to owners declared as yours.
+  Your people           exact                  No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 3 · statement[2] "EnterpriseByID" · Allow · https://token.actions.githubusercontent.com · outsider · exact
+This role admits any token from token.actions.githubusercontent.com whose aud is sts.amazonaws.com and whose enterprise_id is 123.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM            ADMITS               IN WORDS · AS WRITTEN
+aud              "sts.amazonaws.com"  exactly this audience · line 41 StringEquals
+enterprise_id    "123"                exactly this value · line 42 StringEquals
+any other claim  any                  unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "iss": "https://token.actions.githubusercontent.com",
+    "aud": "sts.amazonaws.com",
+    "enterprise_id": "123"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant, but for azp. It sets no azp: AWS reads aud from azp whenever a token sets one.
+
+statement[2] "EnterpriseByID" · offset 967 · 449 bytes · lines 32-45 · issuer at line 36 Principal.Federated · sha256 779e6a675cfeeb2987f45d61e6e1ddbfb253ed773ea330add20d0aa7ce71225a
+
+grant 2 of 3 · statement[1] "RepositoryByID" · Allow · https://token.actions.githubusercontent.com · outsider · exact
+This role admits any token from token.actions.githubusercontent.com whose aud is sts.amazonaws.com and whose repository_id is 456789.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM            ADMITS               IN WORDS · AS WRITTEN
+aud              "sts.amazonaws.com"  exactly this audience · line 27 StringEquals
+repository_id    "456789"             exactly this value · line 28 StringEquals
+any other claim  any                  unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "iss": "https://token.actions.githubusercontent.com",
+    "aud": "sts.amazonaws.com",
+    "repository_id": "456789"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant, but for azp. It sets no azp: AWS reads aud from azp whenever a token sets one.
+
+statement[1] "RepositoryByID" · offset 509 · 452 bytes · lines 18-31 · issuer at line 22 Principal.Federated · sha256 c3a34e93714b3496e20e19f112e3038b34bf2b9f33e606fc886371d787b43a81
+
+grant 3 of 3 · statement[0] "OwnerByID" · Allow · https://token.actions.githubusercontent.com · outsider · exact
+This role admits any token from token.actions.githubusercontent.com whose aud is sts.amazonaws.com and whose repository_owner_id is 123456.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM                ADMITS               IN WORDS · AS WRITTEN
+aud                  "sts.amazonaws.com"  exactly this audience · line 13 StringEquals
+repository_owner_id  "123456"             exactly this value · line 14 StringEquals
+any other claim      any                  unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "iss": "https://token.actions.githubusercontent.com",
+    "aud": "sts.amazonaws.com",
+    "repository_owner_id": "123456"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant, but for azp. It sets no azp: AWS reads aud from azp whenever a token sets one.
+
+statement[0] "OwnerByID" · offset 50 · 453 bytes · lines 4-17 · issuer at line 8 Principal.Federated · sha256 0866ffbe0317852a38e12652f45fe24ce6442830b2afce6a66a2065f504e084f

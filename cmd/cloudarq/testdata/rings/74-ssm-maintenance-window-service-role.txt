@@ -1,0 +1,32 @@
+read as an aws trust policy · version 2012-10-17 · 207 bytes · 13 lines · 1 statement
+sha256 a5767bf675815357469f2ff09d579e960f8dce99409b103b807e865b2b98b7e4
+
+ssm.amazonaws.com can assume this role.
+
+  Anyone                unknown           No grant is placed with people who have no account anywhere.
+  Anyone on a platform  exact             No grant is placed at a whole platform.
+  A named outsider      exact             No grant is placed with a named outsider.
+  Your pipelines        exact             No grant is confined to owners declared as yours.
+  Your people           exact             No grant trusts a SAML provider declared as yours.
+  ──
+  Cloud services        unknown  grant 1  ssm.amazonaws.com can assume this role; who can make it act is not read.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] · Allow · aws:service:ssm.amazonaws.com · service · unknown
+This role admits ssm.amazonaws.com, acting for whoever can make it act: no condition constrains this statement.
+Who can make the service act, or receives its session, is not read: who gets in through it is not known.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+sub              any     any subject · no condition names it
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  ssm.amazonaws.com can assume a role for machines registered by a hybrid activation, and pass them its session, among other uses; who can make it act, or receives its session, is not read
+     anomaly · service-principal · Service · statement[0].Principal
+
+a token this grant admits
+  {}
+The decoded payload. A claim not shown is unconstrained by this grant, and none of the claims shown names an identity: whoever holds a token like this is admitted.
+
+statement[0] · offset 49 · 151 bytes · lines 4-11 · issuer at line 7 Principal · sha256 101a715ebbaf916873a69e5ac2c0fcc835b1b7bd95ed77508be7aa27b03c0894

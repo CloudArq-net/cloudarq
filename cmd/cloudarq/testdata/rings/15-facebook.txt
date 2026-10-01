@@ -1,0 +1,22 @@
+read as an aws trust policy · version 2012-10-17 · 360 bytes · 18 lines · 1 statement
+sha256 4a489a36ddb2c98538d956a14c1cfff2c1582ee172659d4fddd185853d330d88
+
+Anyone could assume this role.
+
+  Anyone                unknown  grant 1  Anyone could assume this role: nothing read shows Facebook requires an account.
+  Anyone on a platform  exact             No grant is placed at a whole platform.
+  A named outsider      exact             No grant is placed with a named outsider.
+  Your pipelines        exact             No grant is confined to owners declared as yours.
+  Your people           exact             No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] "FacebookApp" · Allow · https://graph.facebook.com · anyone · unknown
+This role admits any token from graph.facebook.com whose app_id is 123456789012345.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM            ADMITS             IN WORDS · AS WRITTEN
+app_id           "123456789012345"  exactly this value · line 13 StringEquals
+any other claim  any                unconstrained · no condition names it
+
+statement[0] "FacebookApp" · offset 50 · 303 bytes · lines 4-16 · issuer at line 8 Principal.Federated · sha256 dcb02bb4f0bbd19131d54e5634d5fe258d7e6fc9f2e05df217a962595ccefb21

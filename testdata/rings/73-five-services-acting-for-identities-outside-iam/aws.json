@@ -1,0 +1,19 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "FiveServicesActingForIdentitiesOutsideIAM",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": [
+          "transfer.amazonaws.com",
+          "rolesanywhere.amazonaws.com",
+          "ssm.amazonaws.com",
+          "credentials.iot.amazonaws.com",
+          "pods.eks.amazonaws.com"
+        ]
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}

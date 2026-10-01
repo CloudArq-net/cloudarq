@@ -1,0 +1,29 @@
+read as an aws trust policy · version 2012-10-17 · 597 bytes · 18 lines · 1 statement
+sha256 6d5591ca801e1830011da099d574f0b31f178bb9e47d92ea753d26a42897b489
+
+A named outsider can assume this role.
+
+  Anyone                exact           No grant is placed with people who have no account anywhere.
+  Anyone on a platform  exact           No grant is placed at a whole platform.
+  A named outsider      exact  grant 1  issuer:https://eastus.oic.prod-aks.azure.com/ffffffff-eeee-dddd-cccc-bbbbbbbbbbb0/00000000-0000-0000-0000-000000000000 can assume this role and is not declared as yours.
+  Your pipelines        exact           No grant is confined to owners declared as yours.
+  Your people           exact           No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] "ClusterServiceAccount" · Allow · https://eastus.oic.prod-aks.azure.com/ffffffff-eeee-dddd-cccc-bbbbbbbbbbb0/00000000-0000-0000-0000-000000000000 · outsider · exact
+This role admits any token from eastus.oic.prod-aks.azure.com/ffffffff-eeee-dddd-cccc-bbbbbbbbbbb0/00000000-0000-0000-0000-000000000000 whose sub is system:serviceaccount:deploy:runner.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM            ADMITS                                 IN WORDS · AS WRITTEN
+sub              "system:serviceaccount:deploy:runner"  exactly this subject · line 13 StringEquals
+any other claim  any                                    unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "iss": "https://eastus.oic.prod-aks.azure.com/ffffffff-eeee-dddd-cccc-bbbbbbbbbbb0/00000000-0000-0000-0000-000000000000",
+    "sub": "system:serviceaccount:deploy:runner"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant.
+
+statement[0] "ClusterServiceAccount" · offset 50 · 540 bytes · lines 4-16 · issuer at line 8 Principal.Federated · sha256 46d27e128359be6e13f46c86447b4896e36f814508444078b72e808f5f6fb83b

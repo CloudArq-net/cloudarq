@@ -1,0 +1,27 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowOneAccount",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "111111111111"
+      },
+      "Action": "sts:AssumeRole"
+    },
+    {
+      "Sid": "DenyEveryoneThroughWebIdentity",
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "sts:AssumeRoleWithWebIdentity"
+    },
+    {
+      "Sid": "AllowEveryoneThroughEveryAction",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "*"
+      },
+      "Action": "*"
+    }
+  ]
+}

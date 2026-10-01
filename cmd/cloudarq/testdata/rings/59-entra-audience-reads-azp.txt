@@ -1,0 +1,30 @@
+read as an aws trust policy · version 2012-10-17 · 527 bytes · 18 lines · 1 statement
+sha256 eeb8a2654a91aa07c625d972a74ab7e0fb4faa42430c75bfb7fa4086d5056f86
+
+Anyone on login.microsoftonline.com could assume this role.
+
+  Anyone                               exact             No grant is placed with people who have no account anywhere.
+  Anyone on login.microsoftonline.com  unknown  grant 1  Anyone on login.microsoftonline.com could assume this role; who can join its tenant is not established.
+  A named outsider                     exact             No grant is placed with a named outsider.
+  Your pipelines                       exact             No grant is confined to owners declared as yours.
+  Your people                          exact             No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] "OneClientOfAWorkTenant" · Allow · https://login.microsoftonline.com/ffffffff-eeee-dddd-cccc-bbbbbbbbbbb0/v2.0 · platform · unknown
+This role admits every identity login.microsoftonline.com/ffffffff-eeee-dddd-cccc-bbbbbbbbbbb0/v2.0 issues a token to, whoever holds it: the only claim named is aud, and an audience is not a boundary.
+Exact means the set is known exactly, not that it is small: no construct went unevaluated.
+
+CLAIM            ADMITS                                  IN WORDS · AS WRITTEN
+aud              "11111111-2222-3333-4444-555555555555"  exactly this audience · line 13 StringEquals
+sub              any                                     any subject · no condition names it
+any other claim  any                                     unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "iss": "https://login.microsoftonline.com/ffffffff-eeee-dddd-cccc-bbbbbbbbbbb0/v2.0",
+    "aud": "11111111-2222-3333-4444-555555555555"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant, but for azp, and none of the claims shown names an identity: whoever holds a token like this is admitted. It sets no azp: AWS reads aud from azp whenever a token sets one.
+
+statement[0] "OneClientOfAWorkTenant" · offset 50 · 470 bytes · lines 4-16 · issuer at line 8 Principal.Federated · sha256 c5ce43844c3baf1d46567faf16f11442b404949939fdbbaea58283fd40c6e0bd

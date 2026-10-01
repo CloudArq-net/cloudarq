@@ -1,0 +1,17 @@
+{
+  "name": "projects/123456789012/locations/global/workloadIdentityPools/github/providers/github",
+  "displayName": "GitHub Actions",
+  "description": "google.groups compared with a string",
+  "state": "ACTIVE",
+  "attributeMapping": {
+    "google.subject": "assertion.sub",
+    "google.groups": "assertion.groups"
+  },
+  "attributeCondition": "google.groups == 'admins'",
+  "oidc": {
+    "issuerUri": "https://token.actions.githubusercontent.com",
+    "allowedAudiences": [
+      "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github"
+    ]
+  }
+}

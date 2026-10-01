@@ -1,0 +1,229 @@
+{
+  "format_version": "1.0",
+  "terraform_version": "1.15.5",
+  "values": {
+    "root_module": {
+      "resources": [
+        {
+          "address": "google_iam_workload_identity_pool_provider.github",
+          "mode": "managed",
+          "type": "google_iam_workload_identity_pool_provider",
+          "name": "github",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "attribute_condition": "assertion.repository_owner_id == '123456'",
+            "attribute_mapping": {
+              "google.subject": "assertion.sub",
+              "attribute.repository": "assertion.repository",
+              "attribute.repository_owner_id": "assertion.repository_owner_id"
+            },
+            "aws": [],
+            "deletion_policy": "DELETE",
+            "description": null,
+            "disabled": false,
+            "display_name": "GitHub Actions",
+            "id": "projects/acme-prod/locations/global/workloadIdentityPools/github/providers/github",
+            "name": "projects/123456789012/locations/global/workloadIdentityPools/github/providers/github",
+            "oidc": [
+              {
+                "allowed_audiences": [],
+                "issuer_uri": "https://token.actions.githubusercontent.com",
+                "jwks_json": null
+              }
+            ],
+            "project": "acme-prod",
+            "saml": [],
+            "state": "ACTIVE",
+            "timeouts": null,
+            "workload_identity_pool_id": "github",
+            "workload_identity_pool_provider_id": "github",
+            "x509": []
+          },
+          "sensitive_values": {
+            "attribute_mapping": {},
+            "aws": [],
+            "oidc": [
+              {
+                "allowed_audiences": []
+              }
+            ],
+            "saml": [],
+            "x509": []
+          }
+        },
+        {
+          "address": "google_iam_workload_identity_pool_provider.gitlab",
+          "mode": "managed",
+          "type": "google_iam_workload_identity_pool_provider",
+          "name": "gitlab",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "attribute_condition": "assertion.namespace_path == 'acme'",
+            "attribute_mapping": {
+              "google.subject": "assertion.sub",
+              "attribute.namespace_path": "assertion.namespace_path"
+            },
+            "aws": [],
+            "deletion_policy": "DELETE",
+            "description": null,
+            "disabled": false,
+            "display_name": "GitLab",
+            "id": "projects/acme-prod/locations/global/workloadIdentityPools/gitlab/providers/gitlab",
+            "name": "projects/123456789012/locations/global/workloadIdentityPools/gitlab/providers/gitlab",
+            "oidc": [
+              {
+                "allowed_audiences": [
+                  "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/gitlab/providers/gitlab"
+                ],
+                "issuer_uri": "https://gitlab.com",
+                "jwks_json": null
+              }
+            ],
+            "project": "acme-prod",
+            "saml": [],
+            "state": "ACTIVE",
+            "timeouts": null,
+            "workload_identity_pool_id": "gitlab",
+            "workload_identity_pool_provider_id": "gitlab",
+            "x509": []
+          },
+          "sensitive_values": {
+            "attribute_mapping": {},
+            "aws": [],
+            "oidc": [
+              {
+                "allowed_audiences": [
+                  false
+                ]
+              }
+            ],
+            "saml": [],
+            "x509": []
+          }
+        },
+        {
+          "address": "google_iam_workforce_pool_provider.staff",
+          "mode": "managed",
+          "type": "google_iam_workforce_pool_provider",
+          "name": "staff",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "attribute_condition": null,
+            "attribute_mapping": {
+              "google.subject": "assertion.sub"
+            },
+            "disabled": false,
+            "id": "locations/global/workforcePools/staff/providers/okta",
+            "location": "global",
+            "name": "locations/global/workforcePools/staff/providers/okta",
+            "oidc": [
+              {
+                "client_id": "okta",
+                "issuer_uri": "https://acme.okta.com/oauth2/default"
+              }
+            ],
+            "provider_id": "okta",
+            "state": "ACTIVE",
+            "workforce_pool_id": "staff"
+          },
+          "sensitive_values": {
+            "attribute_mapping": {},
+            "oidc": [
+              {}
+            ]
+          }
+        },
+        {
+          "address": "google_service_account.deploy",
+          "mode": "managed",
+          "type": "google_service_account",
+          "name": "deploy",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "account_id": "deploy",
+            "disabled": false,
+            "email": "deploy@acme-prod.iam.gserviceaccount.com",
+            "id": "projects/acme-prod/serviceAccounts/deploy@acme-prod.iam.gserviceaccount.com",
+            "member": "serviceAccount:deploy@acme-prod.iam.gserviceaccount.com",
+            "name": "projects/acme-prod/serviceAccounts/deploy@acme-prod.iam.gserviceaccount.com",
+            "project": "acme-prod",
+            "unique_id": "101234567890123456789"
+          },
+          "sensitive_values": {}
+        },
+        {
+          "address": "google_service_account_iam_binding.ci",
+          "mode": "managed",
+          "type": "google_service_account_iam_binding",
+          "name": "ci",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "condition": [
+              {
+                "description": null,
+                "expression": "request.time < timestamp('2027-01-01T00:00:00Z')",
+                "title": "expires"
+              }
+            ],
+            "etag": "BwYnjx6Vu9k=",
+            "id": "projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com/roles/iam.workloadIdentityUser/expires",
+            "members": [
+              "principal://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/subject/repo:acme/infra:ref:refs/heads/main",
+              "user:alice@acme.example"
+            ],
+            "role": "roles/iam.workloadIdentityUser",
+            "service_account_id": "projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com"
+          },
+          "sensitive_values": {
+            "condition": [
+              {}
+            ],
+            "members": [
+              false,
+              false
+            ]
+          }
+        },
+        {
+          "address": "google_service_account_iam_member.deploy",
+          "mode": "managed",
+          "type": "google_service_account_iam_member",
+          "name": "deploy",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "condition": [],
+            "etag": "BwYnjx6Vu9k=",
+            "id": "projects/acme-prod/serviceAccounts/deploy@acme-prod.iam.gserviceaccount.com/roles/iam.workloadIdentityUser/principalset:projects/123456789012/locations/global/workloadIdentityPools/github/attribute.repository/acme/infra",
+            "member": "principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/attribute.repository/acme/infra",
+            "role": "roles/iam.workloadIdentityUser",
+            "service_account_id": "projects/acme-prod/serviceAccounts/deploy@acme-prod.iam.gserviceaccount.com"
+          },
+          "sensitive_values": {
+            "condition": []
+          }
+        },
+        {
+          "address": "google_service_account_iam_policy.release",
+          "mode": "managed",
+          "type": "google_service_account_iam_policy",
+          "name": "release",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "etag": "BwYnjx6Vu9k=",
+            "id": "projects/acme-prod/serviceAccounts/release@acme-prod.iam.gserviceaccount.com",
+            "policy_data": "{\"bindings\":[{\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/gitlab/attribute.namespace_path/acme\",\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/legacy/*\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}",
+            "service_account_id": "projects/acme-prod/serviceAccounts/release@acme-prod.iam.gserviceaccount.com"
+          },
+          "sensitive_values": {}
+        }
+      ]
+    }
+  }
+}

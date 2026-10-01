@@ -1,0 +1,18 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ClusterServiceAccount",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/container.googleapis.com/v1/projects/proj/locations/us-central1/clusters/c1"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "container.googleapis.com/v1/projects/proj/locations/us-central1/clusters/c1:sub": "system:serviceaccount:deploy:ci"
+        }
+      }
+    }
+  ]
+}

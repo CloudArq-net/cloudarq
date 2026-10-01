@@ -1,0 +1,121 @@
+[
+  {
+    "target": {
+      "kind": "role",
+      "id": "arn:aws:iam::111111111111:role/deploy"
+    },
+    "issuer": "",
+    "effect": "Allow",
+    "admits": [
+      {}
+    ],
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "the statement applies to every principal, and which identity providers' tokens that admits through sts:AssumeRoleWithWebIdentity or sts:AssumeRoleWithSAML is not known",
+        "source": "statement[0].Principal"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "iam:GetRole",
+        "params": "{\"RoleName\":\"deploy\"}",
+        "status": "ok",
+        "bytes": {
+          "Role": {
+            "Arn": "arn:aws:iam::111111111111:role/deploy",
+            "RoleName": "deploy",
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": "*",
+                  "Action": "sts:AssumeRoleWithWebIdentity"
+                }
+              ]
+            }
+          }
+        },
+        "fetched_at": "2026-09-13T00:00:00Z"
+      }
+    ]
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "arn:aws:iam::111111111111:role/deploy"
+    },
+    "issuer": "aws:sts",
+    "effect": "Allow",
+    "admits": [],
+    "provenance": [
+      {
+        "api": "iam:GetRole",
+        "params": "{\"RoleName\":\"deploy\"}",
+        "status": "ok",
+        "bytes": {
+          "Role": {
+            "Arn": "arn:aws:iam::111111111111:role/deploy",
+            "RoleName": "deploy",
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": "*",
+                  "Action": "sts:AssumeRoleWithWebIdentity"
+                }
+              ]
+            }
+          }
+        },
+        "fetched_at": "2026-09-13T00:00:00Z"
+      }
+    ]
+  },
+  {
+    "target": {
+      "kind": "application",
+      "id": "6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": [
+      {
+        "aud": {
+          "exact": "api://AzureADTokenExchange"
+        },
+        "sub": {
+          "like": "repo:acme/infra:*"
+        },
+        "repository_id": {
+          "exact": "456789"
+        }
+      }
+    ],
+    "provenance": [
+      {
+        "api": "graph:federatedIdentityCredentials.list",
+        "params": "{\"applicationId\":\"6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d\"}",
+        "status": "ok",
+        "bytes": {
+          "value": [
+            {
+              "name": "github-infra",
+              "claimsMatchingExpression": {
+                "value": "claims['sub'] matches 'repo:acme/infra:*' and claims['repository_id'] eq '456789'",
+                "languageVersion": 1
+              },
+              "issuer": "https://token.actions.githubusercontent.com",
+              "audiences": [
+                "api://AzureADTokenExchange"
+              ]
+            }
+          ]
+        },
+        "fetched_at": "2026-09-13T00:00:00Z"
+      }
+    ]
+  }
+]

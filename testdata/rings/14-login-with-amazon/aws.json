@@ -1,0 +1,18 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "LoginWithAmazonApp",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "www.amazon.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "www.amazon.com:app_id": "amzn1.application-oa2-client.0123456789abcdef0123456789abcdef"
+        }
+      }
+    }
+  ]
+}

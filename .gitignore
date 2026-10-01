@@ -1,0 +1,10 @@
+/dist/
+/bin/
+*.out
+*.test
+.DS_Store
+.env
+.env.*
+node_modules/
+/go.work
+/go.work.sum

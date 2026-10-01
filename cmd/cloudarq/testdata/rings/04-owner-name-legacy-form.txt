@@ -1,0 +1,31 @@
+read as an aws trust policy · version 2012-10-17 · 543 bytes · 21 lines · 1 statement
+sha256 a5ec430eda3ea23beef9a471bdad0a131d378e09d740f419a3771a7fd0a6d518
+
+A named outsider can assume this role.
+
+  Anyone                exact           No grant is placed with people who have no account anywhere.
+  Anyone on a platform  exact           No grant is placed at a whole platform.
+  A named outsider      exact  grant 1  github:acme can assume this role and is not declared as yours.
+  Your pipelines        exact           No grant is confined to owners declared as yours.
+  Your people           exact           No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] "OwnerNameLegacyForm" · Allow · https://token.actions.githubusercontent.com · outsider · exact
+This role admits any token from token.actions.githubusercontent.com whose aud is sts.amazonaws.com and whose sub matches repo:acme/*.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM            ADMITS               IN WORDS · AS WRITTEN
+aud              "sts.amazonaws.com"  exactly this audience · line 13 StringEquals
+sub              like:"repo:acme/*"   any subject beginning repo:acme/ · line 16 StringLike
+any other claim  any                  unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "iss": "https://token.actions.githubusercontent.com",
+    "aud": "sts.amazonaws.com",
+    "sub": "repo:acme/"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant, but for azp. It sets no azp: AWS reads aud from azp whenever a token sets one.
+
+statement[0] "OwnerNameLegacyForm" · offset 50 · 486 bytes · lines 4-19 · issuer at line 8 Principal.Federated · sha256 ae38b86d6113b1a33e04a8ff851ee97c051cfa5d05175bbb39833cf074b14f4c

@@ -1,0 +1,30 @@
+read as an aws trust policy · version 2012-10-17 · 419 bytes · 18 lines · 1 statement
+sha256 88b36753cf66e45ebab7689217e873a75c1373067b86373008e7f7ad64edc412
+
+Anyone on Google could assume this role.
+
+  Anyone            exact             No grant is placed with people who have no account anywhere.
+  Anyone on Google  unknown  grant 1  Anyone on Google could assume this role; which claims name an owner is not recorded.
+  A named outsider  exact             No grant is placed with a named outsider.
+  Your pipelines    exact             No grant is confined to owners declared as yours.
+  Your people       exact             No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] "GoogleAudience" · Allow · https://accounts.google.com · platform · unknown
+This role admits every identity accounts.google.com issues a token to, whoever holds it: the only claim named is aud, and an audience is not a boundary.
+Exact means the set is known exactly, not that it is small: no construct went unevaluated.
+
+CLAIM            ADMITS                                                                      IN WORDS · AS WRITTEN
+aud              "123456789012-abcdefghijklmnopqrstuvwxyz012345.apps.googleusercontent.com"  exactly this audience · line 13 StringEquals
+sub              any                                                                         any subject · no condition names it
+any other claim  any                                                                         unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "iss": "https://accounts.google.com",
+    "aud": "123456789012-abcdefghijklmnopqrstuvwxyz012345.apps.googleusercontent.com"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant, but for azp, and none of the claims shown names an identity: whoever holds a token like this is admitted. It sets no azp: AWS reads aud from azp whenever a token sets one.
+
+statement[0] "GoogleAudience" · offset 50 · 362 bytes · lines 4-16 · issuer at line 8 Principal.Federated · sha256 e63e93956a45985ae67dcb3189c2889cc065885b68131ad12c8a8e404d3f6d0b

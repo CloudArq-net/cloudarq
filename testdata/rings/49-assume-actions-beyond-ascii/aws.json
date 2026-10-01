@@ -1,0 +1,57 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "GitHubThroughADotlessI",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRoleW\u0131thWebIdentity"
+    },
+    {
+      "Sid": "AnyoneThroughALongS",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "sts:A\u017f\u017fumeRoleWithWebIdentity"
+    },
+    {
+      "Sid": "AnySAMLThroughADotlessI",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "sts:AssumeRoleW\u0131thSAML"
+    },
+    {
+      "Sid": "AccountThroughALongS",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "111122223333"
+      },
+      "Action": "sts:A\u017f\u017fumeRole"
+    },
+    {
+      "Sid": "SAMLProviderThroughADotlessI",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:saml-provider/VendorSSO"
+      },
+      "Action": "sts:AssumeRoleW\u0131thSAML"
+    },
+    {
+      "Sid": "ServiceThroughALongS",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Action": "sts:A\u017f\u017fumeRole"
+    },
+    {
+      "Sid": "CognitoThroughADottedCapitalI",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "cognito-identity.amazonaws.com"
+      },
+      "Action": "sts:AssumeRoleW\u0130thWebIdentity"
+    }
+  ]
+}

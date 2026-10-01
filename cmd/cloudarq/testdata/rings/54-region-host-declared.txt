@@ -1,0 +1,38 @@
+read as an aws trust policy · version 2012-10-17 · 630 bytes · 19 lines · 1 statement
+sha256 21f0a1dac086dce3964082a52025c496c5dd7ed5418e8a1527a98c0879cc3026
+
+A named outsider can assume this role.
+
+  Anyone                exact           No grant is placed with people who have no account anywhere.
+  Anyone on a platform  exact           No grant is placed at a whole platform.
+  A named outsider      exact  grant 1  issuer:https://oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE can assume this role and is not declared as yours.
+  Your pipelines        exact           No grant is confined to owners declared as yours.
+  Your people           exact           No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+owners declared  issuer:https://oidc.eks.us-east-1.amazonaws.com
+owner unmatched  issuer:https://oidc.eks.us-east-1.amazonaws.com · no grant that admits is pinned to it, so declaring it moves nothing
+
+grant 1 of 1 · statement[0] "ClusterServiceAccount" · Allow · https://oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE · outsider · exact
+This role admits any token from oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE whose aud was not evaluated and whose sub is system:serviceaccount:deploy:ci, so the set shown is an upper bound.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS                             IN WORDS · AS WRITTEN
+aud              ?("multi-valued claim")            not evaluated · note 1 · line 13 StringEquals
+sub              "system:serviceaccount:deploy:ci"  exactly this subject · line 14 StringEquals
+any other claim  any                                unconstrained · no condition names it
+
+notes
+  1  StringEquals on aud has no set prefix, and a token of "https://oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE" may carry several values in the claim AWS reads the condition key "oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE:aud" from; how many of them AWS compares, and what an operator without a set prefix does on them, AWS does not document, so the claim is not constrained
+     caveat · aud · statement[0].Condition
+  2  same as note 1
+     anomaly · unmodelled-construct · aud · oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE:aud · statement[0].Condition
+
+a token this grant admits
+  {
+    "iss": "https://oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE",
+    "sub": "system:serviceaccount:deploy:ci"
+  }
+The decoded payload. A claim not shown and not named by the grant is unconstrained; aud is not shown because it was not evaluated, so whether it excludes a token is not decided here.
+
+statement[0] "ClusterServiceAccount" · offset 50 · 573 bytes · lines 4-17 · issuer at line 8 Principal.Federated · sha256 3bcb7aaf5bfedb0a186479c4a6cd49fdb20a14cc8825f37a7e61c6ed667a59c8

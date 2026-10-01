@@ -1,0 +1,174 @@
+[
+  {
+    "target": {
+      "kind": "role",
+      "id": "arn:aws:iam::111111111111:role/deploy"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": [
+      {
+        "aud": {
+          "exact": "sts.amazonaws.com"
+        },
+        "sub": {
+          "like": "repo:acme/*"
+        }
+      }
+    ],
+    "provenance": [
+      {
+        "api": "iam:GetRole",
+        "params": "{\"RoleName\":\"deploy\"}",
+        "status": "ok",
+        "bytes": {
+          "Role": {
+            "Arn": "arn:aws:iam::111111111111:role/deploy",
+            "RoleName": "deploy",
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Federated": "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com"
+                  },
+                  "Action": "sts:AssumeRoleWithWebIdentity",
+                  "Condition": {
+                    "StringEquals": {
+                      "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                    },
+                    "StringLike": {
+                      "token.actions.githubusercontent.com:sub": "repo:acme/*"
+                    }
+                  }
+                },
+                {
+                  "Effect": "Deny",
+                  "Principal": {
+                    "Federated": "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com"
+                  },
+                  "Action": "sts:AssumeRoleWithWebIdentity",
+                  "Condition": {
+                    "StringNotLike": {
+                      "token.actions.githubusercontent.com:sub": "repo:acme/tools:*"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "fetched_at": "2026-09-13T00:00:00Z"
+      }
+    ]
+  },
+  {
+    "target": {
+      "kind": "role",
+      "id": "arn:aws:iam::111111111111:role/deploy"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Deny",
+    "admits": [],
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "this Deny statement could not be fully evaluated, so it is not applied; the admitted set is an upper bound",
+        "source": "statement[1]"
+      },
+      {
+        "claim": "sub",
+        "reason": "StringNotLike on sub admits every value but the ones listed and passes when the claim is absent; this parser does not model complements, so the claim is not constrained",
+        "source": "statement[1].Condition"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "iam:GetRole",
+        "params": "{\"RoleName\":\"deploy\"}",
+        "status": "ok",
+        "bytes": {
+          "Role": {
+            "Arn": "arn:aws:iam::111111111111:role/deploy",
+            "RoleName": "deploy",
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Federated": "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com"
+                  },
+                  "Action": "sts:AssumeRoleWithWebIdentity",
+                  "Condition": {
+                    "StringEquals": {
+                      "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                    },
+                    "StringLike": {
+                      "token.actions.githubusercontent.com:sub": "repo:acme/*"
+                    }
+                  }
+                },
+                {
+                  "Effect": "Deny",
+                  "Principal": {
+                    "Federated": "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com"
+                  },
+                  "Action": "sts:AssumeRoleWithWebIdentity",
+                  "Condition": {
+                    "StringNotLike": {
+                      "token.actions.githubusercontent.com:sub": "repo:acme/tools:*"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "fetched_at": "2026-09-13T00:00:00Z"
+      }
+    ]
+  },
+  {
+    "target": {
+      "kind": "application",
+      "id": "6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": [
+      {
+        "aud": {
+          "exact": "api://AzureADTokenExchange"
+        },
+        "sub": {
+          "like": "repo:acme/infra:*"
+        }
+      }
+    ],
+    "provenance": [
+      {
+        "api": "graph:federatedIdentityCredentials.list",
+        "params": "{\"applicationId\":\"6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d\"}",
+        "status": "ok",
+        "bytes": {
+          "value": [
+            {
+              "name": "github-infra",
+              "claimsMatchingExpression": {
+                "value": "claims['sub'] matches 'repo:acme/infra:*'",
+                "languageVersion": 1
+              },
+              "issuer": "https://token.actions.githubusercontent.com",
+              "audiences": [
+                "api://AzureADTokenExchange"
+              ]
+            }
+          ]
+        },
+        "fetched_at": "2026-09-13T00:00:00Z"
+      }
+    ]
+  }
+]

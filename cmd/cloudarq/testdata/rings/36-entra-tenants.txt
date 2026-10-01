@@ -1,0 +1,44 @@
+read as an aws trust policy · version 2012-10-17 · 617 bytes · 21 lines · 2 statements
+sha256 4a5687a8ff26d31ea8b6876e383713f7c6c4f771f7545f6091e22100dc6982bf
+
+Anyone on login.microsoftonline.com can assume this role.
+
+  Anyone                               exact               No grant is placed with people who have no account anywhere.
+  Anyone on login.microsoftonline.com  exact  grants 1, 2  Anyone on login.microsoftonline.com can assume this role.
+  A named outsider                     exact               No grant is placed with a named outsider.
+  Your pipelines                       exact               No grant is confined to owners declared as yours.
+  Your people                          exact               No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 2 · statement[0] "PersonalMicrosoftAccounts" · Allow · https://login.microsoftonline.com/9188040d-6c67-4c5b-b112-36a304b66dad/v2.0 · platform · exact
+This role admits every identity login.microsoftonline.com/9188040d-6c67-4c5b-b112-36a304b66dad/v2.0 issues a token to: no condition constrains this statement.
+Exact means the set is known exactly, not that it is small: no construct went unevaluated.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+sub              any     any subject · no condition names it
+any other claim  any     unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "iss": "https://login.microsoftonline.com/9188040d-6c67-4c5b-b112-36a304b66dad/v2.0"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant, and none of the claims shown names an identity: whoever holds a token like this is admitted.
+
+statement[0] "PersonalMicrosoftAccounts" · offset 50 · 283 bytes · lines 4-11 · issuer at line 8 Principal.Federated · sha256 032cd5d79556ac9c87aadef0682ddd93bb520ced359c7e54f95e79d4f362951c
+
+grant 2 of 2 · statement[1] "OneWorkTenant" · Allow · https://login.microsoftonline.com/ffffffff-eeee-dddd-cccc-bbbbbbbbbbb0/v2.0 · platform · unknown
+This role admits every identity login.microsoftonline.com/ffffffff-eeee-dddd-cccc-bbbbbbbbbbb0/v2.0 issues a token to: no condition constrains this statement.
+Exact means the set is known exactly, not that it is small: no construct went unevaluated.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+sub              any     any subject · no condition names it
+any other claim  any     unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "iss": "https://login.microsoftonline.com/ffffffff-eeee-dddd-cccc-bbbbbbbbbbb0/v2.0"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant, and none of the claims shown names an identity: whoever holds a token like this is admitted.
+
+statement[1] "OneWorkTenant" · offset 339 · 271 bytes · lines 12-19 · issuer at line 16 Principal.Federated · sha256 9c4e7745f6d751b543d26fa5a2304691da197ae50d1d54546b7d00e2bc4a6fe6

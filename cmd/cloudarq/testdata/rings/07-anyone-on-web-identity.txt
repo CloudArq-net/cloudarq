@@ -1,0 +1,41 @@
+read as an aws trust policy · version 2012-10-17 · 192 bytes · 11 lines · 1 statement
+sha256 0979cdc4ab4cf95d6e3205da2f0440219b130b6d1759eacfbf4a9d9bd862f909
+
+Anyone could assume this role.
+
+  Anyone                unknown  grant 1  Anyone could assume this role: by the engine's reading of AWS's documentation, identity-pool guests may.
+  Anyone on a platform  exact             No grant is placed at a whole platform.
+  A named outsider      exact             No grant is placed with a named outsider.
+  Your pipelines        exact             No grant is confined to owners declared as yours.
+  Your people           exact             No grant trusts a SAML provider declared as yours.
+
+Grant 2 admits nobody, so it is in no ring.
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 2 · statement[0] "AnyWebIdentity" · Allow · anyone · unknown
+Who this statement admits is not known: the statement applies to every principal, and which identity providers' tokens it covers through sts:AssumeRoleWithWebIdentity is not known.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  the statement applies to every principal, and which identity providers' tokens it covers through sts:AssumeRoleWithWebIdentity is not known
+     caveat · statement[0].Principal
+  2  the statement applies to every principal, including anonymous ones
+     anomaly · any-principal · Principal · statement[0].Principal
+  3  same as note 1
+     anomaly · unmodelled-construct · Principal · statement[0].Principal
+
+statement[0] "AnyWebIdentity" · offset 50 · 135 bytes · lines 4-9 · issuer at line 7 Principal · sha256 f7f76670f23daeb4f656130a65e8377c23073be66371cddf09a4d409a0571fe2
+
+grant 2 of 2 · statement[0] "AnyWebIdentity" · Allow · aws:sts · nobody
+This statement admits nobody through an AWS principal: the actions do not include sts:AssumeRole, so this statement lets nobody assume the role through this principal.
+
+notes
+  1  the statement applies to every principal, including anonymous ones
+     anomaly · any-principal · Principal · statement[0].Principal
+  2  the actions do not include sts:AssumeRole, so this statement lets nobody assume the role through this principal
+     anomaly · not-an-assume-action · Action · statement[0].Action
+
+statement[0] "AnyWebIdentity" · offset 50 · 135 bytes · lines 4-9 · issuer at line 7 Principal · sha256 f7f76670f23daeb4f656130a65e8377c23073be66371cddf09a4d409a0571fe2

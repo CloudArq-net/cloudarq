@@ -1,0 +1,99 @@
+[
+  {
+    "kind": "counterparty-fan-out",
+    "grants": [
+      {
+        "target": {
+          "kind": "application",
+          "id": "6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d"
+        },
+        "issuer": "https://token.actions.githubusercontent.com",
+        "effect": "Allow",
+        "admits": "{aud=\"api://AzureADTokenExchange\", repository_id=\"456789\", sub=\"repo:acme/infra:ref:refs/heads/main\"}",
+        "caveats": []
+      },
+      {
+        "target": {
+          "kind": "role",
+          "id": "arn:aws:iam::111111111111:role/deploy"
+        },
+        "issuer": "https://token.actions.githubusercontent.com",
+        "effect": "Allow",
+        "admits": "{aud=\"sts.amazonaws.com\", repository_id=\"456789\", sub=?(\"ForAllValues:StringLike\")}",
+        "caveats": [
+          {
+            "claim": "sub",
+            "reason": "operator ForAllValues:StringLike is not modelled",
+            "source": "statement[0].Condition"
+          }
+        ]
+      }
+    ],
+    "subject": {
+      "issuer": "https://token.actions.githubusercontent.com",
+      "overlap": "{repository_id=\"456789\", sub=\"repo:acme/infra:ref:refs/heads/main\"}",
+      "witness": {
+        "repository_id": "456789",
+        "sub": "repo:acme/infra:ref:refs/heads/main"
+      }
+    },
+    "confidence": "indeterminate",
+    "reason": "the identities admitted by role arn:aws:iam::111111111111:role/deploy are an upper bound (operator ForAllValues:StringLike is not modelled at statement[0].Condition)",
+    "sentence": "Identities admitted by application 6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d may also be admitted by role arn:aws:iam::111111111111:role/deploy from https://token.actions.githubusercontent.com; the identities admitted by role arn:aws:iam::111111111111:role/deploy are an upper bound (operator ForAllValues:StringLike is not modelled at statement[0].Condition).",
+    "provenance": [
+      {
+        "api": "graph:federatedIdentityCredentials.list",
+        "params": "{\"applicationId\":\"6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d\"}",
+        "status": "ok",
+        "bytes": {
+          "value": [
+            {
+              "name": "github-infra-main",
+              "subject": "repo:acme/infra:ref:refs/heads/main",
+              "issuer": "https://token.actions.githubusercontent.com",
+              "audiences": [
+                "api://AzureADTokenExchange"
+              ]
+            }
+          ]
+        },
+        "sha256": "fa7e490355eb24f38baf4ae7f575ae2ced94b9af5355c4e4dd819b4d51b21d74",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      },
+      {
+        "api": "iam:GetRole",
+        "params": "{\"RoleName\":\"deploy\"}",
+        "status": "ok",
+        "bytes": {
+          "Role": {
+            "Arn": "arn:aws:iam::111111111111:role/deploy",
+            "RoleName": "deploy",
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Federated": "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com"
+                  },
+                  "Action": "sts:AssumeRoleWithWebIdentity",
+                  "Condition": {
+                    "StringEquals": {
+                      "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+                      "token.actions.githubusercontent.com:repository_id": "456789"
+                    },
+                    "ForAllValues:StringLike": {
+                      "token.actions.githubusercontent.com:sub": "repo:acme/infra:*"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "sha256": "43c9199dc4e7b361a690d9bba0357d390fb1deaefbd68102a655ad249195656b",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      }
+    ]
+  }
+]

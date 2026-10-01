@@ -1,0 +1,33 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          # go.mod's toolchain line: the Go the checks run on, and the newest
+          # release TinyGo 0.42.0 builds the WebAssembly engine with.
+          go-version: '1.27.1'
+          cache: false
+      - run: make build
+      - run: make vet
+      - run: make test
+      - name: pure packages reach no IO
+        run: make purity
+      - name: identical input gives identical output, in twenty processes
+        run: make determinism
+      - name: statement coverage of the pure packages is 100%
+        run: make cover
+      - name: no secret, routable IP address or .env file is committed
+        run: ./scripts/preflight.sh

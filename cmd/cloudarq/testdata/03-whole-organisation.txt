@@ -1,0 +1,33 @@
+read as an aws trust policy · version 2012-10-17 · 626 bytes · 22 lines · 1 statement
+sha256 e53dd01b483de125437870ad2554a3253bfdd21f9cc5af3cec78b962b3550a21
+
+A named outsider can assume this role.
+
+  Anyone                exact           No grant is placed with people who have no account anywhere.
+  Anyone on a platform  exact           No grant is placed at a whole platform.
+  A named outsider      exact  grant 1  github:acme and github:@123456 can assume this role and are not declared as yours.
+  Your pipelines        exact           No grant is confined to owners declared as yours.
+  Your people           exact           No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] "GitHubWholeOrganisation" · Allow · https://token.actions.githubusercontent.com · outsider · exact
+This role admits any token from token.actions.githubusercontent.com whose aud is sts.amazonaws.com, whose repository_owner_id is 123456 and whose sub matches repo:acme/*.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM                ADMITS               IN WORDS · AS WRITTEN
+aud                  "sts.amazonaws.com"  exactly this audience · line 13 StringEquals
+repository_owner_id  "123456"             exactly this value · line 14 StringEquals
+sub                  like:"repo:acme/*"   any subject beginning repo:acme/ · line 17 StringLike
+any other claim      any                  unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "iss": "https://token.actions.githubusercontent.com",
+    "aud": "sts.amazonaws.com",
+    "sub": "repo:acme/",
+    "repository_owner_id": "123456"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant, but for azp. It sets no azp: AWS reads aud from azp whenever a token sets one.
+
+statement[0] "GitHubWholeOrganisation" · offset 50 · 569 bytes · lines 4-20 · issuer at line 8 Principal.Federated · sha256 3c56a3f435810897e14ec2681ebf579b9e23dc10879b6b53521c2daae1eae4f4

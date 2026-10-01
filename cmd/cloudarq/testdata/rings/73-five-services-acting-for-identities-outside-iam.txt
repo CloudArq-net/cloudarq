@@ -1,0 +1,104 @@
+read as an aws trust policy · version 2012-10-17 · 427 bytes · 19 lines · 1 statement
+sha256 8fe142777a99932d61954c293787e8248fd5f3e0f3b1d0b31b30972739410656
+
+5 cloud services can assume this role.
+
+  Anyone                unknown                        No grant is placed with people who have no account anywhere.
+  Anyone on a platform  exact                          No grant is placed at a whole platform.
+  A named outsider      exact                          No grant is placed with a named outsider.
+  Your pipelines        exact                          No grant is confined to owners declared as yours.
+  Your people           exact                          No grant trusts a SAML provider declared as yours.
+  ──
+  Cloud services        unknown  grants 1, 2, 3, 4, 5  5 cloud services can assume this role; who can make them act is not read.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 5 · statement[0] "FiveServicesActingForIdentitiesOutsideIAM" · Allow · aws:service:credentials.iot.amazonaws.com · service · unknown
+This role admits credentials.iot.amazonaws.com, acting for whoever can make it act: no condition constrains this statement.
+Who can make the service act, or receives its session, is not read: who gets in through it is not known.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+sub              any     any subject · no condition names it
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  credentials.iot.amazonaws.com can assume a role for devices that present an X.509 certificate AWS IoT accepts, and pass them its session; who they are is not read
+     anomaly · service-principal · Service · statement[0].Principal
+
+a token this grant admits
+  {}
+The decoded payload. A claim not shown is unconstrained by this grant, and none of the claims shown names an identity: whoever holds a token like this is admitted.
+
+statement[0] "FiveServicesActingForIdentitiesOutsideIAM" · offset 50 · 370 bytes · lines 4-17 · issuer at line 7 Principal · sha256 8d12ccba359e76f24d37b3f32e9aaf4dd932fc1fb0b3e9650965b29ac6bc3282
+
+grant 2 of 5 · statement[0] "FiveServicesActingForIdentitiesOutsideIAM" · Allow · aws:service:pods.eks.amazonaws.com · service · unknown
+This role admits pods.eks.amazonaws.com, acting for whoever can make it act: no condition constrains this statement.
+Who can make the service act, or receives its session, is not read: who gets in through it is not known.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+sub              any     any subject · no condition names it
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  pods.eks.amazonaws.com can assume a role for the pods of an EKS cluster in the account whose service account is associated with it, and pass them its session; who they are is not read
+     anomaly · service-principal · Service · statement[0].Principal
+
+a token this grant admits
+  {}
+The decoded payload. A claim not shown is unconstrained by this grant, and none of the claims shown names an identity: whoever holds a token like this is admitted.
+
+statement[0] "FiveServicesActingForIdentitiesOutsideIAM" · offset 50 · 370 bytes · lines 4-17 · issuer at line 7 Principal · sha256 8d12ccba359e76f24d37b3f32e9aaf4dd932fc1fb0b3e9650965b29ac6bc3282
+
+grant 3 of 5 · statement[0] "FiveServicesActingForIdentitiesOutsideIAM" · Allow · aws:service:rolesanywhere.amazonaws.com · service · unknown
+This role admits rolesanywhere.amazonaws.com, acting for whoever can make it act: no condition constrains this statement.
+Who can make the service act, or receives its session, is not read: who gets in through it is not known.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+sub              any     any subject · no condition names it
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  rolesanywhere.amazonaws.com can assume a role for workloads that hold a certificate a trust anchor in the account accepts, and pass them its session; who they are is not read
+     anomaly · service-principal · Service · statement[0].Principal
+
+a token this grant admits
+  {}
+The decoded payload. A claim not shown is unconstrained by this grant, and none of the claims shown names an identity: whoever holds a token like this is admitted.
+
+statement[0] "FiveServicesActingForIdentitiesOutsideIAM" · offset 50 · 370 bytes · lines 4-17 · issuer at line 7 Principal · sha256 8d12ccba359e76f24d37b3f32e9aaf4dd932fc1fb0b3e9650965b29ac6bc3282
+
+grant 4 of 5 · statement[0] "FiveServicesActingForIdentitiesOutsideIAM" · Allow · aws:service:ssm.amazonaws.com · service · unknown
+This role admits ssm.amazonaws.com, acting for whoever can make it act: no condition constrains this statement.
+Who can make the service act, or receives its session, is not read: who gets in through it is not known.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+sub              any     any subject · no condition names it
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  ssm.amazonaws.com can assume a role for machines registered by a hybrid activation, and pass them its session, among other uses; who can make it act, or receives its session, is not read
+     anomaly · service-principal · Service · statement[0].Principal
+
+a token this grant admits
+  {}
+The decoded payload. A claim not shown is unconstrained by this grant, and none of the claims shown names an identity: whoever holds a token like this is admitted.
+
+statement[0] "FiveServicesActingForIdentitiesOutsideIAM" · offset 50 · 370 bytes · lines 4-17 · issuer at line 7 Principal · sha256 8d12ccba359e76f24d37b3f32e9aaf4dd932fc1fb0b3e9650965b29ac6bc3282
+
+grant 5 of 5 · statement[0] "FiveServicesActingForIdentitiesOutsideIAM" · Allow · aws:service:transfer.amazonaws.com · service · unknown
+This role admits transfer.amazonaws.com, acting for whoever can make it act: no condition constrains this statement.
+Who can make the service act, or receives its session, is not read: who gets in through it is not known.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+sub              any     any subject · no condition names it
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  transfer.amazonaws.com can assume a role for the users of a Transfer Family server, and act with its session for them, among other uses; who can make it act, or receives its session, is not read
+     anomaly · service-principal · Service · statement[0].Principal
+
+a token this grant admits
+  {}
+The decoded payload. A claim not shown is unconstrained by this grant, and none of the claims shown names an identity: whoever holds a token like this is admitted.
+
+statement[0] "FiveServicesActingForIdentitiesOutsideIAM" · offset 50 · 370 bytes · lines 4-17 · issuer at line 7 Principal · sha256 8d12ccba359e76f24d37b3f32e9aaf4dd932fc1fb0b3e9650965b29ac6bc3282

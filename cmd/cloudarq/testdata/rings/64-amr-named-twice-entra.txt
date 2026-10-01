@@ -1,0 +1,40 @@
+read as an aws trust policy · version 2012-10-17 · 717 bytes · 22 lines · 1 statement
+sha256 f498b915b9a7ac7dfdb46062cd884f884da61065d10e55fa81492e79dfb866cc
+
+Anyone on login.microsoftonline.com could assume this role.
+
+  Anyone                               exact             No grant is placed with people who have no account anywhere.
+  Anyone on login.microsoftonline.com  unknown  grant 1  Anyone on login.microsoftonline.com could assume this role; who can join its tenant is not established.
+  A named outsider                     exact             No grant is placed with a named outsider.
+  Your pipelines                       exact             No grant is confined to owners declared as yours.
+  Your people                          exact             No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] "WorkforceWithMFA" · Allow · https://login.microsoftonline.com/ffffffff-eeee-dddd-cccc-bbbbbbbbbbb0/v2.0 · platform · unknown
+This role admits any token from login.microsoftonline.com/ffffffff-eeee-dddd-cccc-bbbbbbbbbbb0/v2.0 whose amr was not evaluated and whose aud is api://acme-aws, so the set shown is an upper bound.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS                IN WORDS · AS WRITTEN
+amr              ?("multivalued key")  not evaluated · note 1 · line 14 StringEquals, line 17 StringLike
+aud              "api://acme-aws"      exactly this audience · line 13 StringEquals
+any other claim  any                   unconstrained · no condition names it
+
+notes
+  1  StringEquals on amr has no set prefix, and AWS documents the condition key "login.microsoftonline.com/ffffffff-eeee-dddd-cccc-bbbbbbbbbbb0/v2.0:amr" as multivalued, which a policy tests with condition set operators; what an operator without one does on such a key AWS does not document, so the claim is not constrained
+     caveat · amr · statement[0].Condition
+  2  StringLike on amr has no set prefix, and AWS documents the condition key "login.microsoftonline.com/ffffffff-eeee-dddd-cccc-bbbbbbbbbbb0/v2.0:amr" as multivalued, which a policy tests with condition set operators; what an operator without one does on such a key AWS does not document, so the claim is not constrained
+     caveat · amr · statement[0].Condition
+  3  same as note 1
+     anomaly · unmodelled-construct · amr · login.microsoftonline.com/ffffffff-eeee-dddd-cccc-bbbbbbbbbbb0/v2.0:amr · statement[0].Condition
+  4  same as note 2
+     anomaly · unmodelled-construct · amr · login.microsoftonline.com/ffffffff-eeee-dddd-cccc-bbbbbbbbbbb0/v2.0:amr · statement[0].Condition
+
+a token this grant admits
+  {
+    "iss": "https://login.microsoftonline.com/ffffffff-eeee-dddd-cccc-bbbbbbbbbbb0/v2.0",
+    "aud": "api://acme-aws"
+  }
+The decoded payload. A claim not shown and not named by the grant is unconstrained, but for azp; amr is not shown because it was not evaluated, so whether it excludes a token is not decided here. It sets no azp: AWS reads aud from azp whenever a token sets one.
+
+statement[0] "WorkforceWithMFA" · offset 50 · 660 bytes · lines 4-20 · issuer at line 8 Principal.Federated · sha256 769b655ea9d7b6ea20738b65f09e5d0ee33f02f64f322ca8f518646f1cdafe14

@@ -1,0 +1,53 @@
+read as an aws trust policy · version 2012-10-17 · 931 bytes · 29 lines · 2 statements
+sha256 0768bad79ba1bb28dbe6e509a98e245d95bac8a24bb8d85ec0d86b2ad918f099
+
+Anyone on GitHub could assume this role.
+
+  Anyone            exact             No grant is placed with people who have no account anywhere.
+  Anyone on GitHub  unknown  grant 2  Anyone on GitHub could assume this role; one of its conditions was not read.
+  A named outsider  exact    grant 1  github:acme can assume this role and is not declared as yours.
+  Your pipelines    exact             No grant is confined to owners declared as yours.
+  Your people       exact             No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 2 · statement[0] "Erase[2KThisLine" · Allow · https://token.actions.githubusercontent.com · outsider · exact
+This role admits any token from token.actions.githubusercontent.com whose aud is sts.amazonaws.com, whose runner[1menvironment was not evaluated and whose sub is repo:acme/[31minfra:ref:refs/heads/main, so the set shown is an upper bound.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM                 ADMITS                                         IN WORDS · AS WRITTEN
+aud                   "sts.amazonaws.com"                            exactly this audience · line 11 StringEquals
+runner[1menvironment  ?("key not documented")                        not evaluated · note 1 · line 13 StringEquals
+sub                   "repo:acme/\x1b[31minfra:ref:refs/heads/main"  exactly this subject · line 12 StringEquals
+any other claim       any                                            unconstrained · no condition names it
+
+notes
+  1  the condition key "token.actions.githubusercontent.com:runner\x1b[1menvironment" is not one AWS documents for the tokens of "https://token.actions.githubusercontent.com", so whether a request carries it is not known and the claim is not constrained
+     caveat · runner[1menvironment · statement[0].Condition
+  2  same as note 1
+     anomaly · unmodelled-construct · runner[1menvironment · token.actions.githubusercontent.com:runner[1menvironment · statement[0].Condition
+
+a token this grant admits
+  {
+    "iss": "https://token.actions.githubusercontent.com",
+    "aud": "sts.amazonaws.com",
+    "sub": "repo:acme/\u001b[31minfra:ref:refs/heads/main"
+  }
+The decoded payload. A claim not shown and not named by the grant is unconstrained, but for azp; runner[1menvironment is not shown because it was not evaluated, so whether it excludes a token is not decided here. It sets no azp: AWS reads aud from azp whenever a token sets one.
+
+statement[0] "Erase[2KThisLine" · offset 50 · 534 bytes · lines 4-16 · issuer at line 7 Principal.Federated · sha256 e4ece9164c72d20b8218921f1877d56be8f50114237ebd38c670acc6c7d36b11
+
+grant 2 of 2 · statement[1] "AnOperatorNobodyModels" · Allow · https://token.actions.githubusercontent.com · platform · unknown
+Who this statement admits is not known: operator "String\x1b[7mLike" on sub is not modelled by this parser, so the claim is not constrained.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  operator "String\x1b[7mLike" on sub is not modelled by this parser, so the claim is not constrained
+     caveat · sub · statement[1].Condition
+  2  same as note 1
+     anomaly · unmodelled-construct · sub · String[7mLike · statement[1].Condition
+
+statement[1] "AnOperatorNobodyModels" · offset 590 · 334 bytes · lines 17-27 · issuer at line 20 Principal.Federated · sha256 1c4ca6686f81bc19b264014fea2ebc2e118d1251c3565675b25c5af3e6d84de1

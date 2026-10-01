@@ -1,0 +1,18 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "BitbucketWorkspace",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/api.bitbucket.org/2.0/workspaces/acme/pipelines-config/identity/oidc"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "api.bitbucket.org/2.0/workspaces/acme/pipelines-config/identity/oidc:aud": "ari:cloud:bitbucket::workspace/11111111-2222-3333-4444-555555555555"
+        }
+      }
+    }
+  ]
+}

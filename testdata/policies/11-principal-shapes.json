@@ -1,0 +1,80 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "BareStar",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "sts:AssumeRole"
+    },
+    {
+      "Sid": "AWSStar",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "*"
+      },
+      "Action": "sts:AssumeRole"
+    },
+    {
+      "Sid": "RoleArnAndBareAccountId",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": [
+          "arn:aws:iam::123456789012:role/ci",
+          "999999999999"
+        ]
+      },
+      "Action": "sts:AssumeRole"
+    },
+    {
+      "Sid": "FederatedOIDCProvider",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:sub": "repo:acme/infra:ref:refs/heads/main"
+        }
+      }
+    },
+    {
+      "Sid": "FederatedBuiltInProvider",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "accounts.google.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "accounts.google.com:aud": "123456789012-abcdef.apps.googleusercontent.com"
+        }
+      }
+    },
+    {
+      "Sid": "ServicePrincipal",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    },
+    {
+      "Sid": "CanonicalUser",
+      "Effect": "Allow",
+      "Principal": {
+        "CanonicalUser": "79a59df900b949e55d96a1e698fbacedfd6e09d98eacf8f8d5218e7cd47ef2be"
+      },
+      "Action": "sts:AssumeRole"
+    },
+    {
+      "Sid": "NotPrincipalIsADifferentThing",
+      "Effect": "Deny",
+      "NotPrincipal": {
+        "AWS": "arn:aws:iam::123456789012:role/ci"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}

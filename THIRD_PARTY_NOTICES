@@ -1,0 +1,221 @@
+THIRD-PARTY NOTICES
+
+CloudArq is licensed under the Apache License 2.0 (LICENSE). This
+repository also contains, links or is built with the material below, each
+under its own licence. The full texts of the licences that require it
+follow the list.
+
+1. Unicode Character Database: CaseFolding.txt, Unicode 17.0.0
+
+   internal/parse/casefold/testdata/CaseFolding.txt is
+   https://www.unicode.org/Public/17.0.0/ucd/CaseFolding.txt, unchanged
+   (sha256 ff8d8fefbf123574205085d6714c36149eb946d717a0c585c27f0f4ef58c4183).
+   internal/parse/casefold/tables.go is generated from it and is compiled
+   into every build of the engine.
+
+   Licence: Unicode License v3, reproduced below and in
+   internal/parse/casefold/testdata/license.txt.
+
+2. Azure REST API specifications: one example response
+
+   testdata/credentials/28-managed-identity-resource.json is the body of
+   the 200 response in
+   specification/msi/resource-manager/Microsoft.ManagedIdentity/ManagedIdentity/stable/2023-01-31/examples/FederatedIdentityCredentialGet.json
+   in https://github.com/Azure/azure-rest-api-specs (last changed there in
+   commit 37886acc4980d7ac8753fafe90619cae296eb477).
+
+   Licence: MIT License, Copyright (c) 2017 Microsoft, reproduced below.
+
+3. Quotations in the test corpus
+
+   The rationale files under testdata/ and cmd/cloudarq/testdata/ quote
+   short passages from public documentation and specifications published
+   by Amazon Web Services, GitHub, Microsoft, Google and others, among them
+   GitLab, HashiCorp, the Kubernetes project and the IETF, to record the
+   sentence each expected answer rests on. Each quotation names the page it
+   comes from. The corpus also holds AWS's own example trust policies as
+   AWS prints them, in testdata/rings/66-68, 70, 71, 74 and 75. The engine
+   quotes sentences of AWS's documentation in its answers and in the output
+   of --explain (internal/parse/aws/intermediary.go and
+   internal/report/words.go). The quoted text remains its publishers' and
+   is not licensed by this repository.
+
+4. Go modules
+
+   github.com/CloudArq-net/issuers, the issuer census: Apache License 2.0,
+   Copyright 2026 Abdallah Khaldi. Its tenancy data, tenancy/tenancy.json,
+   is compiled into the engine; the census whole, issuers.json with the
+   vendor sentences it quotes, is not.
+
+   pgregory.net/rapid v1.3.0: Mozilla Public License 2.0. It is used by
+   tests only and is in no binary.
+
+5. TinyGo's JavaScript support file
+
+   web/engine/wasm_exec.js is targets/wasm_exec.js from TinyGo 0.42.0
+   (sha256 2d75ac9b1d4bfc5c53e35e42a43ec4a2aaa2e95a21cc6d1b6e21bc2a53e05cbf),
+   unchanged below a first line that records its origin. It carries the
+   copyright notice of The Go Authors, and TinyGo is Copyright (c) 2018-2026
+   The TinyGo Authors.
+
+   Licence: BSD-3-Clause, TinyGo's and Go's texts reproduced below.
+
+6. Toolchains
+
+   This repository publishes source only. A binary built from it contains
+   the Go runtime and standard library, Copyright 2009 The Go Authors, under
+   the licence reproduced below. A WebAssembly module built from web/wasm
+   with TinyGo contains TinyGo's runtime, under TinyGo's licence, reproduced
+   below.
+
+
+------------------------------------------------------------------------
+Unicode License v3
+(internal/parse/casefold/testdata/CaseFolding.txt and the tables
+generated from it)
+------------------------------------------------------------------------
+
+UNICODE LICENSE V3
+
+COPYRIGHT AND PERMISSION NOTICE
+
+Copyright © 1991-2026 Unicode, Inc.
+
+NOTICE TO USER: Carefully read the following legal agreement. BY
+DOWNLOADING, INSTALLING, COPYING OR OTHERWISE USING DATA FILES, AND/OR
+SOFTWARE, YOU UNEQUIVOCALLY ACCEPT, AND AGREE TO BE BOUND BY, ALL OF THE
+TERMS AND CONDITIONS OF THIS AGREEMENT. IF YOU DO NOT AGREE, DO NOT
+DOWNLOAD, INSTALL, COPY, DISTRIBUTE OR USE THE DATA FILES OR SOFTWARE.
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of data files and any associated documentation (the "Data Files") or
+software and any associated documentation (the "Software") to deal in the
+Data Files or Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, and/or sell
+copies of the Data Files or Software, and to permit persons to whom the
+Data Files or Software are furnished to do so, provided that either (a)
+this copyright and permission notice appear with all copies of the Data
+Files or Software, or (b) this copyright and permission notice appear in
+associated Documentation.
+
+THE DATA FILES AND SOFTWARE ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF
+THIRD PARTY RIGHTS.
+
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR HOLDERS INCLUDED IN THIS NOTICE
+BE LIABLE FOR ANY CLAIM, OR ANY SPECIAL INDIRECT OR CONSEQUENTIAL DAMAGES,
+OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
+WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THE DATA
+FILES OR SOFTWARE.
+
+Except as contained in this notice, the name of a copyright holder shall
+not be used in advertising or otherwise to promote the sale, use or other
+dealings in these Data Files or Software without prior written
+authorization of the copyright holder.
+
+
+------------------------------------------------------------------------
+MIT License
+(testdata/credentials/28-managed-identity-resource.json)
+------------------------------------------------------------------------
+
+The MIT License (MIT)
+
+Copyright (c) 2017 Microsoft
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+------------------------------------------------------------------------
+Go
+(the runtime and standard library in any binary built from this source,
+and web/engine/wasm_exec.js)
+------------------------------------------------------------------------
+
+Copyright 2009 The Go Authors.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+   * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+   * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+   * Neither the name of Google LLC nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+------------------------------------------------------------------------
+TinyGo
+(web/engine/wasm_exec.js, and TinyGo's runtime in any WebAssembly module
+built from web/wasm)
+------------------------------------------------------------------------
+
+Copyright (c) 2018-2026 The TinyGo Authors. All rights reserved.
+
+TinyGo includes portions of the Go standard library.
+Copyright 2009 The Go Authors. All rights reserved.
+See https://github.com/golang/go/blob/master/LICENSE for license information.
+
+TinyGo includes portions of LLVM, which is under the Apache License v2.0 with
+LLVM Exceptions. See https://llvm.org/LICENSE.txt for license information.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+   * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+   * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+   * Neither the name of the copyright holder nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.

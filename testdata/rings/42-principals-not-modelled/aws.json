@@ -1,0 +1,29 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "S3CanonicalUser",
+      "Effect": "Allow",
+      "Principal": {
+        "CanonicalUser": "79a59df900b949e55d96a1e698fbacedfd6e09d98eacf8f8d5218e7cd47ef2be"
+      },
+      "Action": "sts:AssumeRole"
+    },
+    {
+      "Sid": "BucketAsPrincipal",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:s3:::acme-artifacts"
+      },
+      "Action": "sts:AssumeRole"
+    },
+    {
+      "Sid": "RoleAsFederatedProvider",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:role/Deploy"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity"
+    }
+  ]
+}

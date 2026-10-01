@@ -1,0 +1,22 @@
+read as an aws trust policy · version 2012-10-17 · 520 bytes · 21 lines · 1 statement
+sha256 a5029734770a56ec197587e56e9cbd0235ebd11b5f019f9ecb560e3565b49649
+
+Nothing outside your company can assume this role.
+
+  Anyone                exact    No grant is placed with people who have no account anywhere.
+  Anyone on a platform  exact    No grant is placed at a whole platform.
+  A named outsider      exact    No grant is placed with a named outsider.
+  Your pipelines        exact    No grant is confined to owners declared as yours.
+  Your people           exact    No grant trusts a SAML provider declared as yours.
+
+Grant 1 admits nobody, so it is in no ring.
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] "WrongAction" · Allow · https://token.actions.githubusercontent.com · nobody
+This statement admits nobody through token.actions.githubusercontent.com: the actions do not include sts:AssumeRoleWithWebIdentity, so this statement lets nobody assume the role through this principal.
+
+notes
+  1  the actions do not include sts:AssumeRoleWithWebIdentity, so this statement lets nobody assume the role through this principal
+     anomaly · not-an-assume-action · Action · statement[0].Action
+
+statement[0] "WrongAction" · offset 50 · 463 bytes · lines 4-19 · issuer at line 8 Principal.Federated · sha256 fd498917981998dc64b65b6d594282c68940110d9c2d910378074fd7e48d5eeb

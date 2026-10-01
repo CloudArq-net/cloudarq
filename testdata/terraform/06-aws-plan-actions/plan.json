@@ -1,0 +1,937 @@
+{
+  "format_version": "1.2",
+  "terraform_version": "1.15.5",
+  "planned_values": {
+    "root_module": {
+      "resources": [
+        {
+          "address": "aws_iam_role.kept",
+          "mode": "managed",
+          "type": "aws_iam_role",
+          "name": "kept",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "arn": "arn:aws:iam::123456789012:role/kept",
+            "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:ref:refs/heads/main\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}",
+            "create_date": "2026-09-01T00:00:00Z",
+            "description": null,
+            "force_detach_policies": false,
+            "id": "kept",
+            "inline_policy": [],
+            "managed_policy_arns": [],
+            "max_session_duration": 3600,
+            "name": "kept",
+            "name_prefix": "",
+            "path": "/",
+            "permissions_boundary": null,
+            "tags": null,
+            "tags_all": {},
+            "unique_id": "AROAKEPT23456789ABCDE"
+          },
+          "sensitive_values": {
+            "inline_policy": [],
+            "managed_policy_arns": [],
+            "tags": {},
+            "tags_all": {}
+          }
+        },
+        {
+          "address": "aws_iam_role.replaced",
+          "mode": "managed",
+          "type": "aws_iam_role",
+          "name": "replaced",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "description": null,
+            "force_detach_policies": false,
+            "max_session_duration": 3600,
+            "name": "replaced",
+            "path": "/",
+            "permissions_boundary": null,
+            "tags": null,
+            "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/replaced:v2\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+          },
+          "sensitive_values": {
+            "inline_policy": [],
+            "managed_policy_arns": [],
+            "tags_all": {}
+          }
+        },
+        {
+          "address": "aws_iam_role.rotated",
+          "mode": "managed",
+          "type": "aws_iam_role",
+          "name": "rotated",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "arn": "arn:aws:iam::123456789012:role/rotated",
+            "create_date": "2026-09-01T00:00:00Z",
+            "description": null,
+            "force_detach_policies": false,
+            "id": "rotated",
+            "inline_policy": [],
+            "managed_policy_arns": [],
+            "max_session_duration": 3600,
+            "name": "rotated",
+            "name_prefix": "",
+            "path": "/",
+            "permissions_boundary": null,
+            "tags": null,
+            "tags_all": {},
+            "unique_id": "AROAROTATED23456789AB"
+          },
+          "sensitive_values": {
+            "inline_policy": [],
+            "managed_policy_arns": [],
+            "tags": {},
+            "tags_all": {}
+          }
+        },
+        {
+          "address": "aws_iam_role.forgotten",
+          "mode": "managed",
+          "type": "aws_iam_role",
+          "name": "forgotten",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "sensitive_values": false
+        },
+        {
+          "address": "aws_iam_role.reborn",
+          "mode": "managed",
+          "type": "aws_iam_role",
+          "name": "reborn",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "description": null,
+            "force_detach_policies": false,
+            "max_session_duration": 3600,
+            "name": "reborn",
+            "path": "/",
+            "permissions_boundary": null,
+            "tags": null,
+            "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/reborn:environment:prod\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+          },
+          "sensitive_values": {
+            "inline_policy": [],
+            "managed_policy_arns": [],
+            "tags_all": {}
+          }
+        },
+        {
+          "address": "aws_iam_role.hollow",
+          "mode": "managed",
+          "type": "aws_iam_role",
+          "name": "hollow",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "description": null,
+            "force_detach_policies": false,
+            "max_session_duration": 3600,
+            "name": "hollow",
+            "path": "/",
+            "permissions_boundary": null,
+            "tags": null,
+            "assume_role_policy": "{\"Statement\":[],\"Version\":\"2012-10-17\"}"
+          },
+          "sensitive_values": {
+            "inline_policy": [],
+            "managed_policy_arns": [],
+            "tags_all": {}
+          }
+        }
+      ]
+    }
+  },
+  "resource_changes": [
+    {
+      "address": "aws_iam_role.kept",
+      "mode": "managed",
+      "type": "aws_iam_role",
+      "name": "kept",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "no-op"
+        ],
+        "before": {
+          "arn": "arn:aws:iam::123456789012:role/kept",
+          "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:ref:refs/heads/main\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}",
+          "create_date": "2026-09-01T00:00:00Z",
+          "description": null,
+          "force_detach_policies": false,
+          "id": "kept",
+          "inline_policy": [],
+          "managed_policy_arns": [],
+          "max_session_duration": 3600,
+          "name": "kept",
+          "name_prefix": "",
+          "path": "/",
+          "permissions_boundary": null,
+          "tags": null,
+          "tags_all": {},
+          "unique_id": "AROAKEPT23456789ABCDE"
+        },
+        "after": {
+          "arn": "arn:aws:iam::123456789012:role/kept",
+          "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:ref:refs/heads/main\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}",
+          "create_date": "2026-09-01T00:00:00Z",
+          "description": null,
+          "force_detach_policies": false,
+          "id": "kept",
+          "inline_policy": [],
+          "managed_policy_arns": [],
+          "max_session_duration": 3600,
+          "name": "kept",
+          "name_prefix": "",
+          "path": "/",
+          "permissions_boundary": null,
+          "tags": null,
+          "tags_all": {},
+          "unique_id": "AROAKEPT23456789ABCDE"
+        },
+        "after_unknown": {},
+        "before_sensitive": {
+          "inline_policy": [],
+          "managed_policy_arns": [],
+          "tags": {},
+          "tags_all": {}
+        },
+        "after_sensitive": {
+          "inline_policy": [],
+          "managed_policy_arns": [],
+          "tags": {},
+          "tags_all": {}
+        }
+      }
+    },
+    {
+      "address": "aws_iam_role.old",
+      "mode": "managed",
+      "type": "aws_iam_role",
+      "name": "old",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "delete"
+        ],
+        "before": {
+          "arn": "arn:aws:iam::123456789012:role/old",
+          "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/old:*\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}",
+          "create_date": "2026-09-01T00:00:00Z",
+          "description": null,
+          "force_detach_policies": false,
+          "id": "old",
+          "inline_policy": [],
+          "managed_policy_arns": [],
+          "max_session_duration": 3600,
+          "name": "old",
+          "name_prefix": "",
+          "path": "/",
+          "permissions_boundary": null,
+          "tags": null,
+          "tags_all": {},
+          "unique_id": "AROAOLD23456789ABCDEF"
+        },
+        "after": null,
+        "after_unknown": {},
+        "before_sensitive": {
+          "inline_policy": [],
+          "managed_policy_arns": [],
+          "tags": {},
+          "tags_all": {}
+        },
+        "after_sensitive": false
+      },
+      "action_reason": "delete_because_no_resource_config"
+    },
+    {
+      "address": "aws_iam_role.old",
+      "mode": "managed",
+      "type": "aws_iam_role",
+      "name": "old",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "delete"
+        ],
+        "before": {
+          "arn": "arn:aws:iam::123456789012:role/old-deposed",
+          "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/old:*\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}",
+          "create_date": "2026-09-01T00:00:00Z",
+          "description": null,
+          "force_detach_policies": false,
+          "id": "old-deposed",
+          "inline_policy": [],
+          "managed_policy_arns": [],
+          "max_session_duration": 3600,
+          "name": "old-deposed",
+          "name_prefix": "",
+          "path": "/",
+          "permissions_boundary": null,
+          "tags": null,
+          "tags_all": {},
+          "unique_id": "AROAOLDDEPOSED2345678"
+        },
+        "after": null,
+        "after_unknown": {},
+        "before_sensitive": {
+          "inline_policy": [],
+          "managed_policy_arns": [],
+          "tags": {},
+          "tags_all": {}
+        },
+        "after_sensitive": false
+      },
+      "deposed": "deadbeef"
+    },
+    {
+      "address": "aws_iam_role.replaced",
+      "mode": "managed",
+      "type": "aws_iam_role",
+      "name": "replaced",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "delete",
+          "create"
+        ],
+        "before": {
+          "arn": "arn:aws:iam::123456789012:role/replaced",
+          "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/replaced:v1\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}",
+          "create_date": "2026-09-01T00:00:00Z",
+          "description": null,
+          "force_detach_policies": false,
+          "id": "replaced",
+          "inline_policy": [],
+          "managed_policy_arns": [],
+          "max_session_duration": 3600,
+          "name": "replaced",
+          "name_prefix": "",
+          "path": "/",
+          "permissions_boundary": null,
+          "tags": null,
+          "tags_all": {},
+          "unique_id": "AROAREPLACED23456789A"
+        },
+        "after": {
+          "description": null,
+          "force_detach_policies": false,
+          "max_session_duration": 3600,
+          "name": "replaced",
+          "path": "/",
+          "permissions_boundary": null,
+          "tags": null,
+          "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/replaced:v2\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+        },
+        "after_unknown": {
+          "arn": true,
+          "create_date": true,
+          "id": true,
+          "inline_policy": true,
+          "managed_policy_arns": true,
+          "name_prefix": true,
+          "tags_all": true,
+          "unique_id": true
+        },
+        "before_sensitive": {
+          "inline_policy": [],
+          "managed_policy_arns": [],
+          "tags": {},
+          "tags_all": {}
+        },
+        "after_sensitive": {
+          "inline_policy": [],
+          "managed_policy_arns": [],
+          "tags_all": {}
+        },
+        "replace_paths": [
+          [
+            "assume_role_policy"
+          ]
+        ]
+      },
+      "action_reason": "replace_because_cannot_update"
+    },
+    {
+      "address": "aws_iam_role.rotated",
+      "mode": "managed",
+      "type": "aws_iam_role",
+      "name": "rotated",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "update"
+        ],
+        "before": {
+          "arn": "arn:aws:iam::123456789012:role/rotated",
+          "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/rotated:ref:refs/heads/v1\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}",
+          "create_date": "2026-09-01T00:00:00Z",
+          "description": null,
+          "force_detach_policies": false,
+          "id": "rotated",
+          "inline_policy": [],
+          "managed_policy_arns": [],
+          "max_session_duration": 3600,
+          "name": "rotated",
+          "name_prefix": "",
+          "path": "/",
+          "permissions_boundary": null,
+          "tags": null,
+          "tags_all": {},
+          "unique_id": "AROAROTATED23456789AB"
+        },
+        "after": {
+          "arn": "arn:aws:iam::123456789012:role/rotated",
+          "create_date": "2026-09-01T00:00:00Z",
+          "description": null,
+          "force_detach_policies": false,
+          "id": "rotated",
+          "inline_policy": [],
+          "managed_policy_arns": [],
+          "max_session_duration": 3600,
+          "name": "rotated",
+          "name_prefix": "",
+          "path": "/",
+          "permissions_boundary": null,
+          "tags": null,
+          "tags_all": {},
+          "unique_id": "AROAROTATED23456789AB"
+        },
+        "after_unknown": {
+          "assume_role_policy": true,
+          "tags_all": true
+        },
+        "before_sensitive": {
+          "inline_policy": [],
+          "managed_policy_arns": [],
+          "tags": {},
+          "tags_all": {}
+        },
+        "after_sensitive": {
+          "inline_policy": [],
+          "managed_policy_arns": [],
+          "tags": {},
+          "tags_all": {}
+        }
+      }
+    },
+    {
+      "address": "aws_iam_role.forgotten",
+      "mode": "managed",
+      "type": "aws_iam_role",
+      "name": "forgotten",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "forget"
+        ],
+        "before": {
+          "arn": "arn:aws:iam::123456789012:role/forgotten",
+          "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/legacy:ref:refs/heads/main\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}",
+          "create_date": "2026-09-01T00:00:00Z",
+          "description": null,
+          "force_detach_policies": false,
+          "id": "forgotten",
+          "inline_policy": [],
+          "managed_policy_arns": [],
+          "max_session_duration": 3600,
+          "name": "forgotten",
+          "name_prefix": "",
+          "path": "/",
+          "permissions_boundary": null,
+          "tags": null,
+          "tags_all": {},
+          "unique_id": "AROAFORGOTTEN0123456"
+        },
+        "after": null,
+        "after_unknown": {},
+        "before_sensitive": {
+          "inline_policy": [],
+          "managed_policy_arns": [],
+          "tags": {},
+          "tags_all": {}
+        },
+        "after_sensitive": false
+      },
+      "action_reason": "delete_because_no_resource_config"
+    },
+    {
+      "address": "aws_iam_role.reborn",
+      "mode": "managed",
+      "type": "aws_iam_role",
+      "name": "reborn",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create",
+          "forget"
+        ],
+        "before": {
+          "arn": "arn:aws:iam::123456789012:role/reborn",
+          "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/reborn:ref:refs/heads/main\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}",
+          "create_date": "2026-09-01T00:00:00Z",
+          "description": null,
+          "force_detach_policies": false,
+          "id": "reborn",
+          "inline_policy": [],
+          "managed_policy_arns": [],
+          "max_session_duration": 3600,
+          "name": "reborn",
+          "name_prefix": "",
+          "path": "/",
+          "permissions_boundary": null,
+          "tags": null,
+          "tags_all": {},
+          "unique_id": "AROAREBORN0123456789"
+        },
+        "after": {
+          "description": null,
+          "force_detach_policies": false,
+          "max_session_duration": 3600,
+          "name": "reborn",
+          "path": "/",
+          "permissions_boundary": null,
+          "tags": null,
+          "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/reborn:environment:prod\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}"
+        },
+        "after_unknown": {
+          "arn": true,
+          "create_date": true,
+          "id": true,
+          "inline_policy": true,
+          "managed_policy_arns": true,
+          "name_prefix": true,
+          "tags_all": true,
+          "unique_id": true
+        },
+        "before_sensitive": {
+          "inline_policy": [],
+          "managed_policy_arns": [],
+          "tags": {},
+          "tags_all": {}
+        },
+        "after_sensitive": {
+          "inline_policy": [],
+          "managed_policy_arns": [],
+          "tags_all": {}
+        },
+        "replace_paths": [
+          [
+            "path"
+          ]
+        ]
+      },
+      "action_reason": "replace_because_cannot_update"
+    },
+    {
+      "address": "aws_iam_role.hollow",
+      "mode": "managed",
+      "type": "aws_iam_role",
+      "name": "hollow",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "description": null,
+          "force_detach_policies": false,
+          "max_session_duration": 3600,
+          "name": "hollow",
+          "path": "/",
+          "permissions_boundary": null,
+          "tags": null,
+          "assume_role_policy": "{\"Statement\":[],\"Version\":\"2012-10-17\"}"
+        },
+        "after_unknown": {
+          "arn": true,
+          "create_date": true,
+          "id": true,
+          "inline_policy": true,
+          "managed_policy_arns": true,
+          "name_prefix": true,
+          "tags_all": true,
+          "unique_id": true
+        },
+        "before_sensitive": false,
+        "after_sensitive": {
+          "inline_policy": [],
+          "managed_policy_arns": [],
+          "tags_all": {}
+        }
+      }
+    }
+  ],
+  "prior_state": {
+    "format_version": "1.0",
+    "terraform_version": "1.15.5",
+    "values": {
+      "root_module": {
+        "resources": [
+          {
+            "address": "aws_iam_role.kept",
+            "mode": "managed",
+            "type": "aws_iam_role",
+            "name": "kept",
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "schema_version": 0,
+            "values": {
+              "arn": "arn:aws:iam::123456789012:role/kept",
+              "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:ref:refs/heads/main\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}",
+              "create_date": "2026-09-01T00:00:00Z",
+              "description": null,
+              "force_detach_policies": false,
+              "id": "kept",
+              "inline_policy": [],
+              "managed_policy_arns": [],
+              "max_session_duration": 3600,
+              "name": "kept",
+              "name_prefix": "",
+              "path": "/",
+              "permissions_boundary": null,
+              "tags": null,
+              "tags_all": {},
+              "unique_id": "AROAKEPT23456789ABCDE"
+            },
+            "sensitive_values": {
+              "inline_policy": [],
+              "managed_policy_arns": [],
+              "tags": {},
+              "tags_all": {}
+            }
+          },
+          {
+            "address": "aws_iam_role.old",
+            "mode": "managed",
+            "type": "aws_iam_role",
+            "name": "old",
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "schema_version": 0,
+            "values": {
+              "arn": "arn:aws:iam::123456789012:role/old",
+              "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/old:*\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}",
+              "create_date": "2026-09-01T00:00:00Z",
+              "description": null,
+              "force_detach_policies": false,
+              "id": "old",
+              "inline_policy": [],
+              "managed_policy_arns": [],
+              "max_session_duration": 3600,
+              "name": "old",
+              "name_prefix": "",
+              "path": "/",
+              "permissions_boundary": null,
+              "tags": null,
+              "tags_all": {},
+              "unique_id": "AROAOLD23456789ABCDEF"
+            },
+            "sensitive_values": {
+              "inline_policy": [],
+              "managed_policy_arns": [],
+              "tags": {},
+              "tags_all": {}
+            }
+          },
+          {
+            "address": "aws_iam_role.replaced",
+            "mode": "managed",
+            "type": "aws_iam_role",
+            "name": "replaced",
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "schema_version": 0,
+            "values": {
+              "arn": "arn:aws:iam::123456789012:role/replaced",
+              "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/replaced:v1\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}",
+              "create_date": "2026-09-01T00:00:00Z",
+              "description": null,
+              "force_detach_policies": false,
+              "id": "replaced",
+              "inline_policy": [],
+              "managed_policy_arns": [],
+              "max_session_duration": 3600,
+              "name": "replaced",
+              "name_prefix": "",
+              "path": "/",
+              "permissions_boundary": null,
+              "tags": null,
+              "tags_all": {},
+              "unique_id": "AROAREPLACED23456789A"
+            },
+            "sensitive_values": {
+              "inline_policy": [],
+              "managed_policy_arns": [],
+              "tags": {},
+              "tags_all": {}
+            }
+          },
+          {
+            "address": "aws_iam_role.rotated",
+            "mode": "managed",
+            "type": "aws_iam_role",
+            "name": "rotated",
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "schema_version": 0,
+            "values": {
+              "arn": "arn:aws:iam::123456789012:role/rotated",
+              "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/rotated:ref:refs/heads/v1\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}",
+              "create_date": "2026-09-01T00:00:00Z",
+              "description": null,
+              "force_detach_policies": false,
+              "id": "rotated",
+              "inline_policy": [],
+              "managed_policy_arns": [],
+              "max_session_duration": 3600,
+              "name": "rotated",
+              "name_prefix": "",
+              "path": "/",
+              "permissions_boundary": null,
+              "tags": null,
+              "tags_all": {},
+              "unique_id": "AROAROTATED23456789AB"
+            },
+            "sensitive_values": {
+              "inline_policy": [],
+              "managed_policy_arns": [],
+              "tags": {},
+              "tags_all": {}
+            }
+          },
+          {
+            "address": "aws_iam_role.forgotten",
+            "mode": "managed",
+            "type": "aws_iam_role",
+            "name": "forgotten",
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "schema_version": 0,
+            "values": {
+              "arn": "arn:aws:iam::123456789012:role/forgotten",
+              "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/legacy:ref:refs/heads/main\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}",
+              "create_date": "2026-09-01T00:00:00Z",
+              "description": null,
+              "force_detach_policies": false,
+              "id": "forgotten",
+              "inline_policy": [],
+              "managed_policy_arns": [],
+              "max_session_duration": 3600,
+              "name": "forgotten",
+              "name_prefix": "",
+              "path": "/",
+              "permissions_boundary": null,
+              "tags": null,
+              "tags_all": {},
+              "unique_id": "AROAFORGOTTEN0123456"
+            },
+            "sensitive_values": {
+              "inline_policy": [],
+              "managed_policy_arns": [],
+              "tags": {},
+              "tags_all": {}
+            }
+          },
+          {
+            "address": "aws_iam_role.reborn",
+            "mode": "managed",
+            "type": "aws_iam_role",
+            "name": "reborn",
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "schema_version": 0,
+            "values": {
+              "arn": "arn:aws:iam::123456789012:role/reborn",
+              "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/reborn:ref:refs/heads/main\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}",
+              "create_date": "2026-09-01T00:00:00Z",
+              "description": null,
+              "force_detach_policies": false,
+              "id": "reborn",
+              "inline_policy": [],
+              "managed_policy_arns": [],
+              "max_session_duration": 3600,
+              "name": "reborn",
+              "name_prefix": "",
+              "path": "/",
+              "permissions_boundary": null,
+              "tags": null,
+              "tags_all": {},
+              "unique_id": "AROAREBORN0123456789"
+            },
+            "sensitive_values": {
+              "inline_policy": [],
+              "managed_policy_arns": [],
+              "tags": {},
+              "tags_all": {}
+            }
+          },
+          {
+            "address": "aws_iam_role.untargeted",
+            "mode": "managed",
+            "type": "aws_iam_role",
+            "name": "untargeted",
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "schema_version": 0,
+            "values": {
+              "arn": "arn:aws:iam::123456789012:role/untargeted",
+              "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringLike\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/untargeted:*\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}}],\"Version\":\"2012-10-17\"}",
+              "create_date": "2026-09-01T00:00:00Z",
+              "description": null,
+              "force_detach_policies": false,
+              "id": "untargeted",
+              "inline_policy": [],
+              "managed_policy_arns": [],
+              "max_session_duration": 3600,
+              "name": "untargeted",
+              "name_prefix": "",
+              "path": "/",
+              "permissions_boundary": null,
+              "tags": null,
+              "tags_all": {},
+              "unique_id": "AROAUNTARGETED012345"
+            },
+            "sensitive_values": {
+              "inline_policy": [],
+              "managed_policy_arns": [],
+              "tags": {},
+              "tags_all": {}
+            }
+          }
+        ]
+      }
+    }
+  },
+  "configuration": {
+    "provider_config": {
+      "aws": {
+        "name": "aws",
+        "full_name": "registry.terraform.io/hashicorp/aws"
+      }
+    },
+    "root_module": {
+      "resources": [
+        {
+          "address": "aws_iam_role.kept",
+          "mode": "managed",
+          "type": "aws_iam_role",
+          "name": "kept",
+          "provider_config_key": "aws",
+          "expressions": {
+            "assume_role_policy": {},
+            "name": {
+              "constant_value": "kept"
+            }
+          },
+          "schema_version": 0
+        },
+        {
+          "address": "aws_iam_role.replaced",
+          "mode": "managed",
+          "type": "aws_iam_role",
+          "name": "replaced",
+          "provider_config_key": "aws",
+          "expressions": {
+            "assume_role_policy": {},
+            "name": {
+              "constant_value": "replaced"
+            }
+          },
+          "schema_version": 0
+        },
+        {
+          "address": "aws_iam_role.rotated",
+          "mode": "managed",
+          "type": "aws_iam_role",
+          "name": "rotated",
+          "provider_config_key": "aws",
+          "expressions": {
+            "assume_role_policy": {
+              "references": [
+                "aws_iam_openid_connect_provider.gh.arn",
+                "aws_iam_openid_connect_provider.gh"
+              ]
+            },
+            "name": {
+              "constant_value": "rotated"
+            }
+          },
+          "schema_version": 0
+        },
+        {
+          "address": "aws_iam_openid_connect_provider.gh",
+          "mode": "managed",
+          "type": "aws_iam_openid_connect_provider",
+          "name": "gh",
+          "provider_config_key": "aws",
+          "expressions": {
+            "client_id_list": {
+              "constant_value": [
+                "sts.amazonaws.com"
+              ]
+            },
+            "url": {
+              "constant_value": "https://token.actions.githubusercontent.com"
+            }
+          },
+          "schema_version": 0
+        },
+        {
+          "address": "aws_iam_role.reborn",
+          "mode": "managed",
+          "type": "aws_iam_role",
+          "name": "reborn",
+          "provider_config_key": "aws",
+          "expressions": {
+            "assume_role_policy": {},
+            "name": {
+              "constant_value": "reborn"
+            }
+          },
+          "schema_version": 0
+        },
+        {
+          "address": "aws_iam_role.hollow",
+          "mode": "managed",
+          "type": "aws_iam_role",
+          "name": "hollow",
+          "provider_config_key": "aws",
+          "expressions": {
+            "assume_role_policy": {},
+            "name": {
+              "constant_value": "hollow"
+            }
+          },
+          "schema_version": 0
+        },
+        {
+          "address": "aws_iam_role.untargeted",
+          "mode": "managed",
+          "type": "aws_iam_role",
+          "name": "untargeted",
+          "provider_config_key": "aws",
+          "expressions": {
+            "assume_role_policy": {},
+            "name": {
+              "constant_value": "untargeted"
+            }
+          },
+          "schema_version": 0
+        }
+      ]
+    }
+  },
+  "relevant_attributes": [
+    {
+      "resource": "aws_iam_openid_connect_provider.gh",
+      "attribute": [
+        "arn"
+      ]
+    }
+  ],
+  "timestamp": "2026-09-14T00:00:00Z",
+  "applyable": true,
+  "complete": false,
+  "errored": false
+}

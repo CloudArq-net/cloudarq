@@ -1,0 +1,57 @@
+read as an aws trust policy · version 2012-10-17 · 673 bytes · 29 lines · 3 statements
+sha256 faf57948ef327181a002206a847a7d72990323c7d7ccb5023755a57de2bb8db9
+
+Anyone could assume this role.
+
+  Anyone                unknown  grants 1, 2, 3  Anyone could assume this role: it trusts a principal whose kind is not read.
+  Anyone on a platform  exact                    No grant is placed at a whole platform.
+  A named outsider      exact                    No grant is placed with a named outsider.
+  Your pipelines        exact                    No grant is confined to owners declared as yours.
+  Your people           exact                    No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 3 · statement[2] "RoleAsFederatedProvider" · Allow · anyone · unknown
+Who this statement admits is not known: the Federated principal "arn:aws:iam::123456789012:role/Deploy" is neither an OIDC nor a SAML provider, so its issuer is not known.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  the Federated principal "arn:aws:iam::123456789012:role/Deploy" is neither an OIDC nor a SAML provider, so its issuer is not known
+     caveat · statement[2].Principal
+  2  same as note 1
+     anomaly · unmodelled-construct · Federated · statement[2].Principal
+
+statement[2] "RoleAsFederatedProvider" · offset 455 · 211 bytes · lines 20-27 · issuer at line 23 Principal · sha256 37fd00b71db3267f564d3dc545c589c58224b4fe28b155ee9f6f749f0043fdc4
+
+grant 2 of 3 · statement[0] "S3CanonicalUser" · Allow · aws:sts · anyone · unknown
+Who this statement admits is not known: a CanonicalUser principal is not modelled by this parser, so who it names is not known.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  a CanonicalUser principal is not modelled by this parser, so who it names is not known
+     caveat · statement[0].Principal
+  2  same as note 1
+     anomaly · unmodelled-construct · CanonicalUser · statement[0].Principal
+
+statement[0] "S3CanonicalUser" · offset 50 · 219 bytes · lines 4-11 · issuer at line 7 Principal · sha256 d78c0045afea265c932b3d5b2b9caa1a729ba7418d6807652c7f135b1ac82099
+
+grant 3 of 3 · statement[1] "BucketAsPrincipal" · Allow · aws:sts · anyone · unknown
+Who this statement admits is not known: the AWS principal "arn:aws:s3:::acme-artifacts" is an ARN of a service other than IAM or STS, which names no principal this parser knows, so who it names is not known.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  the AWS principal "arn:aws:s3:::acme-artifacts" is an ARN of a service other than IAM or STS, which names no principal this parser knows, so who it names is not known
+     caveat · aws:principalarn · statement[1].Principal
+  2  same as note 1
+     anomaly · unmodelled-construct · aws:principalarn · arn:aws:s3:::acme-artifacts · statement[1].Principal
+
+statement[1] "BucketAsPrincipal" · offset 275 · 174 bytes · lines 12-19 · issuer at line 15 Principal · sha256 fe302dade9a61bbf897c357de133ff3ccfc0106054c0268a3deab4014ce4e0db

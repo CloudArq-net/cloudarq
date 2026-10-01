@@ -1,0 +1,52 @@
+read as an aws trust policy · version 2012-10-17 · 301 bytes · 16 lines · 1 statement
+sha256 d83edd32fa789a4e5ff74413bc582847f4935030ad78055ecf7eb9781ed24c9f
+
+Anyone on AWS could assume this role; so can cloud services.
+
+  Anyone            unknown           No grant is placed with people who have no account anywhere.
+  Anyone on AWS     unknown  grant 2  Anyone on AWS could assume this role; one of its conditions was not read.
+  A named outsider  exact             No grant is placed with a named outsider.
+  Your pipelines    exact             No grant is confined to owners declared as yours.
+  Your people       exact             No grant trusts a SAML provider declared as yours.
+  ──
+  Cloud services    unknown  grant 1  Any cloud service can assume this role; which ones, and for whom, is not read.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 2 · statement[0] "AnyoneFromOneSourceAccount" · Allow · service · unknown
+Who this statement admits is not known: the condition key "aws:SourceAccount" is a fact about the request, not a claim of the token, so this parser does not evaluate it and the claim is not constrained; the statement applies to every principal, and which AWS services it covers through sts:AssumeRole is not known.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  the condition key "aws:SourceAccount" is a fact about the request, not a claim of the token, so this parser does not evaluate it and the claim is not constrained
+     caveat · aws:sourceaccount · statement[0].Condition
+  2  the statement applies to every principal, and which AWS services it covers through sts:AssumeRole is not known
+     caveat · statement[0].Principal
+  3  the statement applies to every principal, including anonymous ones
+     anomaly · any-principal · Principal · statement[0].Principal
+  4  same as note 2
+     anomaly · unmodelled-construct · Principal · statement[0].Principal
+  5  same as note 1
+     anomaly · unmodelled-construct · aws:sourceaccount · aws:SourceAccount · statement[0].Condition
+
+statement[0] "AnyoneFromOneSourceAccount" · offset 50 · 244 bytes · lines 4-14 · issuer at line 7 Principal · sha256 28343e1c3f7dac91bbeb1fa9d8423e5f7d5c8dce92b10c17f9154027b792fc26
+
+grant 2 of 2 · statement[0] "AnyoneFromOneSourceAccount" · Allow · aws:sts · platform · unknown
+Who this statement admits is not known: the condition key "aws:SourceAccount" is a fact about the request, not a claim of the token, so this parser does not evaluate it and the claim is not constrained.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  the condition key "aws:SourceAccount" is a fact about the request, not a claim of the token, so this parser does not evaluate it and the claim is not constrained
+     caveat · aws:sourceaccount · statement[0].Condition
+  2  the statement applies to every principal, including anonymous ones
+     anomaly · any-principal · Principal · statement[0].Principal
+  3  same as note 1
+     anomaly · unmodelled-construct · aws:sourceaccount · aws:SourceAccount · statement[0].Condition
+
+statement[0] "AnyoneFromOneSourceAccount" · offset 50 · 244 bytes · lines 4-14 · issuer at line 7 Principal · sha256 28343e1c3f7dac91bbeb1fa9d8423e5f7d5c8dce92b10c17f9154027b792fc26

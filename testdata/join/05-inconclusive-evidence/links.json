@@ -1,0 +1,86 @@
+[
+  {
+    "kind": "counterparty-fan-out",
+    "grants": [
+      {
+        "target": {
+          "kind": "application",
+          "id": "6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d"
+        },
+        "issuer": "https://token.actions.githubusercontent.com",
+        "effect": "Allow",
+        "admits": "{aud=\"api://AzureADTokenExchange\", sub=\"repo:acme/infra:ref:refs/heads/main\"}",
+        "caveats": []
+      },
+      {
+        "target": {
+          "kind": "role",
+          "id": "arn:aws:iam::111111111111:role/deploy"
+        },
+        "issuer": "https://token.actions.githubusercontent.com",
+        "effect": "Allow",
+        "admits": "{aud=\"sts.amazonaws.com\", sub=\"repo:acme/infra:ref:refs/heads/main\"}",
+        "caveats": []
+      }
+    ],
+    "subject": {
+      "issuer": "https://token.actions.githubusercontent.com",
+      "overlap": "{sub=\"repo:acme/infra:ref:refs/heads/main\"}",
+      "witness": {
+        "sub": "repo:acme/infra:ref:refs/heads/main"
+      }
+    },
+    "confidence": "indeterminate",
+    "reason": "the call iam:GetRole for role arn:aws:iam::111111111111:role/deploy returned denied",
+    "sentence": "Identities admitted by application 6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d may also be admitted by role arn:aws:iam::111111111111:role/deploy from https://token.actions.githubusercontent.com; the call iam:GetRole for role arn:aws:iam::111111111111:role/deploy returned denied.",
+    "provenance": [
+      {
+        "api": "graph:federatedIdentityCredentials.list",
+        "params": "{\"applicationId\":\"6b1e6c7e-0f1a-4d2b-9c3d-8e4f5a6b7c8d\"}",
+        "status": "ok",
+        "bytes": {
+          "value": [
+            {
+              "name": "github-infra-main",
+              "subject": "repo:acme/infra:ref:refs/heads/main",
+              "issuer": "https://token.actions.githubusercontent.com",
+              "audiences": [
+                "api://AzureADTokenExchange"
+              ]
+            }
+          ]
+        },
+        "sha256": "fa7e490355eb24f38baf4ae7f575ae2ced94b9af5355c4e4dd819b4d51b21d74",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      },
+      {
+        "api": "iam:GetRole",
+        "params": "{\"RoleName\":\"deploy\"}",
+        "status": "denied",
+        "bytes": {
+          "Error": {
+            "Code": "AccessDenied",
+            "Message": "User is not authorized to perform: iam:GetRole on resource: arn:aws:iam::111111111111:role/deploy"
+          }
+        },
+        "sha256": "50e437e82e9a46bf2b3f2e30fdbace0cf16c020e869db4a521ba4f2cd30fa6ae",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      },
+      {
+        "api": "iam:ListRoles",
+        "params": "{}",
+        "status": "ok",
+        "bytes": {
+          "Roles": [
+            {
+              "Arn": "arn:aws:iam::111111111111:role/deploy",
+              "RoleName": "deploy"
+            }
+          ]
+        },
+        "sha256": "f5b6201c8e1cf02fc10fe9f56eaf9c218d591dcbf3ea112540b645ad052eafcc",
+        "fetched_at": "2026-09-13T00:00:00Z"
+      }
+    ]
+  }
+]

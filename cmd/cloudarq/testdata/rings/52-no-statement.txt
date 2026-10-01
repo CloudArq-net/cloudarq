@@ -1,0 +1,8 @@
+read as an aws trust policy · version 2012-10-17 · 56 bytes · 4 lines · 0 statements
+sha256 f333793627fcd2f5523c3eb5b025f99fa0cbd8a4538ac2ef0c780156aca39187
+
+document notes
+  1  the document has no Statement member; the IAM grammar requires one
+     anomaly · malformed · Statement · document
+
+The document holds no statement, so who can assume this role is not known.

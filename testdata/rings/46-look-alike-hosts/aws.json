@@ -1,0 +1,32 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "KelvinSignForK",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/to\u212aen.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "to\u212aen.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+          "to\u212aen.actions.githubusercontent.com:sub": "repo:acme/infra:ref:refs/heads/main"
+        }
+      }
+    },
+    {
+      "Sid": "DottedCapitalIForI",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/o\u0130dc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "o\u0130dc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE:sub": "system:serviceaccount:deploy:runner"
+        }
+      }
+    }
+  ]
+}

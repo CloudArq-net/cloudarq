@@ -1,0 +1,61 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "WildcardInsideARoleArn",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::123456789012:role/*"
+      },
+      "Action": "sts:AssumeRole"
+    },
+    {
+      "Sid": "GroupArn",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::123456789012:group/admins"
+      },
+      "Action": "sts:AssumeRole"
+    },
+    {
+      "Sid": "ProviderArnUnderTheAWSKind",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRole"
+    },
+    {
+      "Sid": "NoResource",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::123456789012:"
+      },
+      "Action": "sts:AssumeRole"
+    },
+    {
+      "Sid": "AccountThatIsNotAnId",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::acme:role/ci"
+      },
+      "Action": "sts:AssumeRole"
+    },
+    {
+      "Sid": "RegionInAnIamArn",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam:us-east-1:123456789012:role/ci"
+      },
+      "Action": "sts:AssumeRole"
+    },
+    {
+      "Sid": "DenyAWildcardRole",
+      "Effect": "Deny",
+      "Principal": {
+        "AWS": "arn:aws:iam::123456789012:role/ci-*"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}

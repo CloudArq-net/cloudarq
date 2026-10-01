@@ -1,0 +1,22 @@
+read as an aws trust policy · version 2012-10-17 · 405 bytes · 18 lines · 1 statement
+sha256 ce9a78ce87d5a195548914e116fa4f92af153106b2a1737c5a159918727d6b81
+
+Anyone on www.amazon.com could assume this role.
+
+  Anyone                    exact             No grant is placed with people who have no account anywhere.
+  Anyone on www.amazon.com  unknown  grant 1  Anyone on www.amazon.com could assume this role; which claims name an owner is not recorded.
+  A named outsider          exact             No grant is placed with a named outsider.
+  Your pipelines            exact             No grant is confined to owners declared as yours.
+  Your people               exact             No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] "LoginWithAmazonApp" · Allow · https://www.amazon.com · platform · unknown
+This role admits any token from www.amazon.com whose app_id is amzn1.application-oa2-client.0123456789abcdef0123456789abcdef.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM            ADMITS                                                           IN WORDS · AS WRITTEN
+app_id           "amzn1.application-oa2-client.0123456789abcdef0123456789abcdef"  exactly this value · line 13 StringEquals
+any other claim  any                                                              unconstrained · no condition names it
+
+statement[0] "LoginWithAmazonApp" · offset 50 · 348 bytes · lines 4-16 · issuer at line 8 Principal.Federated · sha256 91d8a2dc78867bbf9df97b2e483bc772cc0899dd3ee66d7580e61d4afc54e6d0

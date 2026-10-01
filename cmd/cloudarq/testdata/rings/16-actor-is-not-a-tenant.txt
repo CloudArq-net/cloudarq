@@ -1,0 +1,33 @@
+read as an aws trust policy · version 2012-10-17 · 608 bytes · 22 lines · 1 statement
+sha256 bf8fade553c7137ff814552eefb8a7c1d852a7a8992733c484a0d1864c7ca198
+
+Anyone on GitHub can assume this role.
+
+  Anyone            exact           No grant is placed with people who have no account anywhere.
+  Anyone on GitHub  exact  grant 1  Anyone on GitHub can assume this role; no condition confines its tokens to one owner.
+  A named outsider  exact           No grant is placed with a named outsider.
+  Your pipelines    exact           No grant is confined to owners declared as yours.
+  Your people       exact           No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] "OneActorAnyRepository" · Allow · https://token.actions.githubusercontent.com · platform · exact
+This role admits any token from token.actions.githubusercontent.com whose actor_id is 583231, whose aud is sts.amazonaws.com and whose sub matches repo:*.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM            ADMITS               IN WORDS · AS WRITTEN
+actor_id         "583231"             exactly this value · line 14 StringEquals
+aud              "sts.amazonaws.com"  exactly this audience · line 13 StringEquals
+sub              like:"repo:*"        any subject beginning repo: · line 17 StringLike
+any other claim  any                  unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "iss": "https://token.actions.githubusercontent.com",
+    "aud": "sts.amazonaws.com",
+    "sub": "repo:",
+    "actor_id": "583231"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant, but for azp. It sets no azp: AWS reads aud from azp whenever a token sets one.
+
+statement[0] "OneActorAnyRepository" · offset 50 · 551 bytes · lines 4-20 · issuer at line 8 Principal.Federated · sha256 f7cf8916d0726ac47c2930f27582156cb1ce95d6f5b9558e88d696a7fc8f4d3d

@@ -1,0 +1,19 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "MixedCaseKeys",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "TOKEN.ACTIONS.GITHUBUSERCONTENT.COM:aud": "sts.amazonaws.com",
+          "Token.Actions.GitHubUserContent.com:SUB": "repo:Acme/Infra:ref:refs/heads/Main"
+        }
+      }
+    }
+  ]
+}

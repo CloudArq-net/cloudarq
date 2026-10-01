@@ -1,0 +1,52 @@
+read as an aws trust policy · version 2012-10-17 · 1027 bytes · 35 lines · 2 statements
+sha256 37c6d52ed599c90229fd8aaabbf38ffb44c5bb73ec196a24cb230a79d011ed37
+
+Anyone on GitHub can assume this role.
+
+  Anyone            exact           No grant is placed with people who have no account anywhere.
+  Anyone on GitHub  exact  grant 2  Anyone on GitHub can assume this role; no condition confines its tokens to one owner.
+  A named outsider  exact  grant 1  github:acme can assume this role and is not declared as yours.
+  Your pipelines    exact           No grant is confined to owners declared as yours.
+  Your people       exact           No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+owners declared  github:Acme
+owner unmatched  github:Acme · no grant that admits is pinned to it; names compare exactly, and one is pinned to github:acme
+
+grant 1 of 2 · statement[0] "DeployFromMain" · Allow · https://token.actions.githubusercontent.com · outsider · exact
+This role admits any token from token.actions.githubusercontent.com whose aud is sts.amazonaws.com and whose sub is repo:acme/infra:ref:refs/heads/main.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM            ADMITS                                 IN WORDS · AS WRITTEN
+aud              "sts.amazonaws.com"                    exactly this audience · line 13 StringEquals
+sub              "repo:acme/infra:ref:refs/heads/main"  exactly this subject · line 14 StringEquals
+any other claim  any                                    unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "iss": "https://token.actions.githubusercontent.com",
+    "aud": "sts.amazonaws.com",
+    "sub": "repo:acme/infra:ref:refs/heads/main"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant, but for azp. It sets no azp: AWS reads aud from azp whenever a token sets one.
+
+statement[0] "DeployFromMain" · offset 50 · 471 bytes · lines 4-17 · issuer at line 8 Principal.Federated · sha256 80365cb558110fa29dd9a1d1a4369b4e931e27785a7b8860d2d8457e807df4bf
+
+grant 2 of 2 · statement[1] "PreviewFromAcmeRepositories" · Allow · https://token.actions.githubusercontent.com · platform · exact
+This role admits any token from token.actions.githubusercontent.com whose aud is sts.amazonaws.com and whose sub matches repo:acme*.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM            ADMITS               IN WORDS · AS WRITTEN
+aud              "sts.amazonaws.com"  exactly this audience · line 27 StringEquals
+sub              like:"repo:acme*"    any subject beginning repo:acme · line 30 StringLike
+any other claim  any                  unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "iss": "https://token.actions.githubusercontent.com",
+    "aud": "sts.amazonaws.com",
+    "sub": "repo:acme"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant, but for azp. It sets no azp: AWS reads aud from azp whenever a token sets one.
+
+statement[1] "PreviewFromAcmeRepositories" · offset 527 · 493 bytes · lines 18-33 · issuer at line 22 Principal.Federated · sha256 0505b29284570d870d25f1dd010b73c78a926de290deecf041955b512b9fa068

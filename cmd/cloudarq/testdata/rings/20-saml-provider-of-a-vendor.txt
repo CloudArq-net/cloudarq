@@ -1,0 +1,33 @@
+read as an aws trust policy · version 2012-10-17 · 384 bytes · 18 lines · 1 statement
+sha256 e734ae422c8eaf193b0b494c72e1c096fd8d62bdd5829a964314633a4e21c3fb
+
+People VendorSSO signs in can assume this role.
+
+  Anyone                unknown           No grant is placed with people who have no account anywhere.
+  Anyone on a platform  exact             No grant is placed at a whole platform.
+  A named outsider      exact             No grant is placed with a named outsider.
+  Your pipelines        exact             No grant is confined to owners declared as yours.
+  Your people           exact             No grant trusts a SAML provider declared as yours.
+  ──
+  SAML sign-ins         unknown  grant 1  People VendorSSO signs in can assume this role; who they are is set in VendorSSO.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] "VendorSSO" · Allow · arn:aws:iam::123456789012:saml-provider/VendorSSO · saml · unknown
+Who this statement admits is not known: the condition key "SAML:aud" is a fact about the request, not a claim of the token, so this parser does not evaluate it and the claim is not constrained; SAML federation through "arn:aws:iam::123456789012:saml-provider/VendorSSO" is not modelled by this parser, so which identities it admits is not known.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  the condition key "SAML:aud" is a fact about the request, not a claim of the token, so this parser does not evaluate it and the claim is not constrained
+     caveat · saml:aud · statement[0].Condition
+  2  SAML federation through "arn:aws:iam::123456789012:saml-provider/VendorSSO" is not modelled by this parser, so which identities it admits is not known
+     caveat · statement[0].Principal
+  3  same as note 2
+     anomaly · unmodelled-construct · SAML · statement[0].Principal
+  4  same as note 1
+     anomaly · unmodelled-construct · saml:aud · SAML:aud · statement[0].Condition
+
+statement[0] "VendorSSO" · offset 50 · 327 bytes · lines 4-16 · issuer at line 8 Principal.Federated · sha256 712c3c59fabd1b8a9d60808d965ca96a32e797eb93ec3cba2b664be76679f8fc

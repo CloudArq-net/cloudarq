@@ -1,0 +1,16 @@
+{
+  "name": "projects/123456789012/locations/global/workloadIdentityPools/github/providers/github",
+  "displayName": "GitHub Actions",
+  "description": "a raw string literal, backslash kept",
+  "state": "ACTIVE",
+  "attributeMapping": {
+    "google.subject": "assertion.sub"
+  },
+  "attributeCondition": "assertion.sub == r'repo:acme\\infra'",
+  "oidc": {
+    "issuerUri": "https://token.actions.githubusercontent.com",
+    "allowedAudiences": [
+      "https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github"
+    ]
+  }
+}

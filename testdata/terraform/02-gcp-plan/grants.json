@@ -1,0 +1,1300 @@
+[
+  {
+    "target": {
+      "kind": "workloadIdentityPoolProvider",
+      "id": "google_iam_workload_identity_pool_provider.aws"
+    },
+    "issuer": "aws:sts",
+    "effect": "Allow",
+    "admits": "{aws:principalaccount=\"123456789012\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_iam_workload_identity_pool_provider.aws is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_iam_workload_identity_pool_provider.aws"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.aws\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "645e47401cb1a17a15d8bca9b39725c1c1a175e8192f3d38647525ddd131878d",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"aws\":{\"accountId\":\"123456789012\"}}"
+      }
+    ],
+    "source": "{\"aws\":{\"accountId\":\"123456789012\"}}"
+  },
+  {
+    "target": {
+      "kind": "workloadIdentityPoolProvider",
+      "id": "google_iam_workload_identity_pool_provider.disabled"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "the provider is disabled; Google says a disabled provider cannot be used to exchange tokens but existing tokens still grant access; the flag is set by an update and cleared by another, so the set stated is what the condition admits and is read as an upper bound",
+        "source": "disabled"
+      },
+      {
+        "claim": "aud",
+        "reason": "allowedAudiences is empty and no name is set, so the audience Google requires, the provider's full resource name, cannot be derived and aud is read as unconstrained",
+        "source": "oidc.allowedAudiences"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "default-audience",
+        "Claim": "aud",
+        "Construct": "allowedAudiences",
+        "Message": "allowedAudiences is empty and no name is set, so the audience Google requires, the provider's full resource name, cannot be derived and aud is read as unconstrained",
+        "Source": "oidc.allowedAudiences"
+      },
+      {
+        "Kind": "provider-disabled",
+        "Claim": "",
+        "Construct": "disabled",
+        "Message": "the provider is disabled; Google says a disabled provider cannot be used to exchange tokens but existing tokens still grant access; the flag is set by an update and cleared by another, so the set stated is what the condition admits and is read as an upper bound",
+        "Source": "disabled"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_iam_workload_identity_pool_provider.disabled is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_iam_workload_identity_pool_provider.disabled"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.disabled\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "b3e7899115132998ae9115256b3fc47d426207a729448e52df52a415763fe196",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"attributeMapping\":{\"google.subject\":\"assertion.sub\"},\"disabled\":true,\"oidc\":{\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}"
+      }
+    ],
+    "source": "{\"attributeMapping\":{\"google.subject\":\"assertion.sub\"},\"disabled\":true,\"oidc\":{\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "workloadIdentityPoolProvider",
+      "id": "google_iam_workload_identity_pool_provider.known"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\", sub=\"repo:acme/infra:ref:refs/heads/main\"}",
+    "exact": true,
+    "caveats": [],
+    "anomalies": [
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_iam_workload_identity_pool_provider.known is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_iam_workload_identity_pool_provider.known"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.known\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "7f793229f1734505a77979e605e064f4402f0e5d5183a02dfa46f720d9508f5a",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"attributeCondition\":\"assertion.sub == 'repo:acme/infra:ref:refs/heads/main'\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"displayName\":\"GitHub Actions\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"],\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}"
+      }
+    ],
+    "source": "{\"attributeCondition\":\"assertion.sub == 'repo:acme/infra:ref:refs/heads/main'\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"displayName\":\"GitHub Actions\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"],\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}"
+  },
+  {
+    "target": {
+      "kind": "workloadIdentityPoolProvider",
+      "id": "google_iam_workload_identity_pool_provider.nested_unknown"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "attribute_mapping and oidc[0].allowed_audiences of google_iam_workload_identity_pool_provider.nested_unknown are known only after apply; the expression references google_iam_workload_identity_pool.github.name, so what the grant admits is not stated and it is read as admitting everything",
+        "source": "google_iam_workload_identity_pool_provider.nested_unknown"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "known-after-apply",
+        "Claim": "",
+        "Construct": "attribute_mapping, oidc[0].allowed_audiences",
+        "Message": "attribute_mapping and oidc[0].allowed_audiences of google_iam_workload_identity_pool_provider.nested_unknown are known only after apply; the expression references google_iam_workload_identity_pool.github.name, so what the grant admits is not stated and it is read as admitting everything",
+        "Source": "google_iam_workload_identity_pool_provider.nested_unknown"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_iam_workload_identity_pool_provider.nested_unknown is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_iam_workload_identity_pool_provider.nested_unknown"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.nested_unknown\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "0901ce8741f64d196d69082c04a2482d0380c569843098c1aff6a5471abb83df",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"references\":[\"google_iam_workload_identity_pool.github.name\"],\"unknown\":[\"attribute_mapping\",\"oidc[0].allowed_audiences\"]}"
+      }
+    ],
+    "source": "{\"references\":[\"google_iam_workload_identity_pool.github.name\"],\"unknown\":[\"attribute_mapping\",\"oidc[0].allowed_audiences\"]}"
+  },
+  {
+    "target": {
+      "kind": "workloadIdentityPoolProvider",
+      "id": "google_iam_workload_identity_pool_provider.unknown_condition"
+    },
+    "issuer": "https://gitlab.com",
+    "effect": "Allow",
+    "admits": "{}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "attribute_condition of google_iam_workload_identity_pool_provider.unknown_condition is known only after apply; the expression references google_iam_workload_identity_pool.github.name, so what the grant admits is not stated and it is read as admitting everything",
+        "source": "google_iam_workload_identity_pool_provider.unknown_condition"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "known-after-apply",
+        "Claim": "",
+        "Construct": "attribute_condition",
+        "Message": "attribute_condition of google_iam_workload_identity_pool_provider.unknown_condition is known only after apply; the expression references google_iam_workload_identity_pool.github.name, so what the grant admits is not stated and it is read as admitting everything",
+        "Source": "google_iam_workload_identity_pool_provider.unknown_condition"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_iam_workload_identity_pool_provider.unknown_condition is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_iam_workload_identity_pool_provider.unknown_condition"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.unknown_condition\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "c82946667e689350c7f1eec3cb26004a7675a3e0d32502b3e26697e194731895",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"references\":[\"google_iam_workload_identity_pool.github.name\"],\"unknown\":[\"attribute_condition\"]}"
+      }
+    ],
+    "source": "{\"references\":[\"google_iam_workload_identity_pool.github.name\"],\"unknown\":[\"attribute_condition\"]}"
+  },
+  {
+    "target": {
+      "kind": "serviceAccount",
+      "id": "projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{sub=\"repo:acme/infra:ref:refs/heads/main\"}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "the binding carries the condition \"request.time < timestamp('2027-01-01T00:00:00Z')\", which this parser does not evaluate; the grant is read as if the binding applied unconditionally",
+        "source": "bindings[0].condition"
+      },
+      {
+        "claim": "",
+        "reason": "the provider is disabled; Google says a disabled provider cannot be used to exchange tokens but existing tokens still grant access; the flag is set by an update and cleared by another, so the set stated is what the condition admits and is read as an upper bound",
+        "source": "disabled"
+      },
+      {
+        "claim": "",
+        "reason": "the provider has no name of the form projects/<number>/locations/<location>/workloadIdentityPools/<pool>/providers/<provider>, so whether the member's pool \"projects/123456789012/locations/global/workloadIdentityPools/github\" is this provider's is not stated; the binding is read as applying to this provider",
+        "source": "name"
+      },
+      {
+        "claim": "aud",
+        "reason": "allowedAudiences is empty and no name is set, so the audience Google requires, the provider's full resource name, cannot be derived and aud is read as unconstrained",
+        "source": "oidc.allowedAudiences"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "default-audience",
+        "Claim": "aud",
+        "Construct": "allowedAudiences",
+        "Message": "allowedAudiences is empty and no name is set, so the audience Google requires, the provider's full resource name, cannot be derived and aud is read as unconstrained",
+        "Source": "oidc.allowedAudiences"
+      },
+      {
+        "Kind": "provider-disabled",
+        "Claim": "",
+        "Construct": "disabled",
+        "Message": "the provider is disabled; Google says a disabled provider cannot be used to exchange tokens but existing tokens still grant access; the flag is set by an update and cleared by another, so the set stated is what the condition admits and is read as an upper bound",
+        "Source": "disabled"
+      },
+      {
+        "Kind": "unmodelled-construct",
+        "Claim": "",
+        "Construct": "condition",
+        "Message": "the binding carries the condition \"request.time < timestamp('2027-01-01T00:00:00Z')\", which this parser does not evaluate; the grant is read as if the binding applied unconditionally",
+        "Source": "bindings[0].condition"
+      },
+      {
+        "Kind": "unmodelled-construct",
+        "Claim": "",
+        "Construct": "name",
+        "Message": "the provider has no name of the form projects/<number>/locations/<location>/workloadIdentityPools/<pool>/providers/<provider>, so whether the member's pool \"projects/123456789012/locations/global/workloadIdentityPools/github\" is this provider's is not stated; the binding is read as applying to this provider",
+        "Source": "name"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_service_account_iam_binding.ci is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_service_account_iam_binding.ci"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_service_account_iam_binding.ci\",\"attributes\":[\"condition\",\"members\",\"role\"],\"format_version\":\"1.2\",\"from\":\"after\",\"service_account_id\":\"projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "421a1b7ef72bf78d85c5f652a14e81956d0b21b92cdb44008a3a9e35de6ac732",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"bindings\":[{\"condition\":{\"expression\":\"request.time \\u003c timestamp('2027-01-01T00:00:00Z')\",\"title\":\"expires\"},\"members\":[\"principal://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/subject/repo:acme/infra:ref:refs/heads/main\",\"user:alice@acme.example\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}"
+      },
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.disabled\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "b3e7899115132998ae9115256b3fc47d426207a729448e52df52a415763fe196",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"attributeMapping\":{\"google.subject\":\"assertion.sub\"},\"disabled\":true,\"oidc\":{\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}"
+      }
+    ],
+    "source": "{\"provider\": {\"attributeMapping\":{\"google.subject\":\"assertion.sub\"},\"disabled\":true,\"oidc\":{\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}, \"binding\": {\"condition\":{\"expression\":\"request.time \\u003c timestamp('2027-01-01T00:00:00Z')\",\"title\":\"expires\"},\"members\":[\"principal://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/subject/repo:acme/infra:ref:refs/heads/main\",\"user:alice@acme.example\"],\"role\":\"roles/iam.workloadIdentityUser\"}}"
+  },
+  {
+    "target": {
+      "kind": "serviceAccount",
+      "id": "projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\", sub=\"repo:acme/infra:ref:refs/heads/main\"}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "the binding carries the condition \"request.time < timestamp('2027-01-01T00:00:00Z')\", which this parser does not evaluate; the grant is read as if the binding applied unconditionally",
+        "source": "bindings[0].condition"
+      },
+      {
+        "claim": "",
+        "reason": "the provider has no name of the form projects/<number>/locations/<location>/workloadIdentityPools/<pool>/providers/<provider>, so whether the member's pool \"projects/123456789012/locations/global/workloadIdentityPools/github\" is this provider's is not stated; the binding is read as applying to this provider",
+        "source": "name"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "unmodelled-construct",
+        "Claim": "",
+        "Construct": "condition",
+        "Message": "the binding carries the condition \"request.time < timestamp('2027-01-01T00:00:00Z')\", which this parser does not evaluate; the grant is read as if the binding applied unconditionally",
+        "Source": "bindings[0].condition"
+      },
+      {
+        "Kind": "unmodelled-construct",
+        "Claim": "",
+        "Construct": "name",
+        "Message": "the provider has no name of the form projects/<number>/locations/<location>/workloadIdentityPools/<pool>/providers/<provider>, so whether the member's pool \"projects/123456789012/locations/global/workloadIdentityPools/github\" is this provider's is not stated; the binding is read as applying to this provider",
+        "Source": "name"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_service_account_iam_binding.ci is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_service_account_iam_binding.ci"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_service_account_iam_binding.ci\",\"attributes\":[\"condition\",\"members\",\"role\"],\"format_version\":\"1.2\",\"from\":\"after\",\"service_account_id\":\"projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "421a1b7ef72bf78d85c5f652a14e81956d0b21b92cdb44008a3a9e35de6ac732",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"bindings\":[{\"condition\":{\"expression\":\"request.time \\u003c timestamp('2027-01-01T00:00:00Z')\",\"title\":\"expires\"},\"members\":[\"principal://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/subject/repo:acme/infra:ref:refs/heads/main\",\"user:alice@acme.example\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}"
+      },
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.known\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "7f793229f1734505a77979e605e064f4402f0e5d5183a02dfa46f720d9508f5a",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"attributeCondition\":\"assertion.sub == 'repo:acme/infra:ref:refs/heads/main'\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"displayName\":\"GitHub Actions\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"],\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}"
+      }
+    ],
+    "source": "{\"provider\": {\"attributeCondition\":\"assertion.sub == 'repo:acme/infra:ref:refs/heads/main'\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"displayName\":\"GitHub Actions\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"],\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}, \"binding\": {\"condition\":{\"expression\":\"request.time \\u003c timestamp('2027-01-01T00:00:00Z')\",\"title\":\"expires\"},\"members\":[\"principal://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/subject/repo:acme/infra:ref:refs/heads/main\",\"user:alice@acme.example\"],\"role\":\"roles/iam.workloadIdentityUser\"}}"
+  },
+  {
+    "target": {
+      "kind": "serviceAccount",
+      "id": "projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "attribute_mapping and oidc[0].allowed_audiences of google_iam_workload_identity_pool_provider.nested_unknown are known only after apply; the expression references google_iam_workload_identity_pool.github.name, so what the grant admits is not stated and it is read as admitting everything",
+        "source": "google_iam_workload_identity_pool_provider.nested_unknown"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "known-after-apply",
+        "Claim": "",
+        "Construct": "attribute_mapping, oidc[0].allowed_audiences",
+        "Message": "attribute_mapping and oidc[0].allowed_audiences of google_iam_workload_identity_pool_provider.nested_unknown are known only after apply; the expression references google_iam_workload_identity_pool.github.name, so what the grant admits is not stated and it is read as admitting everything",
+        "Source": "google_iam_workload_identity_pool_provider.nested_unknown"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_service_account_iam_binding.ci is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_service_account_iam_binding.ci"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_service_account_iam_binding.ci\",\"attributes\":[\"condition\",\"members\",\"role\"],\"format_version\":\"1.2\",\"from\":\"after\",\"service_account_id\":\"projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "421a1b7ef72bf78d85c5f652a14e81956d0b21b92cdb44008a3a9e35de6ac732",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"bindings\":[{\"condition\":{\"expression\":\"request.time \\u003c timestamp('2027-01-01T00:00:00Z')\",\"title\":\"expires\"},\"members\":[\"principal://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/subject/repo:acme/infra:ref:refs/heads/main\",\"user:alice@acme.example\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}"
+      },
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.nested_unknown\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "0901ce8741f64d196d69082c04a2482d0380c569843098c1aff6a5471abb83df",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"references\":[\"google_iam_workload_identity_pool.github.name\"],\"unknown\":[\"attribute_mapping\",\"oidc[0].allowed_audiences\"]}"
+      }
+    ],
+    "source": "{\"bindings\":[{\"condition\":{\"expression\":\"request.time \\u003c timestamp('2027-01-01T00:00:00Z')\",\"title\":\"expires\"},\"members\":[\"principal://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/subject/repo:acme/infra:ref:refs/heads/main\",\"user:alice@acme.example\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}"
+  },
+  {
+    "target": {
+      "kind": "serviceAccount",
+      "id": "projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com"
+    },
+    "issuer": "https://gitlab.com",
+    "effect": "Allow",
+    "admits": "{}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "attribute_condition of google_iam_workload_identity_pool_provider.unknown_condition is known only after apply; the expression references google_iam_workload_identity_pool.github.name, so what the grant admits is not stated and it is read as admitting everything",
+        "source": "google_iam_workload_identity_pool_provider.unknown_condition"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "known-after-apply",
+        "Claim": "",
+        "Construct": "attribute_condition",
+        "Message": "attribute_condition of google_iam_workload_identity_pool_provider.unknown_condition is known only after apply; the expression references google_iam_workload_identity_pool.github.name, so what the grant admits is not stated and it is read as admitting everything",
+        "Source": "google_iam_workload_identity_pool_provider.unknown_condition"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_service_account_iam_binding.ci is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_service_account_iam_binding.ci"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_service_account_iam_binding.ci\",\"attributes\":[\"condition\",\"members\",\"role\"],\"format_version\":\"1.2\",\"from\":\"after\",\"service_account_id\":\"projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "421a1b7ef72bf78d85c5f652a14e81956d0b21b92cdb44008a3a9e35de6ac732",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"bindings\":[{\"condition\":{\"expression\":\"request.time \\u003c timestamp('2027-01-01T00:00:00Z')\",\"title\":\"expires\"},\"members\":[\"principal://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/subject/repo:acme/infra:ref:refs/heads/main\",\"user:alice@acme.example\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}"
+      },
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.unknown_condition\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "c82946667e689350c7f1eec3cb26004a7675a3e0d32502b3e26697e194731895",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"references\":[\"google_iam_workload_identity_pool.github.name\"],\"unknown\":[\"attribute_condition\"]}"
+      }
+    ],
+    "source": "{\"bindings\":[{\"condition\":{\"expression\":\"request.time \\u003c timestamp('2027-01-01T00:00:00Z')\",\"title\":\"expires\"},\"members\":[\"principal://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/subject/repo:acme/infra:ref:refs/heads/main\",\"user:alice@acme.example\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}"
+  },
+  {
+    "target": {
+      "kind": "serviceAccount",
+      "id": "projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com"
+    },
+    "issuer": "",
+    "effect": "Allow",
+    "admits": "{}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "the member user:alice@acme.example is not a workload identity pool principal; what it admits is outside what this reader models and the grant is read as admitting everything",
+        "source": "google_service_account_iam_binding.ci"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "unbound-member",
+        "Claim": "",
+        "Construct": "user:alice@acme.example",
+        "Message": "the member user:alice@acme.example is not a workload identity pool principal; what it admits is outside what this reader models and the grant is read as admitting everything",
+        "Source": "google_service_account_iam_binding.ci"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_service_account_iam_binding.ci is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_service_account_iam_binding.ci"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_service_account_iam_binding.ci\",\"attributes\":[\"condition\",\"members\",\"role\"],\"format_version\":\"1.2\",\"from\":\"after\",\"service_account_id\":\"projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "421a1b7ef72bf78d85c5f652a14e81956d0b21b92cdb44008a3a9e35de6ac732",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"bindings\":[{\"condition\":{\"expression\":\"request.time \\u003c timestamp('2027-01-01T00:00:00Z')\",\"title\":\"expires\"},\"members\":[\"principal://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/subject/repo:acme/infra:ref:refs/heads/main\",\"user:alice@acme.example\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}"
+      }
+    ],
+    "source": "{\"bindings\":[{\"condition\":{\"expression\":\"request.time \\u003c timestamp('2027-01-01T00:00:00Z')\",\"title\":\"expires\"},\"members\":[\"principal://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/subject/repo:acme/infra:ref:refs/heads/main\",\"user:alice@acme.example\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}"
+  },
+  {
+    "target": {
+      "kind": "serviceAccount",
+      "id": "projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "the member selects attribute.repository \"acme/web\", which the attribute mapping does not map, so which claim the member constrains is not stated and the whole pool is read as admitted",
+        "source": "bindings[0].members[0]"
+      },
+      {
+        "claim": "",
+        "reason": "the provider is disabled; Google says a disabled provider cannot be used to exchange tokens but existing tokens still grant access; the flag is set by an update and cleared by another, so the set stated is what the condition admits and is read as an upper bound",
+        "source": "disabled"
+      },
+      {
+        "claim": "",
+        "reason": "the provider has no name of the form projects/<number>/locations/<location>/workloadIdentityPools/<pool>/providers/<provider>, so whether the member's pool \"projects/123456789012/locations/global/workloadIdentityPools/github\" is this provider's is not stated; the binding is read as applying to this provider",
+        "source": "name"
+      },
+      {
+        "claim": "aud",
+        "reason": "allowedAudiences is empty and no name is set, so the audience Google requires, the provider's full resource name, cannot be derived and aud is read as unconstrained",
+        "source": "oidc.allowedAudiences"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "default-audience",
+        "Claim": "aud",
+        "Construct": "allowedAudiences",
+        "Message": "allowedAudiences is empty and no name is set, so the audience Google requires, the provider's full resource name, cannot be derived and aud is read as unconstrained",
+        "Source": "oidc.allowedAudiences"
+      },
+      {
+        "Kind": "provider-disabled",
+        "Claim": "",
+        "Construct": "disabled",
+        "Message": "the provider is disabled; Google says a disabled provider cannot be used to exchange tokens but existing tokens still grant access; the flag is set by an update and cleared by another, so the set stated is what the condition admits and is read as an upper bound",
+        "Source": "disabled"
+      },
+      {
+        "Kind": "unmodelled-construct",
+        "Claim": "",
+        "Construct": "attribute.repository",
+        "Message": "the member selects attribute.repository \"acme/web\", which the attribute mapping does not map, so which claim the member constrains is not stated and the whole pool is read as admitted",
+        "Source": "bindings[0].members[0]"
+      },
+      {
+        "Kind": "unmodelled-construct",
+        "Claim": "",
+        "Construct": "name",
+        "Message": "the provider has no name of the form projects/<number>/locations/<location>/workloadIdentityPools/<pool>/providers/<provider>, so whether the member's pool \"projects/123456789012/locations/global/workloadIdentityPools/github\" is this provider's is not stated; the binding is read as applying to this provider",
+        "Source": "name"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_service_account_iam_binding.self is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_service_account_iam_binding.self"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_service_account_iam_binding.self\",\"attributes\":[\"condition\",\"members\",\"role\"],\"format_version\":\"1.2\",\"from\":\"after\",\"service_account_id\":\"projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "043fa6ad4d9e00831ae84febd0a2f55437d1c4b181a3649bac3ceaaa7cca2ec5",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"bindings\":[{\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/attribute.repository/acme/web\",\"serviceAccount:deploy@acme-prod.iam.gserviceaccount.com\"],\"role\":\"roles/iam.serviceAccountTokenCreator\"}]}"
+      },
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.disabled\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "b3e7899115132998ae9115256b3fc47d426207a729448e52df52a415763fe196",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"attributeMapping\":{\"google.subject\":\"assertion.sub\"},\"disabled\":true,\"oidc\":{\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}"
+      }
+    ],
+    "source": "{\"provider\": {\"attributeMapping\":{\"google.subject\":\"assertion.sub\"},\"disabled\":true,\"oidc\":{\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}, \"binding\": {\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/attribute.repository/acme/web\",\"serviceAccount:deploy@acme-prod.iam.gserviceaccount.com\"],\"role\":\"roles/iam.serviceAccountTokenCreator\"}}"
+  },
+  {
+    "target": {
+      "kind": "serviceAccount",
+      "id": "projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\", repository=\"acme/web\", sub=\"repo:acme/infra:ref:refs/heads/main\"}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "the provider has no name of the form projects/<number>/locations/<location>/workloadIdentityPools/<pool>/providers/<provider>, so whether the member's pool \"projects/123456789012/locations/global/workloadIdentityPools/github\" is this provider's is not stated; the binding is read as applying to this provider",
+        "source": "name"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "unmodelled-construct",
+        "Claim": "",
+        "Construct": "name",
+        "Message": "the provider has no name of the form projects/<number>/locations/<location>/workloadIdentityPools/<pool>/providers/<provider>, so whether the member's pool \"projects/123456789012/locations/global/workloadIdentityPools/github\" is this provider's is not stated; the binding is read as applying to this provider",
+        "Source": "name"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_service_account_iam_binding.self is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_service_account_iam_binding.self"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_service_account_iam_binding.self\",\"attributes\":[\"condition\",\"members\",\"role\"],\"format_version\":\"1.2\",\"from\":\"after\",\"service_account_id\":\"projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "043fa6ad4d9e00831ae84febd0a2f55437d1c4b181a3649bac3ceaaa7cca2ec5",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"bindings\":[{\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/attribute.repository/acme/web\",\"serviceAccount:deploy@acme-prod.iam.gserviceaccount.com\"],\"role\":\"roles/iam.serviceAccountTokenCreator\"}]}"
+      },
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.known\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "7f793229f1734505a77979e605e064f4402f0e5d5183a02dfa46f720d9508f5a",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"attributeCondition\":\"assertion.sub == 'repo:acme/infra:ref:refs/heads/main'\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"displayName\":\"GitHub Actions\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"],\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}"
+      }
+    ],
+    "source": "{\"provider\": {\"attributeCondition\":\"assertion.sub == 'repo:acme/infra:ref:refs/heads/main'\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"displayName\":\"GitHub Actions\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"],\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}, \"binding\": {\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/attribute.repository/acme/web\",\"serviceAccount:deploy@acme-prod.iam.gserviceaccount.com\"],\"role\":\"roles/iam.serviceAccountTokenCreator\"}}"
+  },
+  {
+    "target": {
+      "kind": "serviceAccount",
+      "id": "projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "attribute_mapping and oidc[0].allowed_audiences of google_iam_workload_identity_pool_provider.nested_unknown are known only after apply; the expression references google_iam_workload_identity_pool.github.name, so what the grant admits is not stated and it is read as admitting everything",
+        "source": "google_iam_workload_identity_pool_provider.nested_unknown"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "known-after-apply",
+        "Claim": "",
+        "Construct": "attribute_mapping, oidc[0].allowed_audiences",
+        "Message": "attribute_mapping and oidc[0].allowed_audiences of google_iam_workload_identity_pool_provider.nested_unknown are known only after apply; the expression references google_iam_workload_identity_pool.github.name, so what the grant admits is not stated and it is read as admitting everything",
+        "Source": "google_iam_workload_identity_pool_provider.nested_unknown"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_service_account_iam_binding.self is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_service_account_iam_binding.self"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_service_account_iam_binding.self\",\"attributes\":[\"condition\",\"members\",\"role\"],\"format_version\":\"1.2\",\"from\":\"after\",\"service_account_id\":\"projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "043fa6ad4d9e00831ae84febd0a2f55437d1c4b181a3649bac3ceaaa7cca2ec5",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"bindings\":[{\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/attribute.repository/acme/web\",\"serviceAccount:deploy@acme-prod.iam.gserviceaccount.com\"],\"role\":\"roles/iam.serviceAccountTokenCreator\"}]}"
+      },
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.nested_unknown\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "0901ce8741f64d196d69082c04a2482d0380c569843098c1aff6a5471abb83df",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"references\":[\"google_iam_workload_identity_pool.github.name\"],\"unknown\":[\"attribute_mapping\",\"oidc[0].allowed_audiences\"]}"
+      }
+    ],
+    "source": "{\"bindings\":[{\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/attribute.repository/acme/web\",\"serviceAccount:deploy@acme-prod.iam.gserviceaccount.com\"],\"role\":\"roles/iam.serviceAccountTokenCreator\"}]}"
+  },
+  {
+    "target": {
+      "kind": "serviceAccount",
+      "id": "projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com"
+    },
+    "issuer": "https://gitlab.com",
+    "effect": "Allow",
+    "admits": "{}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "attribute_condition of google_iam_workload_identity_pool_provider.unknown_condition is known only after apply; the expression references google_iam_workload_identity_pool.github.name, so what the grant admits is not stated and it is read as admitting everything",
+        "source": "google_iam_workload_identity_pool_provider.unknown_condition"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "known-after-apply",
+        "Claim": "",
+        "Construct": "attribute_condition",
+        "Message": "attribute_condition of google_iam_workload_identity_pool_provider.unknown_condition is known only after apply; the expression references google_iam_workload_identity_pool.github.name, so what the grant admits is not stated and it is read as admitting everything",
+        "Source": "google_iam_workload_identity_pool_provider.unknown_condition"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_service_account_iam_binding.self is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_service_account_iam_binding.self"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_service_account_iam_binding.self\",\"attributes\":[\"condition\",\"members\",\"role\"],\"format_version\":\"1.2\",\"from\":\"after\",\"service_account_id\":\"projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "043fa6ad4d9e00831ae84febd0a2f55437d1c4b181a3649bac3ceaaa7cca2ec5",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"bindings\":[{\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/attribute.repository/acme/web\",\"serviceAccount:deploy@acme-prod.iam.gserviceaccount.com\"],\"role\":\"roles/iam.serviceAccountTokenCreator\"}]}"
+      },
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.unknown_condition\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "c82946667e689350c7f1eec3cb26004a7675a3e0d32502b3e26697e194731895",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"references\":[\"google_iam_workload_identity_pool.github.name\"],\"unknown\":[\"attribute_condition\"]}"
+      }
+    ],
+    "source": "{\"bindings\":[{\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/attribute.repository/acme/web\",\"serviceAccount:deploy@acme-prod.iam.gserviceaccount.com\"],\"role\":\"roles/iam.serviceAccountTokenCreator\"}]}"
+  },
+  {
+    "target": {
+      "kind": "serviceAccount",
+      "id": "projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com"
+    },
+    "issuer": "",
+    "effect": "Allow",
+    "admits": "{}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "the member serviceAccount:deploy@acme-prod.iam.gserviceaccount.com is not a workload identity pool principal; what it admits is outside what this reader models and the grant is read as admitting everything",
+        "source": "google_service_account_iam_binding.self"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "unbound-member",
+        "Claim": "",
+        "Construct": "serviceAccount:deploy@acme-prod.iam.gserviceaccount.com",
+        "Message": "the member serviceAccount:deploy@acme-prod.iam.gserviceaccount.com is not a workload identity pool principal; what it admits is outside what this reader models and the grant is read as admitting everything",
+        "Source": "google_service_account_iam_binding.self"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_service_account_iam_binding.self is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_service_account_iam_binding.self"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_service_account_iam_binding.self\",\"attributes\":[\"condition\",\"members\",\"role\"],\"format_version\":\"1.2\",\"from\":\"after\",\"service_account_id\":\"projects/acme-prod/serviceAccounts/ci-runner@acme-prod.iam.gserviceaccount.com\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "043fa6ad4d9e00831ae84febd0a2f55437d1c4b181a3649bac3ceaaa7cca2ec5",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"bindings\":[{\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/attribute.repository/acme/web\",\"serviceAccount:deploy@acme-prod.iam.gserviceaccount.com\"],\"role\":\"roles/iam.serviceAccountTokenCreator\"}]}"
+      }
+    ],
+    "source": "{\"bindings\":[{\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/attribute.repository/acme/web\",\"serviceAccount:deploy@acme-prod.iam.gserviceaccount.com\"],\"role\":\"roles/iam.serviceAccountTokenCreator\"}]}"
+  },
+  {
+    "target": {
+      "kind": "serviceAccount",
+      "id": "google_service_account.deploy"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "the member selects attribute.repository \"acme/infra\", which the attribute mapping does not map, so which claim the member constrains is not stated and the whole pool is read as admitted",
+        "source": "bindings[0].members[0]"
+      },
+      {
+        "claim": "",
+        "reason": "the provider is disabled; Google says a disabled provider cannot be used to exchange tokens but existing tokens still grant access; the flag is set by an update and cleared by another, so the set stated is what the condition admits and is read as an upper bound",
+        "source": "disabled"
+      },
+      {
+        "claim": "",
+        "reason": "the provider has no name of the form projects/<number>/locations/<location>/workloadIdentityPools/<pool>/providers/<provider>, so whether the member's pool \"projects/123456789012/locations/global/workloadIdentityPools/github\" is this provider's is not stated; the binding is read as applying to this provider",
+        "source": "name"
+      },
+      {
+        "claim": "aud",
+        "reason": "allowedAudiences is empty and no name is set, so the audience Google requires, the provider's full resource name, cannot be derived and aud is read as unconstrained",
+        "source": "oidc.allowedAudiences"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "default-audience",
+        "Claim": "aud",
+        "Construct": "allowedAudiences",
+        "Message": "allowedAudiences is empty and no name is set, so the audience Google requires, the provider's full resource name, cannot be derived and aud is read as unconstrained",
+        "Source": "oidc.allowedAudiences"
+      },
+      {
+        "Kind": "provider-disabled",
+        "Claim": "",
+        "Construct": "disabled",
+        "Message": "the provider is disabled; Google says a disabled provider cannot be used to exchange tokens but existing tokens still grant access; the flag is set by an update and cleared by another, so the set stated is what the condition admits and is read as an upper bound",
+        "Source": "disabled"
+      },
+      {
+        "Kind": "unmodelled-construct",
+        "Claim": "",
+        "Construct": "attribute.repository",
+        "Message": "the member selects attribute.repository \"acme/infra\", which the attribute mapping does not map, so which claim the member constrains is not stated and the whole pool is read as admitted",
+        "Source": "bindings[0].members[0]"
+      },
+      {
+        "Kind": "unmodelled-construct",
+        "Claim": "",
+        "Construct": "name",
+        "Message": "the provider has no name of the form projects/<number>/locations/<location>/workloadIdentityPools/<pool>/providers/<provider>, so whether the member's pool \"projects/123456789012/locations/global/workloadIdentityPools/github\" is this provider's is not stated; the binding is read as applying to this provider",
+        "Source": "name"
+      },
+      {
+        "Kind": "target-after-apply",
+        "Claim": "",
+        "Construct": "service_account_id",
+        "Message": "service_account_id of google_service_account_iam_member.deploy is known only after apply; the target is named by the address of the resource the expression references, google_service_account.deploy",
+        "Source": "google_service_account_iam_member.deploy"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_service_account_iam_member.deploy is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_service_account_iam_member.deploy"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_service_account_iam_member.deploy\",\"attributes\":[\"condition\",\"member\",\"role\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "6bd9122877f73c836dc36c4c2c02ffdd22a6f97bf8e4d49b31e7af840bb68608",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"bindings\":[{\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/attribute.repository/acme/infra\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}"
+      },
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.disabled\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "b3e7899115132998ae9115256b3fc47d426207a729448e52df52a415763fe196",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"attributeMapping\":{\"google.subject\":\"assertion.sub\"},\"disabled\":true,\"oidc\":{\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}"
+      }
+    ],
+    "source": "{\"provider\": {\"attributeMapping\":{\"google.subject\":\"assertion.sub\"},\"disabled\":true,\"oidc\":{\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}, \"binding\": {\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/attribute.repository/acme/infra\"],\"role\":\"roles/iam.workloadIdentityUser\"}}"
+  },
+  {
+    "target": {
+      "kind": "serviceAccount",
+      "id": "google_service_account.deploy"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\", repository=\"acme/infra\", sub=\"repo:acme/infra:ref:refs/heads/main\"}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "the provider has no name of the form projects/<number>/locations/<location>/workloadIdentityPools/<pool>/providers/<provider>, so whether the member's pool \"projects/123456789012/locations/global/workloadIdentityPools/github\" is this provider's is not stated; the binding is read as applying to this provider",
+        "source": "name"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "unmodelled-construct",
+        "Claim": "",
+        "Construct": "name",
+        "Message": "the provider has no name of the form projects/<number>/locations/<location>/workloadIdentityPools/<pool>/providers/<provider>, so whether the member's pool \"projects/123456789012/locations/global/workloadIdentityPools/github\" is this provider's is not stated; the binding is read as applying to this provider",
+        "Source": "name"
+      },
+      {
+        "Kind": "target-after-apply",
+        "Claim": "",
+        "Construct": "service_account_id",
+        "Message": "service_account_id of google_service_account_iam_member.deploy is known only after apply; the target is named by the address of the resource the expression references, google_service_account.deploy",
+        "Source": "google_service_account_iam_member.deploy"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_service_account_iam_member.deploy is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_service_account_iam_member.deploy"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_service_account_iam_member.deploy\",\"attributes\":[\"condition\",\"member\",\"role\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "6bd9122877f73c836dc36c4c2c02ffdd22a6f97bf8e4d49b31e7af840bb68608",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"bindings\":[{\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/attribute.repository/acme/infra\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}"
+      },
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.known\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "7f793229f1734505a77979e605e064f4402f0e5d5183a02dfa46f720d9508f5a",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"attributeCondition\":\"assertion.sub == 'repo:acme/infra:ref:refs/heads/main'\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"displayName\":\"GitHub Actions\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"],\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}"
+      }
+    ],
+    "source": "{\"provider\": {\"attributeCondition\":\"assertion.sub == 'repo:acme/infra:ref:refs/heads/main'\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"displayName\":\"GitHub Actions\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"],\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}, \"binding\": {\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/attribute.repository/acme/infra\"],\"role\":\"roles/iam.workloadIdentityUser\"}}"
+  },
+  {
+    "target": {
+      "kind": "serviceAccount",
+      "id": "google_service_account.deploy"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "attribute_mapping and oidc[0].allowed_audiences of google_iam_workload_identity_pool_provider.nested_unknown are known only after apply; the expression references google_iam_workload_identity_pool.github.name, so what the grant admits is not stated and it is read as admitting everything",
+        "source": "google_iam_workload_identity_pool_provider.nested_unknown"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "known-after-apply",
+        "Claim": "",
+        "Construct": "attribute_mapping, oidc[0].allowed_audiences",
+        "Message": "attribute_mapping and oidc[0].allowed_audiences of google_iam_workload_identity_pool_provider.nested_unknown are known only after apply; the expression references google_iam_workload_identity_pool.github.name, so what the grant admits is not stated and it is read as admitting everything",
+        "Source": "google_iam_workload_identity_pool_provider.nested_unknown"
+      },
+      {
+        "Kind": "target-after-apply",
+        "Claim": "",
+        "Construct": "service_account_id",
+        "Message": "service_account_id of google_service_account_iam_member.deploy is known only after apply; the target is named by the address of the resource the expression references, google_service_account.deploy",
+        "Source": "google_service_account_iam_member.deploy"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_service_account_iam_member.deploy is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_service_account_iam_member.deploy"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_service_account_iam_member.deploy\",\"attributes\":[\"condition\",\"member\",\"role\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "6bd9122877f73c836dc36c4c2c02ffdd22a6f97bf8e4d49b31e7af840bb68608",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"bindings\":[{\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/attribute.repository/acme/infra\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}"
+      },
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.nested_unknown\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "0901ce8741f64d196d69082c04a2482d0380c569843098c1aff6a5471abb83df",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"references\":[\"google_iam_workload_identity_pool.github.name\"],\"unknown\":[\"attribute_mapping\",\"oidc[0].allowed_audiences\"]}"
+      }
+    ],
+    "source": "{\"bindings\":[{\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/attribute.repository/acme/infra\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}"
+  },
+  {
+    "target": {
+      "kind": "serviceAccount",
+      "id": "google_service_account.deploy"
+    },
+    "issuer": "https://gitlab.com",
+    "effect": "Allow",
+    "admits": "{}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "attribute_condition of google_iam_workload_identity_pool_provider.unknown_condition is known only after apply; the expression references google_iam_workload_identity_pool.github.name, so what the grant admits is not stated and it is read as admitting everything",
+        "source": "google_iam_workload_identity_pool_provider.unknown_condition"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "known-after-apply",
+        "Claim": "",
+        "Construct": "attribute_condition",
+        "Message": "attribute_condition of google_iam_workload_identity_pool_provider.unknown_condition is known only after apply; the expression references google_iam_workload_identity_pool.github.name, so what the grant admits is not stated and it is read as admitting everything",
+        "Source": "google_iam_workload_identity_pool_provider.unknown_condition"
+      },
+      {
+        "Kind": "target-after-apply",
+        "Claim": "",
+        "Construct": "service_account_id",
+        "Message": "service_account_id of google_service_account_iam_member.deploy is known only after apply; the target is named by the address of the resource the expression references, google_service_account.deploy",
+        "Source": "google_service_account_iam_member.deploy"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_service_account_iam_member.deploy is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_service_account_iam_member.deploy"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_service_account_iam_member.deploy\",\"attributes\":[\"condition\",\"member\",\"role\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "6bd9122877f73c836dc36c4c2c02ffdd22a6f97bf8e4d49b31e7af840bb68608",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"bindings\":[{\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/attribute.repository/acme/infra\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}"
+      },
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.unknown_condition\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "c82946667e689350c7f1eec3cb26004a7675a3e0d32502b3e26697e194731895",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"references\":[\"google_iam_workload_identity_pool.github.name\"],\"unknown\":[\"attribute_condition\"]}"
+      }
+    ],
+    "source": "{\"bindings\":[{\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/attribute.repository/acme/infra\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}"
+  },
+  {
+    "target": {
+      "kind": "serviceAccount",
+      "id": "projects/acme-prod/serviceAccounts/release@acme-prod.iam.gserviceaccount.com"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "the provider is disabled; Google says a disabled provider cannot be used to exchange tokens but existing tokens still grant access; the flag is set by an update and cleared by another, so the set stated is what the condition admits and is read as an upper bound",
+        "source": "disabled"
+      },
+      {
+        "claim": "",
+        "reason": "the provider has no name of the form projects/<number>/locations/<location>/workloadIdentityPools/<pool>/providers/<provider>, so whether the member's pool \"projects/123456789012/locations/global/workloadIdentityPools/github\" is this provider's is not stated; the binding is read as applying to this provider",
+        "source": "name"
+      },
+      {
+        "claim": "aud",
+        "reason": "allowedAudiences is empty and no name is set, so the audience Google requires, the provider's full resource name, cannot be derived and aud is read as unconstrained",
+        "source": "oidc.allowedAudiences"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "default-audience",
+        "Claim": "aud",
+        "Construct": "allowedAudiences",
+        "Message": "allowedAudiences is empty and no name is set, so the audience Google requires, the provider's full resource name, cannot be derived and aud is read as unconstrained",
+        "Source": "oidc.allowedAudiences"
+      },
+      {
+        "Kind": "provider-disabled",
+        "Claim": "",
+        "Construct": "disabled",
+        "Message": "the provider is disabled; Google says a disabled provider cannot be used to exchange tokens but existing tokens still grant access; the flag is set by an update and cleared by another, so the set stated is what the condition admits and is read as an upper bound",
+        "Source": "disabled"
+      },
+      {
+        "Kind": "unmodelled-construct",
+        "Claim": "",
+        "Construct": "name",
+        "Message": "the provider has no name of the form projects/<number>/locations/<location>/workloadIdentityPools/<pool>/providers/<provider>, so whether the member's pool \"projects/123456789012/locations/global/workloadIdentityPools/github\" is this provider's is not stated; the binding is read as applying to this provider",
+        "Source": "name"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_service_account_iam_policy.release is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_service_account_iam_policy.release"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_service_account_iam_policy.release\",\"attributes\":[\"policy_data\"],\"format_version\":\"1.2\",\"from\":\"after\",\"service_account_id\":\"projects/acme-prod/serviceAccounts/release@acme-prod.iam.gserviceaccount.com\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "5191222f345277b2a1334fa96a9b37c864886e6d890864a9c4ee905711dc3fec",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"bindings\":[{\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/*\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}"
+      },
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.disabled\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "b3e7899115132998ae9115256b3fc47d426207a729448e52df52a415763fe196",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"attributeMapping\":{\"google.subject\":\"assertion.sub\"},\"disabled\":true,\"oidc\":{\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}"
+      }
+    ],
+    "source": "{\"provider\": {\"attributeMapping\":{\"google.subject\":\"assertion.sub\"},\"disabled\":true,\"oidc\":{\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}, \"binding\": {\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/*\"],\"role\":\"roles/iam.workloadIdentityUser\"}}"
+  },
+  {
+    "target": {
+      "kind": "serviceAccount",
+      "id": "projects/acme-prod/serviceAccounts/release@acme-prod.iam.gserviceaccount.com"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{aud=\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\", sub=\"repo:acme/infra:ref:refs/heads/main\"}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "the provider has no name of the form projects/<number>/locations/<location>/workloadIdentityPools/<pool>/providers/<provider>, so whether the member's pool \"projects/123456789012/locations/global/workloadIdentityPools/github\" is this provider's is not stated; the binding is read as applying to this provider",
+        "source": "name"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "unmodelled-construct",
+        "Claim": "",
+        "Construct": "name",
+        "Message": "the provider has no name of the form projects/<number>/locations/<location>/workloadIdentityPools/<pool>/providers/<provider>, so whether the member's pool \"projects/123456789012/locations/global/workloadIdentityPools/github\" is this provider's is not stated; the binding is read as applying to this provider",
+        "Source": "name"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_service_account_iam_policy.release is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_service_account_iam_policy.release"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_service_account_iam_policy.release\",\"attributes\":[\"policy_data\"],\"format_version\":\"1.2\",\"from\":\"after\",\"service_account_id\":\"projects/acme-prod/serviceAccounts/release@acme-prod.iam.gserviceaccount.com\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "5191222f345277b2a1334fa96a9b37c864886e6d890864a9c4ee905711dc3fec",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"bindings\":[{\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/*\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}"
+      },
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.known\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "7f793229f1734505a77979e605e064f4402f0e5d5183a02dfa46f720d9508f5a",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"attributeCondition\":\"assertion.sub == 'repo:acme/infra:ref:refs/heads/main'\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"displayName\":\"GitHub Actions\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"],\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}"
+      }
+    ],
+    "source": "{\"provider\": {\"attributeCondition\":\"assertion.sub == 'repo:acme/infra:ref:refs/heads/main'\",\"attributeMapping\":{\"attribute.repository\":\"assertion.repository\",\"attribute.repository_owner_id\":\"assertion.repository_owner_id\",\"google.subject\":\"assertion.sub\"},\"displayName\":\"GitHub Actions\",\"oidc\":{\"allowedAudiences\":[\"https://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/providers/github\"],\"issuerUri\":\"https://token.actions.githubusercontent.com\"}}, \"binding\": {\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/*\"],\"role\":\"roles/iam.workloadIdentityUser\"}}"
+  },
+  {
+    "target": {
+      "kind": "serviceAccount",
+      "id": "projects/acme-prod/serviceAccounts/release@acme-prod.iam.gserviceaccount.com"
+    },
+    "issuer": "https://token.actions.githubusercontent.com",
+    "effect": "Allow",
+    "admits": "{}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "attribute_mapping and oidc[0].allowed_audiences of google_iam_workload_identity_pool_provider.nested_unknown are known only after apply; the expression references google_iam_workload_identity_pool.github.name, so what the grant admits is not stated and it is read as admitting everything",
+        "source": "google_iam_workload_identity_pool_provider.nested_unknown"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "known-after-apply",
+        "Claim": "",
+        "Construct": "attribute_mapping, oidc[0].allowed_audiences",
+        "Message": "attribute_mapping and oidc[0].allowed_audiences of google_iam_workload_identity_pool_provider.nested_unknown are known only after apply; the expression references google_iam_workload_identity_pool.github.name, so what the grant admits is not stated and it is read as admitting everything",
+        "Source": "google_iam_workload_identity_pool_provider.nested_unknown"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_service_account_iam_policy.release is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_service_account_iam_policy.release"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_service_account_iam_policy.release\",\"attributes\":[\"policy_data\"],\"format_version\":\"1.2\",\"from\":\"after\",\"service_account_id\":\"projects/acme-prod/serviceAccounts/release@acme-prod.iam.gserviceaccount.com\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "5191222f345277b2a1334fa96a9b37c864886e6d890864a9c4ee905711dc3fec",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"bindings\":[{\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/*\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}"
+      },
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.nested_unknown\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "0901ce8741f64d196d69082c04a2482d0380c569843098c1aff6a5471abb83df",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"references\":[\"google_iam_workload_identity_pool.github.name\"],\"unknown\":[\"attribute_mapping\",\"oidc[0].allowed_audiences\"]}"
+      }
+    ],
+    "source": "{\"bindings\":[{\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/*\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}"
+  },
+  {
+    "target": {
+      "kind": "serviceAccount",
+      "id": "projects/acme-prod/serviceAccounts/release@acme-prod.iam.gserviceaccount.com"
+    },
+    "issuer": "https://gitlab.com",
+    "effect": "Allow",
+    "admits": "{}",
+    "exact": false,
+    "caveats": [
+      {
+        "claim": "",
+        "reason": "attribute_condition of google_iam_workload_identity_pool_provider.unknown_condition is known only after apply; the expression references google_iam_workload_identity_pool.github.name, so what the grant admits is not stated and it is read as admitting everything",
+        "source": "google_iam_workload_identity_pool_provider.unknown_condition"
+      }
+    ],
+    "anomalies": [
+      {
+        "Kind": "known-after-apply",
+        "Claim": "",
+        "Construct": "attribute_condition",
+        "Message": "attribute_condition of google_iam_workload_identity_pool_provider.unknown_condition is known only after apply; the expression references google_iam_workload_identity_pool.github.name, so what the grant admits is not stated and it is read as admitting everything",
+        "Source": "google_iam_workload_identity_pool_provider.unknown_condition"
+      },
+      {
+        "Kind": "terraform-origin",
+        "Claim": "",
+        "Construct": "plan",
+        "Message": "google_service_account_iam_policy.release is read from the plan, as Terraform will send it, provider-normalised; the deployed resource was not fetched from the cloud",
+        "Source": "google_service_account_iam_policy.release"
+      }
+    ],
+    "provenance": [
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_service_account_iam_policy.release\",\"attributes\":[\"policy_data\"],\"format_version\":\"1.2\",\"from\":\"after\",\"service_account_id\":\"projects/acme-prod/serviceAccounts/release@acme-prod.iam.gserviceaccount.com\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "5191222f345277b2a1334fa96a9b37c864886e6d890864a9c4ee905711dc3fec",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"bindings\":[{\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/*\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}"
+      },
+      {
+        "api": "terraform/plan",
+        "params": "{\"address\":\"google_iam_workload_identity_pool_provider.unknown_condition\",\"attributes\":[\"attribute_condition\",\"attribute_mapping\",\"aws\",\"disabled\",\"oidc\",\"saml\",\"x509\"],\"format_version\":\"1.2\",\"from\":\"after\",\"source\":\"02-gcp-plan/plan.json\",\"terraform_version\":\"1.15.5\"}",
+        "status": "ok",
+        "sha256": "c82946667e689350c7f1eec3cb26004a7675a3e0d32502b3e26697e194731895",
+        "fetched_at": "2026-09-14T00:00:00Z",
+        "bytes": "{\"references\":[\"google_iam_workload_identity_pool.github.name\"],\"unknown\":[\"attribute_condition\"]}"
+      }
+    ],
+    "source": "{\"bindings\":[{\"members\":[\"principalSet://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/*\"],\"role\":\"roles/iam.workloadIdentityUser\"}]}"
+  }
+]

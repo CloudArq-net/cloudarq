@@ -1,0 +1,26 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowCognitoIdentities",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "cognito-identity.amazonaws.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "cognito-identity.amazonaws.com:aud": "us-east-1:0f2b7c1e-5a3d-4e6f-9b8a-1c2d3e4f5a6b"
+        }
+      }
+    },
+    {
+      "Sid": "DenyTheCognitoService",
+      "Effect": "Deny",
+      "Principal": {
+        "Service": "cognito-identity.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "UnsurveyedIssuer",
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/ci.example.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "ci.example.com:aud": "sts.amazonaws.com",
+          "ci.example.com:sub": "acme/infra"
+        }
+      }
+    }
+  ]
+}

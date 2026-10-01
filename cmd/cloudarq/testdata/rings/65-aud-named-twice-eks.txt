@@ -1,0 +1,31 @@
+read as an aws trust policy · version 2012-10-17 · 637 bytes · 21 lines · 1 statement
+sha256 923fa1d9c12a88b01ba8d4ce0577c8f8bb1a47caf72b63628333ca169c39c942
+
+A named outsider can assume this role.
+
+  Anyone                exact           No grant is placed with people who have no account anywhere.
+  Anyone on a platform  exact           No grant is placed at a whole platform.
+  A named outsider      exact  grant 1  issuer:https://oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE can assume this role and is not declared as yours.
+  Your pipelines        exact           No grant is confined to owners declared as yours.
+  Your people           exact           No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] "PodWithTwoAudiences" · Allow · https://oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE · outsider · exact
+Who this statement admits is not known: StringEquals on aud has no set prefix, and a token of "https://oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE" may carry several values in the claim AWS reads the condition key "oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE:aud" from; how many of them AWS compares, and what an operator without a set prefix does on them, AWS does not document, so the claim is not constrained; StringLike on aud has no set prefix, and a token of "https://oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE" may carry several values in the claim AWS reads the condition key "oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE:aud" from; how many of them AWS compares, and what an operator without a set prefix does on them, AWS does not document, so the claim is not constrained.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  StringEquals on aud has no set prefix, and a token of "https://oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE" may carry several values in the claim AWS reads the condition key "oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE:aud" from; how many of them AWS compares, and what an operator without a set prefix does on them, AWS does not document, so the claim is not constrained
+     caveat · aud · statement[0].Condition
+  2  StringLike on aud has no set prefix, and a token of "https://oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE" may carry several values in the claim AWS reads the condition key "oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE:aud" from; how many of them AWS compares, and what an operator without a set prefix does on them, AWS does not document, so the claim is not constrained
+     caveat · aud · statement[0].Condition
+  3  same as note 1
+     anomaly · unmodelled-construct · aud · oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE:aud · statement[0].Condition
+  4  same as note 2
+     anomaly · unmodelled-construct · aud · oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE:aud · statement[0].Condition
+
+statement[0] "PodWithTwoAudiences" · offset 50 · 580 bytes · lines 4-19 · issuer at line 8 Principal.Federated · sha256 6a4d2b560fa49a97c6b3c4a5b5dae55cb9d5d22d3e5277b508acd40b9fd087c6

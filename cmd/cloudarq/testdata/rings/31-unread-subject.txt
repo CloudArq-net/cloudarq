@@ -1,0 +1,36 @@
+read as an aws trust policy · version 2012-10-17 · 561 bytes · 21 lines · 1 statement
+sha256 656e612c4b68d2287b82baf2eac0827a2a2b459187bc385c0e7b8a0eb2573796
+
+Anyone on GitHub could assume this role.
+
+  Anyone            exact             No grant is placed with people who have no account anywhere.
+  Anyone on GitHub  unknown  grant 1  Anyone on GitHub could assume this role; one of its conditions was not read.
+  A named outsider  exact             No grant is placed with a named outsider.
+  Your pipelines    exact             No grant is confined to owners declared as yours.
+  Your people       exact             No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] "SubjectUnderForAllValues" · Allow · https://token.actions.githubusercontent.com · platform · unknown
+This role admits any token from token.actions.githubusercontent.com whose aud is sts.amazonaws.com and whose sub was not evaluated, so the set shown is an upper bound.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS                        IN WORDS · AS WRITTEN
+aud              "sts.amazonaws.com"           exactly this audience · line 13 StringEquals
+sub              ?("ForAllValues:StringLike")  not evaluated · note 1 · line 16 ForAllValues:StringLike
+any other claim  any                           unconstrained · no condition names it
+
+notes
+  1  ForAllValues:StringLike on sub passes when the claim is absent, so it does not restrict what it looks like it restricts
+     caveat · sub · statement[0].Condition
+  2  same as note 1
+     anomaly · unmodelled-construct · sub · ForAllValues:StringLike · statement[0].Condition
+
+a token this grant admits
+  {
+    "iss": "https://token.actions.githubusercontent.com",
+    "aud": "sts.amazonaws.com"
+  }
+The decoded payload. A claim not shown and not named by the grant is unconstrained, but for azp; sub is not shown because it was not evaluated, so whether it excludes a token is not decided here. It sets no azp: AWS reads aud from azp whenever a token sets one.
+
+statement[0] "SubjectUnderForAllValues" · offset 50 · 504 bytes · lines 4-19 · issuer at line 8 Principal.Federated · sha256 8d56eef1a64fd6682ff28312913f174224dea048a5456090f507e5a7d25d954d

@@ -1,0 +1,49 @@
+read as an aws trust policy · version 2012-10-17 · 179 bytes · 11 lines · 1 statement
+sha256 a8cdd34e9ee7a7a44e9502f827a16586c0a85a344b3ccec4926a97ae5c5f29d3
+
+Anyone on AWS can assume this role; so can cloud services.
+
+  Anyone            unknown           No grant is placed with people who have no account anywhere.
+  Anyone on AWS     exact    grant 2  Anyone on AWS can assume this role; no condition confines callers to one account or organisation.
+  A named outsider  exact             No grant is placed with a named outsider.
+  Your pipelines    exact             No grant is confined to owners declared as yours.
+  Your people       exact             No grant trusts a SAML provider declared as yours.
+  ──
+  Cloud services    unknown  grant 1  Any cloud service can assume this role; which ones, and for whom, is not read.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 2 · statement[0] "AnyoneAssumeRole" · Allow · service · unknown
+Who this statement admits is not known: the statement applies to every principal, and which AWS services it covers through sts:AssumeRole is not known.
+The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  the statement applies to every principal, and which AWS services it covers through sts:AssumeRole is not known
+     caveat · statement[0].Principal
+  2  the statement applies to every principal, including anonymous ones
+     anomaly · any-principal · Principal · statement[0].Principal
+  3  same as note 1
+     anomaly · unmodelled-construct · Principal · statement[0].Principal
+
+statement[0] "AnyoneAssumeRole" · offset 50 · 122 bytes · lines 4-9 · issuer at line 7 Principal · sha256 dcc586eb12bb6d02233225307211fc3d63815306196485630174b60aebdf817f
+
+grant 2 of 2 · statement[0] "AnyoneAssumeRole" · Allow · aws:sts · platform · exact
+This role admits every AWS principal, in any account: no condition constrains this statement.
+Exact means the set is known exactly, not that it is small: no construct went unevaluated.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+sub              any     any subject · no condition names it
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  the statement applies to every principal, including anonymous ones
+     anomaly · any-principal · Principal · statement[0].Principal
+
+a token this grant admits
+  {}
+The decoded payload. A claim not shown is unconstrained by this grant, and none of the claims shown names an identity: whoever holds a token like this is admitted.
+
+statement[0] "AnyoneAssumeRole" · offset 50 · 122 bytes · lines 4-9 · issuer at line 7 Principal · sha256 dcc586eb12bb6d02233225307211fc3d63815306196485630174b60aebdf817f
