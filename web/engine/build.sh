@@ -50,8 +50,15 @@ echo "── build ──"
 # measurable cost in time, and the loader replaces an instance that trapped
 # (web/engine/engine.ts). The trapping fixture is built the same way, so that
 # the recovery it proves is the real module's.
-tinygo build -o "$work/engine.wasm" -target web/wasm/target.json -buildmode=c-shared -scheduler=none -opt=s -no-debug -panic=trap ./web/wasm
-tinygo build -o "$work/trapping.wasm" -target wasm -buildmode=c-shared -scheduler=none -opt=s -no-debug -panic=trap ./web/wasm
+#
+# The version the findings name is the commit's, as git describes it: the tag
+# alone on a release, as `go install …@v0.2.0` records it for the command.
+version=$(git describe --tags --always --dirty 2>/dev/null || echo 0.0.0-dev)
+version=${version#v}
+export CLOUDARQ_ENGINE_VERSION="$version"
+stamp=(-ldflags "-X main.version=$version")
+tinygo build -o "$work/engine.wasm" -target web/wasm/target.json -buildmode=c-shared -scheduler=none -opt=s -no-debug -panic=trap "${stamp[@]}" ./web/wasm
+tinygo build -o "$work/trapping.wasm" -target wasm -buildmode=c-shared -scheduler=none -opt=s -no-debug -panic=trap "${stamp[@]}" ./web/wasm
 wasm-opt -Os --enable-bulk-memory --enable-nontrapping-float-to-int --enable-sign-ext \
   --enable-mutable-globals --enable-reference-types --enable-multivalue \
   "$work/engine.wasm" -o "$work/cloudarq.wasm"
@@ -124,7 +131,7 @@ echo "── what -opt=z would cost ──"
 # Not spent, and measured rather than remembered: the same engine built for
 # size, its compressed size against the budget and its time on the
 # 50-statement policy the differential wrote.
-tinygo build -o "$work/engine-z.wasm" -target web/wasm/target.json -buildmode=c-shared -scheduler=none -opt=z -no-debug -panic=trap ./web/wasm
+tinygo build -o "$work/engine-z.wasm" -target web/wasm/target.json -buildmode=c-shared -scheduler=none -opt=z -no-debug -panic=trap "${stamp[@]}" ./web/wasm
 wasm-opt -Oz --enable-bulk-memory --enable-nontrapping-float-to-int --enable-sign-ext \
   --enable-mutable-globals --enable-reference-types --enable-multivalue \
   "$work/engine-z.wasm" -o "$work/cloudarq-z.wasm"

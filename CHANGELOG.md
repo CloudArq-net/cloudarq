@@ -1,5 +1,28 @@
 # Changelog
 
+## v0.2.0
+
+A whole AWS account, read by you and answered offline.
+
+- `cloudarq-collect aws`, a second command in its own module (`internal/collect`), reads the
+  AWS account your credentials belong to and writes one bundle, `cloudarq.collect/v1`, on
+  standard output: the account, its alias, and every role with its trust policy, as `ListRoles`
+  paged them. It only reads, with your own credentials from AWS's standard chain, and calls STS
+  and IAM to read. Every call AWS refuses, and every cap the collector meets, is written into the
+  bundle in AWS's own code and words; `--explain` names each call before it is made. It exits 0
+  for a whole read, 3 for a partial one with the bundle still written, 1 when the account
+  could not be learned, and 2 for a command line it does not understand. The AWS SDK for Go v2
+  enters only its module: a test fails if any package of the engine's module reaches a cloud
+  SDK. Each release attaches it built for macOS and Linux, on Intel and ARM.
+- `cloudarq admits --bundle <file|->` answers every role of a bundle, each as `admits` answers
+  its trust policy alone, with the owners `--owner` declares. With `--json` it prints them as
+  findings, `cloudarq.findings/v1`: each role's answer beside the SHA-256 of its policy, the
+  SHA-256 of the bundle and the engine's version. A bundle that is not one AWS account's in
+  this format is refused in words, and a role whose policy is not read is exit code 1, named on
+  standard error.
+- The WebAssembly engine exports `findings(bundle, owners)`, and its loader takes the bundle as
+  the file's bytes. The differential holds its findings to the native engine's, byte for byte.
+
 ## v0.1.0
 
 The first release.

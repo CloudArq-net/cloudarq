@@ -38,7 +38,7 @@ if (!wasmPath || !nativeBin || !work) {
 const { loadEngine } = await import("./engine.ts");
 const engineModule = await WebAssembly.compile(readFileSync(wasmPath));
 const engine = await loadEngine(engineModule);
-for (const name of ["admits", "explain"]) {
+for (const name of ["admits", "explain", "findings"]) {
   if (typeof engine[name] !== "function") {
     console.error(`the loader did not return ${name}`);
     process.exit(1);
@@ -151,7 +151,44 @@ for (const file of documents) {
     compare(`explain ${file} with ${label}`, explain(text, readFileSync(path, "utf8")), native("explain", file, path));
   }
 }
-console.log(`differential: ${documents.length} documents (${corpus.length} of the corpus, ${Object.keys(shapes).length} generated) through admits, ${explains} explain calls, ${differences} differences`);
+// Findings: one bundle holding every document above as a role's trust
+// policy, as cloudarq-collect writes one, answered with no owner and with
+// owners declared; then bundles the engine refuses. The engine's name is the
+// one build.sh stamped into the module.
+const engineName = `cloudarq ${process.env.CLOUDARQ_ENGINE_VERSION ?? "0.0.0-dev"}`;
+const collected = (documentsAsRoles, edit = b => b) => JSON.stringify(edit({
+  format: "cloudarq.collect/v1", provider: "aws", account: "123456789012", partition: "aws", alias: "production",
+  collected_at: "2026-10-02T18:00:00Z", collector: "cloudarq-collect 0.2.0",
+  pages: [{ Roles: documentsAsRoles.map((file, i) => ({
+    Path: "/", RoleName: `role-${i}`, RoleId: `AROA${i}`, Arn: `arn:aws:iam::123456789012:role/role-${i}`,
+    CreateDate: "2024-01-02T03:04:05Z", AssumeRolePolicyDocument: readFileSync(file, "utf8"),
+  })), IsTruncated: false }],
+  refused: [{ call: "iam:ListAccountAliases", code: "AccessDenied", message: "not authorized" }], limits: [],
+}), null, 2);
+const bundles = {
+  "bundle-of-every-document.json": collected(documents),
+  "bundle-of-the-corpus.json": collected(corpus),
+  "bundle-of-no-role.json": collected([]),
+  "bundle-of-a-newer-format.json": collected(corpus.slice(0, 1), b => ({ ...b, format: "cloudarq.collect/v2" })),
+  "bundle-of-a-stranger.json": collected(corpus.slice(0, 1), b => ({ ...b, account: "999999999999" })),
+  "bundle-not-json.txt": "PK not a bundle",
+};
+const ownerLists = { "no-owner.txt": "", "owners.txt": "github:acme\naws:111122223333\nnot an owner" };
+for (const [name, text] of Object.entries({ ...bundles, ...ownerLists })) writeFileSync(join(work, name), text);
+let findingsCalls = 0;
+for (const bundle of Object.keys(bundles)) {
+  for (const owners of Object.keys(ownerLists)) {
+    findingsCalls++;
+    const fromWasm = engine.findings(readFileSync(join(work, bundle)), ownerLists[owners]);
+    compare(`findings ${bundle} with ${owners}`, fromWasm, native("findings", join(work, bundle), join(work, owners), engineName));
+  }
+}
+const everyRole = JSON.parse(engine.findings(readFileSync(join(work, "bundle-of-every-document.json")), ""));
+if (everyRole.roles?.length !== documents.length || everyRole.engine !== engineName) {
+  console.error(`FAIL: the bundle of every document gave ${everyRole.roles?.length} roles for ${documents.length} documents, engine ${everyRole.engine}`);
+  process.exit(1);
+}
+console.log(`differential: ${documents.length} documents (${corpus.length} of the corpus, ${Object.keys(shapes).length} generated) through admits, ${explains} explain calls, ${findingsCalls} findings calls over ${Object.keys(bundles).length} bundles, ${differences} differences`);
 if (documents.length === 0 || differences > 0) process.exit(1);
 
 // Depth. A document nested 200 deep trapped the engine on the toolchain's
@@ -215,7 +252,10 @@ console.log(`engine timing: admits() on 50 statements (${grants} grants, ${fifty
   const policy = new TextEncoder().encode(fifty);
   const answeredAt = [];
   for (let call = 0; call < 2; call++) {
-    new Uint8Array(memory.buffer, reserve(policy.length) >>> 0, policy.length).set(policy);
+    // reserve first and read the buffer after it, as the loader does: a
+    // reserve that grows memory detaches the buffer read before it
+    const at = reserve(policy.length) >>> 0;
+    new Uint8Array(memory.buffer, at, policy.length).set(policy);
     instance.exports.admits(policy.length);
     answeredAt.push(answerAt() >>> 0);
   }

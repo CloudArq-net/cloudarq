@@ -89,6 +89,7 @@ func terminal(f *os.File) bool {
 // reads is part of the contract and belongs where the contract is written.
 func usage(w io.Writer) {
 	fmt.Fprint(w, `usage: cloudarq admits <file|-> [flags]
+       cloudarq admits --bundle <file|-> [--owner <o>]... [--json]
        cloudarq version
 
 admits reads an AWS trust policy and prints who it admits: the rings of
@@ -112,6 +113,9 @@ dialect is read. "-" reads standard input.
                  sentences it read
   --no-color     never mark the output; NO_COLOR in the environment does
                  the same, and a pipe is never marked
+  --bundle <f>   read a bundle cloudarq-collect wrote and answer every role
+                 in it, each as admits answers its trust policy alone; with
+                 --json, print them as findings, cloudarq.findings/v1
 
 exit codes:
   0  the question was answered, whatever the answer

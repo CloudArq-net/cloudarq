@@ -50,6 +50,27 @@ follow the list.
    pgregory.net/rapid v1.3.0: Mozilla Public License 2.0. It is used by
    tests only and is in no binary.
 
+   The collector, cloudarq-collect (internal/collect, a module of its own),
+   is built with the AWS SDK for Go v2 and Smithy for Go, each under the
+   Apache License 2.0, and each module's go.sum hash is pinned there:
+   github.com/aws/aws-sdk-go-v2 v1.47.1, and its config v1.33.6,
+   credentials v1.20.6, feature/ec2/imds v1.20.1,
+   internal/configsources v1.5.4, internal/endpoints/v2 v2.8.4,
+   internal/v4a v1.5.4, service/iam v1.64.1,
+   service/internal/accept-encoding v1.13.19,
+   service/internal/presigned-url v1.14.4, service/signin v1.10.1,
+   service/sso v1.38.1, service/ssooidc v1.43.1 and service/sts v1.51.1;
+   and github.com/aws/smithy-go v1.28.2. Their NOTICE files read:
+
+     AWS SDK for Go
+     Copyright 2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+     Copyright 2014-2015 Stripe, Inc.
+
+     (Smithy for Go)
+     Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+   The engine's own module requires none of them.
+
 5. TinyGo's JavaScript support file
 
    web/engine/wasm_exec.js is targets/wasm_exec.js from TinyGo 0.42.0
@@ -62,7 +83,8 @@ follow the list.
 
 6. Toolchains
 
-   This repository publishes source only. A binary built from it contains
+   This repository publishes source, and a release attaches the collector's
+   binaries. A binary built from it contains
    the Go runtime and standard library, Copyright 2009 The Go Authors, under
    the licence reproduced below. A WebAssembly module built from web/wasm
    with TinyGo contains TinyGo's runtime, under TinyGo's licence, reproduced

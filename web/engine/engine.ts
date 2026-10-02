@@ -18,7 +18,7 @@
 // another.
 import { goRuntime } from "./go.ts";
 
-/** What the engine answers with. Both calls return the JSON
+/** What the engine answers with. Each call returns the JSON
  *  `internal/report` writes; a trap throws and the next call meets a live
  *  engine. */
 export interface Engine {
@@ -27,6 +27,11 @@ export interface Engine {
 	/** explain reads a policy and a token and answers, per grant, whether the
 	 *  token is admitted and why. */
 	explain(policy: string, token: string): string;
+	/** findings reads a bundle cloudarq-collect wrote, as the file's bytes so
+	 *  that the hash it records is the file's, and the owners declared as
+	 *  yours, one a line; it answers every role in it as
+	 *  cloudarq.findings/v1. */
+	findings(bundle: Uint8Array, owners: string): string;
 	/** memoryBytes is the live instance's linear memory, for the gates that
 	 *  watch where the heap settles. */
 	memoryBytes(): number;
@@ -53,6 +58,7 @@ interface EngineExports extends WebAssembly.Exports {
 	answerAt(): number;
 	admits(policyLength: number): number;
 	explain(policyLength: number, tokenLength: number): number;
+	findings(bundleLength: number, ownersLength: number): number;
 }
 
 /** loadEngine instantiates one engine over a compiled module. Prefer
@@ -84,10 +90,9 @@ export async function loadEngine(module: WebAssembly.Module, { memoryBound = 1 <
 	// A pointer the module returns is a wasm i32, which reads as negative once
 	// memory has grown past 2 GB; memory.buffer is read after every call into
 	// the module, because growth replaces the buffer.
-	const call = (name: "admits" | "explain", policy: string, token?: string): string => {
+	const call = (name: "admits" | "explain" | "findings", parts: Uint8Array[]): string => {
 		const exports = instance.exports as EngineExports;
 		const { memory, reserve, answerAt } = exports;
-		const parts = token === undefined ? [encoder.encode(policy)] : [encoder.encode(policy), encoder.encode(token)];
 		let text: string;
 		try {
 			const at = reserve(parts.reduce((n, p) => n + p.length, 0)) >>> 0;
@@ -96,7 +101,8 @@ export async function loadEngine(module: WebAssembly.Module, { memoryBound = 1 <
 				new Uint8Array(memory.buffer, at + offset, p.length).set(p);
 				offset += p.length;
 			}
-			const length = name === "admits" ? exports.admits(parts[0].length) : exports.explain(parts[0].length, parts[1].length);
+			const length =
+				name === "admits" ? exports.admits(parts[0].length) : exports[name](parts[0].length, parts[1].length);
 			text = decoder.decode(new Uint8Array(memory.buffer, answerAt() >>> 0, length));
 		} catch (err) {
 			// a trap leaves the instance dead, every later call throwing too;
@@ -117,8 +123,9 @@ export async function loadEngine(module: WebAssembly.Module, { memoryBound = 1 <
 	// dead instance after a trap, and would read the replaced instance's memory
 	// after a bound replacement.
 	return {
-		admits: (policy) => call("admits", policy),
-		explain: (policy, token) => call("explain", policy, token),
+		admits: (policy) => call("admits", [encoder.encode(policy)]),
+		explain: (policy, token) => call("explain", [encoder.encode(policy), encoder.encode(token)]),
+		findings: (bundle, owners) => call("findings", [bundle, encoder.encode(owners)]),
 		memoryBytes: () => (instance.exports as EngineExports).memory.buffer.byteLength,
 		peakMemoryBytes: () => peak,
 		replacements: () => replaced,

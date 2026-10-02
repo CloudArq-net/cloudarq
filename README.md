@@ -127,6 +127,7 @@ documentation its expected answer rests on.
 
 ```text
 cloudarq admits <file|-> [flags]
+cloudarq admits --bundle <file|-> [--owner <o>]... [--json]
 cloudarq version
 ```
 
@@ -148,6 +149,9 @@ them:
                  sentences it read
   --no-color     never mark the output; NO_COLOR in the environment does
                  the same, and a pipe is never marked
+  --bundle <f>   read a bundle cloudarq-collect wrote and answer every role
+                 in it, each as admits answers its trust policy alone; with
+                 --json, print them as findings, cloudarq.findings/v1
 ```
 
 The exit code says whether the question was answered, never what the answer was:
@@ -162,6 +166,27 @@ The exit code says whether the question was answered, never what the answer was:
 field is removed or renamed, or a field's meaning changes. New fields, and new values of an
 existing field, arrive under the same `v`; a consumer should ignore fields it does not know and
 read a value it does not know as unknown, never as clean.
+
+## A whole AWS account
+
+`cloudarq-collect` reads the AWS account your credentials belong to and writes one bundle,
+which `cloudarq admits --bundle` answers role by role, offline:
+
+```sh
+cloudarq-collect aws --profile <yours> > estate.json
+cloudarq admits --bundle estate.json
+```
+
+Each release attaches `cloudarq-collect` built for macOS and Linux, on Intel and ARM, with
+`SHA256SUMS` beside the files; the release notes give the Go version and the command that
+built them, so the files can be rebuilt from the tag and compared. It only reads, with your own
+credentials from AWS's standard chain: `sts:GetCallerIdentity`, `iam:ListAccountAliases` and
+`iam:ListRoles`, which is all the permission it needs. It contacts AWS alone, and whatever your AWS
+settings name for your credentials, such as IAM Identity Center. `--explain`
+names each call on standard error before it is made, and a call AWS refuses is written into
+the bundle in AWS's own words rather than dropped. It exits 0 for a whole read, 3 for a partial
+one with the bundle still written, 1 when the account could not be learned, and 2 for a command
+line it does not understand.
 
 ## What it reads, and what it does not
 

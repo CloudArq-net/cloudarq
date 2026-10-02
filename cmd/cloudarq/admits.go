@@ -56,6 +56,7 @@ func admits(args []string, stdin io.Reader, stdout, stderr io.Writer, isTerminal
 	})
 	explain := flags.Bool("explain", false, "print what the command reads and calls, on standard error")
 	noColour := flags.Bool("no-color", false, "never mark the output")
+	bundle := flags.String("bundle", "", "a bundle cloudarq-collect wrote, every role in it answered")
 
 	paths, err := parse(flags, args)
 	if err != nil {
@@ -68,6 +69,18 @@ func admits(args []string, stdin io.Reader, stdout, stderr io.Writer, isTerminal
 		fmt.Fprintf(stderr, "invalid value %s for flag -owner: %s\n", strconv.QuoteToASCII(refused.value), refused.why)
 		usage(stderr)
 		return exitUsage
+	}
+	if *bundle != "" {
+		if len(paths) != 0 || *token != "" {
+			fmt.Fprintln(stderr, "cloudarq admits: --bundle answers the roles of the bundle it names, and takes no document and no --token beside it.")
+			usage(stderr)
+			return exitUsage
+		}
+		if *explain {
+			plan(stderr, *bundle, "", owners)
+		}
+		options := report.Options{Colour: isTerminal && !*noColour && os.Getenv("NO_COLOR") == ""}
+		return admitsBundle(*bundle, stdin, stdout, stderr, owners, options, *asJSON)
 	}
 	if len(paths) != 1 {
 		fmt.Fprintf(stderr, "cloudarq admits: one document, given as a path or as \"-\"; %d were given.\n", len(paths))
@@ -100,6 +113,50 @@ func admits(args []string, stdin io.Reader, stdout, stderr io.Writer, isTerminal
 		cite(stderr, answer)
 	}
 	return refusal(stderr, answer.Error)
+}
+
+// admitsBundle answers every role of a bundle with the owners declared: as
+// the findings JSON, or as each role's answer under its name. A bundle the
+// engine does not read, or a role whose policy it does not, is exit code 1
+// with the reason on standard error; the findings still go to standard
+// output, as one document's answer does.
+func admitsBundle(path string, stdin io.Reader, stdout, stderr io.Writer, owners []string, options report.Options, asJSON bool) int {
+	raw, err := readUpTo(path, stdin, report.MaxBundleBytes)
+	if err != nil {
+		fmt.Fprintln(stderr, "cloudarq admits:", err)
+		return exitUnread
+	}
+	declared := []byte(strings.Join(owners, "\n"))
+	b, err := report.ReadBundle(raw)
+	if asJSON {
+		write(stdout, report.Findings(raw, declared, "cloudarq "+version()), "", true)
+	}
+	if err != nil {
+		fmt.Fprintln(stderr, "cloudarq admits:", err)
+		return exitUnread
+	}
+	code := exitAnswered
+	for i, role := range b.Roles {
+		answer := report.AnswerFor(role.Document, declared)
+		if !asJSON {
+			if i > 0 {
+				io.WriteString(stdout, "\n")
+			}
+			fmt.Fprintf(stdout, "%s  %s\n\n", strconv.QuoteToASCII(role.Name), strconv.QuoteToASCII(role.Arn))
+			io.WriteString(stdout, answer.Text(options))
+		}
+		if answer.Error != "" {
+			fmt.Fprintf(stderr, "cloudarq admits: the role %s: %s\n", strconv.QuoteToASCII(role.Arn), answer.Error)
+			code = exitUnread
+		}
+	}
+	for _, r := range b.Refused {
+		fmt.Fprintf(stderr, "cloudarq admits: the collector was refused %s: %s\n", strconv.QuoteToASCII(r.Call), strconv.QuoteToASCII(r.Code+": "+r.Message))
+	}
+	for _, limit := range b.Limits {
+		fmt.Fprintln(stderr, "cloudarq admits: the collector says:", strconv.QuoteToASCII(limit))
+	}
+	return code
 }
 
 // invalidOwner is an --owner the flag does not take, and why.
@@ -144,6 +201,20 @@ func read(path string, stdin io.Reader) ([]byte, error) {
 
 func readBounded(r io.Reader) ([]byte, error) {
 	return io.ReadAll(io.LimitReader(r, report.MaxDocumentBytes+1))
+}
+
+// readUpTo reads a path, or standard input for "-", one byte past bound and
+// no further, as read does for a document.
+func readUpTo(path string, stdin io.Reader, bound int) ([]byte, error) {
+	if path == "-" {
+		return io.ReadAll(io.LimitReader(stdin, int64(bound)+1))
+	}
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	return io.ReadAll(io.LimitReader(f, int64(bound)+1))
 }
 
 // write puts the answer on standard output in the rendering that was

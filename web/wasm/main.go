@@ -2,10 +2,10 @@
 
 // The engine as a WebAssembly module: a reactor module whose exports carry
 // bytes in and the answer out, and nothing else. The loader in web/engine
-// (engine.ts, loadEngine) wraps them as admits(policyText) and
-// explain(policyText, tokenText) on the object it returns, each returning
-// the JSON internal/report renders; web/wasm/native renders the same bytes
-// for the differential.
+// (engine.ts, loadEngine) wraps them as admits(policyText),
+// explain(policyText, tokenText) and findings(bundleBytes, ownersText) on
+// the object it returns, each returning the JSON internal/report renders;
+// web/wasm/native renders the same bytes for the differential.
 //
 // The module is built with no scheduler and as a library (-scheduler=none
 // -buildmode=c-shared): the two functions are synchronous and never block,
@@ -27,6 +27,10 @@ var (
 	inbox  []byte
 	outbox []byte
 )
+
+// version is the engine's version the findings name, set by the linker
+// (web/engine/build.sh).
+var version = "0.0.0-dev"
 
 // reserve makes room for n bytes of input and returns where to write them.
 //
@@ -54,6 +58,16 @@ func admits(policyLen int32) int32 {
 //go:wasmexport explain
 func explain(policyLen, tokenLen int32) int32 {
 	outbox = report.AppendExplain(outbox[:0], inbox[:policyLen], inbox[policyLen:policyLen+tokenLen])
+	return int32(len(outbox))
+}
+
+// findings answers every role of the bundle in the first bundleLen bytes of
+// the inbox, with the owners declared in the ownersLen bytes after it, one a
+// line, and returns the findings' length.
+//
+//go:wasmexport findings
+func findings(bundleLen, ownersLen int32) int32 {
+	outbox = report.AppendFindings(outbox[:0], inbox[:bundleLen], inbox[bundleLen:bundleLen+ownersLen], "cloudarq "+version)
 	return int32(len(outbox))
 }
 

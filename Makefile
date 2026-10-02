@@ -5,7 +5,7 @@ GO    ?= go
 PURE_PKGS = eval trust parse ring
 PKG   := ./...
 
-.PHONY: all build test vet purity determinism cover check preflight clean
+.PHONY: all build test vet purity determinism cover collect collect-release check preflight clean
 
 all: check
 
@@ -69,7 +69,29 @@ cover:
 	  rm -f $$profile; \
 	done; exit $$fail
 
-check: build vet test purity determinism cover
+## collect: the collector is its own module, so ./... never reaches it; the
+## AWS SDK stays out of the engine's build. Its modules are checked against
+## go.sum before anything is built from them.
+collect:
+	cd internal/collect && $(GO) mod verify && $(GO) build ./... && $(GO) vet ./... && $(GO) test -count=1 ./...
+
+## collect-release: the collector's downloads for a release, VERSION=v0.2.0:
+## one static binary for each of macOS and Linux on Intel and ARM, built
+## without the build machine's paths, stamped with the version, and
+## SHA256SUMS beside them, under dist/collect/<version>.
+COLLECT_TARGETS = darwin/arm64 darwin/amd64 linux/arm64 linux/amd64
+collect-release:
+	@test -n "$(VERSION)" || { echo "collect-release: set VERSION, as VERSION=v0.2.0"; exit 2; }
+	@set -eu; out=$$(pwd)/dist/collect/$(VERSION); rm -rf "$$out"; mkdir -p "$$out"; \
+	for target in $(COLLECT_TARGETS); do \
+	  os=$${target%/*}; arch=$${target#*/}; \
+	  ( cd internal/collect && CGO_ENABLED=0 GOOS=$$os GOARCH=$$arch $(GO) build -trimpath \
+	      -ldflags "-s -w -X main.version=$(VERSION:v%=%)" -o "$$out/cloudarq-collect_$${os}_$${arch}" ./cmd/cloudarq-collect ); \
+	done; \
+	( cd "$$out" && shasum -a 256 cloudarq-collect_* > SHA256SUMS ); \
+	echo "collect-release: $$(ls "$$out" | grep -c '^cloudarq-collect_') binaries and SHA256SUMS in $$out"
+
+check: build vet test purity determinism cover collect
 	@echo "all checks green"
 
 ## preflight: run before every push. A commit is recoverable; a pushed secret is not.

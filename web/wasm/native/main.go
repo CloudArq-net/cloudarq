@@ -4,6 +4,7 @@
 //
 //	native admits <policy.json>
 //	native explain <policy.json> <token.json>
+//	native findings <bundle.json> <owners.txt> <engine>
 //
 // The answer is written to standard output exactly as the WebAssembly
 // module returns it: no trailing newline, because the comparison is bytes.
@@ -25,7 +26,7 @@ func main() {
 
 func run(args []string) error {
 	if len(args) < 2 {
-		return fmt.Errorf("usage: native admits <policy> | native explain <policy> <token>")
+		return fmt.Errorf("usage: native admits <policy> | native explain <policy> <token> | native findings <bundle> <owners> <engine>")
 	}
 	policy, err := os.ReadFile(args[1])
 	if err != nil {
@@ -44,6 +45,16 @@ func run(args []string) error {
 			return err
 		}
 		_, err = os.Stdout.Write(report.Explain(policy, token))
+		return err
+	case "findings":
+		if len(args) < 4 {
+			return fmt.Errorf("findings needs an owners file and the engine's name")
+		}
+		owners, err := os.ReadFile(args[2])
+		if err != nil {
+			return err
+		}
+		_, err = os.Stdout.Write(report.Findings(policy, owners, args[3]))
 		return err
 	}
 	return fmt.Errorf("unknown command %q", args[0])
