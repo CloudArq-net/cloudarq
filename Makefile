@@ -85,9 +85,11 @@ collect:
 ##
 ## It builds only a tree git status lists nothing for, since Go records a
 ## binary built from any other tree as modified, and it refuses any binary
-## Go recorded as modified all the same. When VERSION names a tag, the tag
-## must be on HEAD and the command line must record the module at that
-## tag; a VERSION written as a release's (v1.2.3) must name a tag, so no
+## Go recorded as modified all the same. When VERSION is a tag's name, a
+## ref of exactly that name, the tag must be on HEAD and the command line
+## must record the module at that tag. A name in git describe's form, as
+## v0.2.0-1-g670f22d, is no tag, though git resolves it to the commit it
+## ends in. A VERSION written as a release's (v1.2.3) must name a tag, so no
 ## file says a version it was not built from. In every case VERSION must be
 ## v and what scripts/version.sh prints for HEAD, the one rule that names
 ## the engine's version: at a release tag, the tag; anywhere else, the
@@ -112,10 +114,15 @@ release:
 	  echo "release: refused: the tree is not clean, so Go would record every binary as modified; git status lists:"; \
 	  printf '%s\n' "$$dirty" | sed 's/^/  /'; exit 1; fi; \
 	head=$$(git rev-parse HEAD); \
-	if tagged=$$(git rev-parse -q --verify "refs/tags/$$version^{commit}"); then \
+	if git show-ref --verify --quiet "refs/tags/$$version"; then isref=0; else isref=$$?; fi; \
+	if [ $$isref = 0 ]; then \
+	  if ! tagged=$$(git rev-parse -q --verify "refs/tags/$$version^{commit}"); then \
+	    echo "release: refused: the tag $$version names no commit"; exit 1; fi; \
 	  if [ "$$tagged" != "$$head" ]; then \
 	    echo "release: refused: the tag $$version is on $$tagged, not on HEAD ($$head)"; exit 1; fi; \
 	  ontag=1; \
+	elif [ $$isref != 1 ]; then \
+	  echo "release: refused: git show-ref failed (exit $$isref), so whether $$version is a tag is not known"; exit 2; \
 	elif [[ $$version =~ ^v[0-9]+\.[0-9]+\.[0-9]+$$ ]]; then \
 	  echo "release: refused: VERSION $$version is a release's version, and no tag $$version is here to build it from"; exit 1; \
 	else \

@@ -759,19 +759,20 @@ func TestAnUnansweredCallSaysTheHomeDirectoryAsATilde(t *testing.T) {
 // of the collector's own, holding nothing the process wrote.
 func TestACredentialProcessesOutputIsNeverKept(t *testing.T) {
 	const (
-		notice = "Signing in again as jane@example.com"
-		keyID  = "ASIAPROCESSOUTPUTKEY"
-		secret = "PROCESSOUTPUTSECRETACCESSKEY"
-		token  = "PROCESSOUTPUTSESSIONTOKEN"
+		notice        = "Signing in again as jane@example.com"
+		keyIDWritten  = "key-id-the-process-wrote"
+		secretWritten = "secret-key-the-process-wrote"
+		tokenWritten  = "session-token-the-process-wrote"
 	)
-	answer := `{"Version":1,"AccessKeyId":"` + keyID + `","SecretAccessKey":"` + secret + `","SessionToken":"` + token +
-		`","Expiration":"2026-10-02T19:00:00Z"}`
+	answer := `{"Version":1,"AccessKeyId":"` + keyIDWritten + `","SecretAccessKey":"` + secretWritten +
+		`","SessionToken":"` + tokenWritten + `","Expiration":"2026-10-02T19:00:00Z"}`
 	process := processcreds.NewProvider(`printf '%s\n' '` + notice + `' '` + answer + `'`)
 
 	// The SDK's own words for it hold everything the process wrote, so a
 	// bundle without them shows the collector kept none of it.
 	_, err := process.Retrieve(context.Background())
-	if err == nil || !strings.Contains(err.Error(), secret) || !strings.Contains(err.Error(), token) || !strings.Contains(err.Error(), notice) {
+	if err == nil || !strings.Contains(err.Error(), secretWritten) || !strings.Contains(err.Error(), tokenWritten) ||
+		!strings.Contains(err.Error(), notice) {
 		t.Fatalf("the credential process's failure does not say what it wrote, so this test shows nothing: %v", err)
 	}
 
@@ -796,7 +797,7 @@ func TestACredentialProcessesOutputIsNeverKept(t *testing.T) {
 	if err := bundle.Encode(&out); err != nil {
 		t.Fatal(err)
 	}
-	for _, kept := range []string{secret, token, keyID, notice, "jane"} {
+	for _, kept := range []string{secretWritten, tokenWritten, keyIDWritten, notice, "jane"} {
 		if n := strings.Count(out.String(), kept); n != 0 {
 			t.Errorf("the bundle holds %+q, which the credential process wrote, %d times", kept, n)
 		}
