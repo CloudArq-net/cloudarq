@@ -1,0 +1,2 @@
+exit 0
+cloudarq admits: the collector was refused "organizations:DescribeOrganization": "AccessDeniedException: You don't have permissions to perform the requested operation."

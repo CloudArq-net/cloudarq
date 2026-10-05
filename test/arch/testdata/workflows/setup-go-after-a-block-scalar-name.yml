@@ -1,0 +1,26 @@
+# Refused: the setup-go step's name is a block scalar on its dash's line,
+# and the step installs a Go other than go.mod's. The uses: and with: below
+# the name's text are the step's, as YAML reads them.
+name: check
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: |
+          install Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: '1.20'
+          cache: false
+      - run: make check

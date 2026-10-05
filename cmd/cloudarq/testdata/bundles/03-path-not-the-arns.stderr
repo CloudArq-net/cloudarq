@@ -1,0 +1,2 @@
+exit 1
+cloudarq admits: the role "arn:aws:iam::123456789012:role/AWSServiceRoleForOrganizations" is listed with the path "/aws-service-role/organizations.amazonaws.com/", and its ARN names the path "/", so this bundle is not as cloudarq-collect wrote it

@@ -268,6 +268,36 @@ func captionOf(g trust.Grant, out Grant) string {
 	return "Who holds those identities now is not computed here: no network request is made."
 }
 
+// managedWords are what the findings say of a role AWS made for a service:
+// the sentence, what the role is, in the words of AWS's pages on
+// service-linked roles ("Service-linked roles are predefined by the
+// service", and for the trust policy, "Only the service that depends on the
+// service-linked role can modify or delete the role on your behalf"); and
+// the caption, why who gets in through it is still not known.
+//
+// The caption does not confine who that is to the account. In the account,
+// AWS says, "users and roles with permissions to call a service that uses a
+// service-linked role may have indirect access to services that can be
+// accessed by that service-linked role"
+// (https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create-service-linked-role.html,
+// read 2026-10-03). Beyond it, trusted access, which only an AWS
+// Organization's management account can give ("You can only call this
+// operation from the management account"), lets a service "perform
+// operations on behalf of the organization and its accounts"
+// (https://docs.aws.amazon.com/organizations/latest/APIReference/API_EnableAWSServiceAccess.html,
+// read 2026-10-03); and a member account registered as the service's
+// delegated administrator is one of the "administrators that can manage
+// all of the organization's accounts used in the service"
+// (https://docs.aws.amazon.com/organizations/latest/userguide/orgs_integrate_delegated_admin.html,
+// read 2026-10-03). Either may be a reseller or a managed service provider,
+// so words that named only the account's own people would describe an
+// outsider as one of them.
+func managedWords(service string) (sentence, caption string) {
+	return "AWS made this role for " + service + " and manages it: the service wrote its trust policy and permissions, and nobody in this account can edit them.",
+		"Who gets in through it is whoever can make " + service + " act. That may be someone this account lets call it, or, if this account's AWS Organization gives the service trusted access, " +
+			"the Organization's management account or a delegated administrator. The engine does not read who yet."
+}
+
 // readFromSpans names, after a value or after "no", the claim AWS reads a
 // key from when it is not the key's own: "in azp, which AWS reads for aud".
 // A value read from the key's own claim needs nothing more, and an absent
@@ -499,7 +529,8 @@ func platformName(issuer trust.IssuerRef, census registry.Names) string {
 }
 
 // label is a row's label. The platform ring names the platform its grants
-// are on, or how many there are when they are on several.
+// are on, or how many there are when they are on several, and the ring of
+// the user's own names what it holds.
 func label(r row) string {
 	switch r.place {
 	case ring.Anyone:
@@ -510,13 +541,35 @@ func label(r row) string {
 	case ring.Outsider:
 		return "A named outsider"
 	case ring.Yours:
-		return "Your pipelines"
+		return yoursLabel(r)
 	case ring.People:
 		return "Your people"
 	case ring.SAML:
 		return "SAML sign-ins"
 	}
 	return "Cloud services"
+}
+
+// yoursLabel names the ring of the user's own by the owners its grants are
+// pinned to there: their AWS accounts, an organisation being the accounts it
+// holds; their pipelines, the owners of the tokens a pipeline is given; or
+// both. A ring no grant is in keeps the name it has always had.
+func yoursLabel(r row) string {
+	var accounts, pipelines bool
+	for _, o := range r.owners() {
+		if o.Namespace == ring.NamespaceAWS {
+			accounts = true
+		} else {
+			pipelines = true
+		}
+	}
+	switch {
+	case accounts && pipelines:
+		return "Your pipelines and AWS accounts"
+	case accounts:
+		return "Your AWS accounts"
+	}
+	return "Your pipelines"
 }
 
 // platformsLabel names platforms as a label or a headline has room to: one
@@ -805,8 +858,13 @@ func ownersSpan(owners []named, mark string) Span {
 	return Span{Text: strconv.Itoa(len(owners)) + what, Mark: mark}
 }
 
-// yoursWords names the owners declared as the user's that the grants
-// here are pinned to, each let in for certain or not.
+// recognisedWords is why an owner nobody declared is the user's: it is the
+// account the scan read, with the user's own credentials.
+const recognisedWords = "recognised: the account this scan read"
+
+// yoursWords names the owners declared as the user's, or recognised as
+// theirs, that the grants here are pinned to, each let in for certain or
+// not, and says of each which it is.
 func yoursWords(r row) []Span {
 	owners := r.owners()
 	sure, unsure := bySureness(owners)
@@ -816,14 +874,19 @@ func yoursWords(r row) []Span {
 		lead = sure
 	}
 	var s []Span
-	if len(lead) > 2 {
+	switch {
+	case len(lead) > 2 && slices.ContainsFunc(lead, func(o named) bool { return o.recognised }):
+		s = spans(Span{Text: strconv.Itoa(len(lead)) + " owners declared or recognised as yours", Mark: mark}, " "+verb+" assume this role")
+	case len(lead) > 2:
 		s = spans(Span{Text: strconv.Itoa(len(lead)) + " owners declared as yours", Mark: mark}, " "+verb+" assume this role")
-	} else {
+	case len(lead) == 2 && lead[0].recognised != lead[1].recognised:
+		s = []Span{ownerSpan(lead[0], mark, true), {Text: ", " + yoursBy(lead[0]) + ", and "}, ownerSpan(lead[1], mark, false), {Text: ", " + yoursBy(lead[1]) + ", " + verb + " assume this role"}}
+	default:
 		s = []Span{ownerSpan(lead[0], mark, true)}
 		if len(lead) == 2 {
 			s = append(s, Span{Text: " and "}, ownerSpan(lead[1], mark, false))
 		}
-		s = append(s, Span{Text: ", declared as yours, " + verb + " assume this role"})
+		s = append(s, Span{Text: ", " + yoursBy(lead[0]) + ", " + verb + " assume this role"})
 	}
 	switch {
 	case len(sure) > 0 && len(unsure) > 0 && len(owners) == 2:
@@ -832,6 +895,30 @@ func yoursWords(r row) []Span {
 		s = append(s, Span{Text: ", "}, Span{Text: strconv.Itoa(len(unsure)) + " more", Mark: "unknown"}, Span{Text: " could"})
 	}
 	return append(s, Span{Text: "."})
+}
+
+// The questions the findings ask of the Organization a bundle names: whether
+// the account that manages it is the user's, which a reseller or a managed
+// service provider may run, and whether every account in it is, which it
+// is not when the Organization holds another company's.
+const (
+	managementQuestionWords   = "Is this account, which manages your AWS Organization, yours? A reseller or a managed service provider may run it."
+	organizationQuestionWords = "Is every account in this AWS Organization yours?"
+)
+
+// wouldReadWords is what a role would read were an owner it is asked about
+// declared: the headline its answer would open on.
+func wouldReadWords(declaration string, headline []Span) []Span {
+	return append(spans("If ", Span{Text: declaration, Mark: "code"}, " is yours, this role reads: "), headline...)
+}
+
+// yoursBy is what makes an owner the user's, as a sentence says it beside
+// the owner: declared, or recognised.
+func yoursBy(o named) string {
+	if o.recognised {
+		return recognisedWords
+	}
+	return "declared as yours"
 }
 
 // signInWords is the ring of the user's people and the line of SAML
@@ -1173,6 +1260,57 @@ func overrunWords(o ring.Overrun) string {
 		return "line " + strconv.Itoa(o.Line) + " of the owners declared is " + strconv.Itoa(o.Size) + " bytes; the engine reads up to " + strconv.Itoa(ring.MaxDeclarationLineBytes) + " bytes a line"
 	}
 	return "the owners declared come to " + strconv.Itoa(o.Size) + " bytes; the engine reads up to " + strconv.Itoa(ring.MaxDeclarationBytes)
+}
+
+// isOverrunWords reports whether an answer's error is one of the sentences
+// overrunWords composes, whatever its counts: the refusal of a whole
+// declaration, given after the document was read and before any grant was
+// kept. It reads overrunWords' own output, so the two cannot drift apart.
+func isOverrunWords(text string) bool {
+	for _, b := range []ring.Bound{ring.DeclarationBytes, ring.DeclarationLines, ring.LineBytes} {
+		if countless(text) == countless(overrunWords(ring.Overrun{Bound: b})) {
+			return true
+		}
+	}
+	return false
+}
+
+// countless is text with each run of digits written as one 0, so that two
+// sentences that differ only in what they count read alike.
+func countless(text string) string {
+	var b strings.Builder
+	inRun := false
+	for _, r := range text {
+		digit := '0' <= r && r <= '9'
+		switch {
+		case !digit:
+			b.WriteRune(r)
+		case !inRun:
+			b.WriteByte('0')
+		}
+		inRun = digit
+	}
+	return b.String()
+}
+
+// declinedWords is why a role's answer is not re-marked with the owners
+// declared now, and what stands meanwhile. None promises that the next
+// upload places the owners: Remark cannot tell an answer this build wrote
+// from a forged one, nor which document either stood for, and that document
+// may be one this build refuses. So each says no more than that the role is
+// read again with them, or, where they are past their bounds, that it keeps
+// the answer it has.
+func declinedWords(why cause) []Span {
+	const readAgain = "this role is read again with the owners declared now at the next upload."
+	switch why {
+	case anotherEngine:
+		return spans("This role was answered by another build of the engine, whose facts and words can differ from this one's, so " + readAgain)
+	case ownersRefusedAtUpload:
+		return spans("The owners declared when this role was read were refused whole, so it kept no grant to place again; " + readAgain)
+	case ownersRefusedNow:
+		return spans("The owners declared now are past what the engine reads, so this role keeps the answer it has.")
+	}
+	return spans("This does not read as an answer this build of the engine writes, so " + readAgain)
 }
 
 // unmatchedWords is why an owner declared moved nothing: no grant that

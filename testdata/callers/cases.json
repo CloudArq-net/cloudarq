@@ -1,0 +1,436 @@
+[
+  {
+    "id": "no-arn-rate-exceeded",
+    "shape": "no-arn",
+    "message": "Rate exceeded",
+    "want": "Rate exceeded",
+    "source": "synthetic"
+  },
+  {
+    "id": "no-arn-organizations-access-denied",
+    "shape": "no-arn",
+    "message": "You don't have permissions to perform the requested operation.",
+    "want": "You don't have permissions to perform the requested operation.",
+    "source": "https://docs.aws.amazon.com/organizations/latest/APIReference/API_DescribeOrganization.html"
+  },
+  {
+    "id": "no-arn-name-without-an-arn",
+    "shape": "no-arn",
+    "message": "User: reader is not authorized to perform: iam:ListRoles",
+    "want": "User: reader is not authorized to perform: iam:ListRoles",
+    "source": "synthetic"
+  },
+  {
+    "id": "no-arn-unicode-and-controls",
+    "shape": "no-arn",
+    "message": "Access denied: no ARN given\tcaf\u00e9\u00a0\u2014 \u2713 \ud83d\ude00\r\n",
+    "want": "Access denied: no ARN given\tcaf\u00e9\u00a0\u2014 \u2713 \ud83d\ude00\r\n",
+    "source": "synthetic"
+  },
+  {
+    "id": "assumed-role-documented",
+    "shape": "assumed-role",
+    "message": "User: arn:aws:sts::123456789012:assumed-role/Accounting-Role/Jane is not authorized to perform: iam:ListRoles because no identity-based policy allows the iam:ListRoles action",
+    "want": "User: arn:aws:sts::123456789012:assumed-role/Accounting-Role/(removed) is not authorized to perform: iam:ListRoles because no identity-based policy allows the iam:ListRoles action",
+    "source": "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html"
+  },
+  {
+    "id": "assumed-role-saml-email",
+    "shape": "assumed-role",
+    "message": "User: arn:aws:sts::123456789012:assumed-role/Accounting-Role/johndoe@example.com is not authorized to perform: iam:ListAccountAliases because no identity-based policy allows the iam:ListAccountAliases action",
+    "want": "User: arn:aws:sts::123456789012:assumed-role/Accounting-Role/(removed) is not authorized to perform: iam:ListAccountAliases because no identity-based policy allows the iam:ListAccountAliases action",
+    "source": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_saml_assertions.html"
+  },
+  {
+    "id": "assumed-role-every-session-character",
+    "shape": "assumed-role",
+    "message": "User: arn:aws:sts::123456789012:assumed-role/Accounting-Role/Jane_Doe+ops=1,eu.west@example.com-x is not authorized to perform: iam:ListRoles",
+    "want": "User: arn:aws:sts::123456789012:assumed-role/Accounting-Role/(removed) is not authorized to perform: iam:ListRoles",
+    "source": "https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html"
+  },
+  {
+    "id": "assumed-role-shortest-session",
+    "shape": "assumed-role",
+    "message": "User: arn:aws:sts::123456789012:assumed-role/Accounting-Role/Jo is not authorized to perform: iam:ListRoles",
+    "want": "User: arn:aws:sts::123456789012:assumed-role/Accounting-Role/(removed) is not authorized to perform: iam:ListRoles",
+    "source": "https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html"
+  },
+  {
+    "id": "assumed-role-longest-session",
+    "shape": "assumed-role",
+    "message": "User: arn:aws:sts::123456789012:assumed-role/Accounting-Role/abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@. is not authorized to perform: iam:ListRoles",
+    "want": "User: arn:aws:sts::123456789012:assumed-role/Accounting-Role/(removed) is not authorized to perform: iam:ListRoles",
+    "source": "https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html"
+  },
+  {
+    "id": "assumed-role-session-not-a-person",
+    "shape": "assumed-role",
+    "message": "User: arn:aws:sts::123456789012:assumed-role/EC2-Role/i-1234567890abcdef0 is not authorized to perform: iam:ListRoles",
+    "want": "User: arn:aws:sts::123456789012:assumed-role/EC2-Role/(removed) is not authorized to perform: iam:ListRoles",
+    "source": "synthetic"
+  },
+  {
+    "id": "sso-session-email",
+    "shape": "assumed-role-sso",
+    "message": "User: arn:aws:sts::123456789012:assumed-role/AWSReservedSSO_AdministratorAccess_0123456789abcdef/johndoe@example.com is not authorized to perform: organizations:DescribeOrganization because no identity-based policy allows the organizations:DescribeOrganization action",
+    "want": "User: arn:aws:sts::123456789012:assumed-role/AWSReservedSSO_AdministratorAccess_0123456789abcdef/(removed) is not authorized to perform: organizations:DescribeOrganization because no identity-based policy allows the organizations:DescribeOrganization action",
+    "source": "https://docs.aws.amazon.com/singlesignon/latest/userguide/referencingpermissionsets.html"
+  },
+  {
+    "id": "sso-role-name-symbols-kept",
+    "shape": "assumed-role-sso",
+    "message": "User: arn:aws:sts::123456789012:assumed-role/AWSReservedSSO_Ops+Dev=1,a.b@c-d_0123456789abcdef/alice@example.com is not authorized to perform: iam:ListRoles",
+    "want": "User: arn:aws:sts::123456789012:assumed-role/AWSReservedSSO_Ops+Dev=1,a.b@c-d_0123456789abcdef/(removed) is not authorized to perform: iam:ListRoles",
+    "source": "https://docs.aws.amazon.com/singlesignon/latest/userguide/referencingpermissionsets.html"
+  },
+  {
+    "id": "sso-caller-and-role-resource",
+    "shape": "assumed-role-sso",
+    "message": "User: arn:aws:sts::123456789012:assumed-role/AWSReservedSSO_Admin_0123456789abcdef/alice@example.com is not authorized to perform: sts:AssumeRole on resource: arn:aws:iam::123456789012:role/my-lambda-execution-role",
+    "want": "User: arn:aws:sts::123456789012:assumed-role/AWSReservedSSO_Admin_0123456789abcdef/(removed) is not authorized to perform: sts:AssumeRole on resource: arn:aws:iam::123456789012:role/my-lambda-execution-role",
+    "source": "synthetic"
+  },
+  {
+    "id": "iam-user-documented",
+    "shape": "iam-user",
+    "message": "User: arn:aws:iam::123456789012:user/John is not authorized to perform: codecommit:ListRepositories because no service control policy allows the codecommit:ListRepositories action",
+    "want": "User: arn:aws:iam::123456789012:user/(removed) is not authorized to perform: codecommit:ListRepositories because no service control policy allows the codecommit:ListRepositories action",
+    "source": "https://docs.aws.amazon.com/IAM/latest/UserGuide/troubleshoot_access-denied.html"
+  },
+  {
+    "id": "iam-user-resource-not-an-arn",
+    "shape": "iam-user",
+    "message": "User: arn:aws:iam::123456789012:user/mateojackson is not authorized to perform: widgets:GetWidget on resource: my-example-widget",
+    "want": "User: arn:aws:iam::123456789012:user/(removed) is not authorized to perform: widgets:GetWidget on resource: my-example-widget",
+    "source": "https://docs.aws.amazon.com/IAM/latest/UserGuide/troubleshoot_access-denied.html"
+  },
+  {
+    "id": "iam-user-caller-and-scp",
+    "shape": "iam-user",
+    "message": "User: arn:aws:iam::123456789012:user/John is not authorized to perform: codecommit:ListRepositories with an explicit deny in a service control policy: arn:aws:organizations::777788889999:policy/o-exampleorgid/service_control_policy/p-examplepolicyid123",
+    "want": "User: arn:aws:iam::123456789012:user/(removed) is not authorized to perform: codecommit:ListRepositories with an explicit deny in a service control policy: arn:aws:organizations::777788889999:policy/o-exampleorgid/service_control_policy/p-examplepolicyid123",
+    "source": "https://docs.aws.amazon.com/IAM/latest/UserGuide/troubleshoot_access-denied.html"
+  },
+  {
+    "id": "iam-user-caller-and-iam-policy",
+    "shape": "iam-user",
+    "message": "User: arn:aws:iam::123456789012:user/John is not authorized to perform: sagemaker:ListModels with an explicit deny in a permissions boundary: arn:aws:iam::123456789012:policy/DeveloperPermissionBoundary",
+    "want": "User: arn:aws:iam::123456789012:user/(removed) is not authorized to perform: sagemaker:ListModels with an explicit deny in a permissions boundary: arn:aws:iam::123456789012:policy/DeveloperPermissionBoundary",
+    "source": "https://docs.aws.amazon.com/IAM/latest/UserGuide/troubleshoot_access-denied.html"
+  },
+  {
+    "id": "iam-user-caller-secret-and-rcp",
+    "shape": "iam-user",
+    "message": "User: arn:aws:iam::123456789012:user/John is not authorized to perform: secretsmanager:GetSecretValue on resource: arn:aws:secretsmanager:us-east-1:123456789012:secret:* with an explicit deny in a resource control policy: arn:aws:organizations::777788889999:policy/o-exampleorgid/resource_control_policy/p-examplepolicyid456",
+    "want": "User: arn:aws:iam::123456789012:user/(removed) is not authorized to perform: secretsmanager:GetSecretValue on resource: arn:aws:secretsmanager:us-east-1:123456789012:secret:* with an explicit deny in a resource control policy: arn:aws:organizations::777788889999:policy/o-exampleorgid/resource_control_policy/p-examplepolicyid456",
+    "source": "https://docs.aws.amazon.com/IAM/latest/UserGuide/troubleshoot_access-denied.html"
+  },
+  {
+    "id": "iam-user-caller-and-another-user",
+    "shape": "iam-user",
+    "message": "User: arn:aws:iam::123456789012:user/John is not authorized to perform: iam:GetUser on resource: arn:aws:iam::123456789012:user/division_abc/subdivision_xyz/Jane",
+    "want": "User: arn:aws:iam::123456789012:user/(removed) is not authorized to perform: iam:GetUser on resource: arn:aws:iam::123456789012:user/(removed)",
+    "source": "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html"
+  },
+  {
+    "id": "iam-user-path-documented",
+    "shape": "iam-user-path",
+    "message": "User: arn:aws:iam::123456789012:user/division_abc/subdivision_xyz/Jane is not authorized to perform: iam:ListRoles because no identity-based policy allows the iam:ListRoles action",
+    "want": "User: arn:aws:iam::123456789012:user/(removed) is not authorized to perform: iam:ListRoles because no identity-based policy allows the iam:ListRoles action",
+    "source": "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html"
+  },
+  {
+    "id": "iam-user-path-printable-characters",
+    "shape": "iam-user-path",
+    "message": "User: arn:aws:iam::123456789012:user/eng:ops/a!b~c(d)/Jane is not authorized to perform: iam:ListRoles",
+    "want": "User: arn:aws:iam::123456789012:user/(removed) is not authorized to perform: iam:ListRoles",
+    "source": "https://docs.aws.amazon.com/IAM/latest/APIReference/API_User.html"
+  },
+  {
+    "id": "iam-user-path-same-person-twice",
+    "shape": "iam-user-path",
+    "message": "User: arn:aws:iam::123456789012:user/division_abc/subdivision_xyz/Jane is not authorized to perform: iam:ChangePassword on resource: arn:aws:iam::123456789012:user/division_abc/subdivision_xyz/Jane",
+    "want": "User: arn:aws:iam::123456789012:user/(removed) is not authorized to perform: iam:ChangePassword on resource: arn:aws:iam::123456789012:user/(removed)",
+    "source": "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html"
+  },
+  {
+    "id": "federated-user-documented",
+    "shape": "federated-user",
+    "message": "User: arn:aws:sts::123456789012:federated-user/John is not authorized to perform: iam:ListRoles because no identity-based policy allows the iam:ListRoles action",
+    "want": "User: arn:aws:sts::123456789012:federated-user/(removed) is not authorized to perform: iam:ListRoles because no identity-based policy allows the iam:ListRoles action",
+    "source": "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html"
+  },
+  {
+    "id": "federated-user-every-character",
+    "shape": "federated-user",
+    "message": "User: arn:aws:sts::123456789012:federated-user/Bob.Smith+1=a,b@example.com-_ is not authorized to perform: iam:ListAccountAliases",
+    "want": "User: arn:aws:sts::123456789012:federated-user/(removed) is not authorized to perform: iam:ListAccountAliases",
+    "source": "https://docs.aws.amazon.com/STS/latest/APIReference/API_GetFederationToken.html"
+  },
+  {
+    "id": "u2f-documented",
+    "shape": "u2f",
+    "message": "User: arn:aws:iam::123456789012:role/HR is not authorized to perform: iam:DeactivateMFADevice on resource: arn:aws:iam::123456789012:u2f/user/John/default",
+    "want": "User: arn:aws:iam::123456789012:role/HR is not authorized to perform: iam:DeactivateMFADevice on resource: arn:aws:iam::123456789012:u2f/(removed)",
+    "source": "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html"
+  },
+  {
+    "id": "mfa-documented",
+    "shape": "mfa",
+    "message": "User: arn:aws:iam::123456789012:role/HR is not authorized to perform: iam:DeleteVirtualMFADevice on resource: arn:aws:iam::123456789012:mfa/JaneMFA",
+    "want": "User: arn:aws:iam::123456789012:role/HR is not authorized to perform: iam:DeleteVirtualMFADevice on resource: arn:aws:iam::123456789012:mfa/(removed)",
+    "source": "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html"
+  },
+  {
+    "id": "mfa-named-for-its-user",
+    "shape": "mfa",
+    "message": "User: arn:aws:iam::123456789012:user/Jorge is not authorized to perform: iam:CreateVirtualMFADevice on resource: arn:aws:iam::123456789012:mfa/Jorge",
+    "want": "User: arn:aws:iam::123456789012:user/(removed) is not authorized to perform: iam:CreateVirtualMFADevice on resource: arn:aws:iam::123456789012:mfa/(removed)",
+    "source": "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html"
+  },
+  {
+    "id": "mfa-with-path",
+    "shape": "mfa",
+    "message": "User: arn:aws:iam::123456789012:role/HR is not authorized to perform: iam:DeleteVirtualMFADevice on resource: arn:aws:iam::123456789012:mfa/division_abc/subdivision_xyz/JaneMFA",
+    "want": "User: arn:aws:iam::123456789012:role/HR is not authorized to perform: iam:DeleteVirtualMFADevice on resource: arn:aws:iam::123456789012:mfa/(removed)",
+    "source": "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html"
+  },
+  {
+    "id": "root-caller",
+    "shape": "root",
+    "message": "User: arn:aws:iam::123456789012:root is not authorized to perform: iam:ListRoles with an explicit deny in a service control policy: arn:aws:organizations::777788889999:policy/o-exampleorgid/service_control_policy/p-examplepolicyid123",
+    "want": "User: arn:aws:iam::123456789012:root is not authorized to perform: iam:ListRoles with an explicit deny in a service control policy: arn:aws:organizations::777788889999:policy/o-exampleorgid/service_control_policy/p-examplepolicyid123",
+    "source": "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html"
+  },
+  {
+    "id": "role-caller-documented",
+    "shape": "role-caller",
+    "message": "User: arn:aws:iam::123456789012:role/HR is not authorized to perform: codecommit:ListRepositories because no identity-based policy allows the codecommit:ListRepositories action",
+    "want": "User: arn:aws:iam::123456789012:role/HR is not authorized to perform: codecommit:ListRepositories because no identity-based policy allows the codecommit:ListRepositories action",
+    "source": "https://docs.aws.amazon.com/IAM/latest/UserGuide/troubleshoot_access-denied.html"
+  },
+  {
+    "id": "role-caller-sso-path",
+    "shape": "role-caller",
+    "message": "User: arn:aws:iam::123456789012:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_AdministratorAccess_0123456789abcdef is not authorized to perform: iam:ListRoles",
+    "want": "User: arn:aws:iam::123456789012:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_AdministratorAccess_0123456789abcdef is not authorized to perform: iam:ListRoles",
+    "source": "https://docs.aws.amazon.com/singlesignon/latest/userguide/referencingpermissionsets.html"
+  },
+  {
+    "id": "role-caller-sso-path-with-region",
+    "shape": "role-caller",
+    "message": "User: arn:aws:iam::123456789012:role/aws-reserved/sso.amazonaws.com/eu-west-1/AWSReservedSSO_AdministratorAccess_0123456789abcdef is not authorized to perform: iam:ListRoles",
+    "want": "User: arn:aws:iam::123456789012:role/aws-reserved/sso.amazonaws.com/eu-west-1/AWSReservedSSO_AdministratorAccess_0123456789abcdef is not authorized to perform: iam:ListRoles",
+    "source": "https://docs.aws.amazon.com/singlesignon/latest/userguide/referencingpermissionsets.html"
+  },
+  {
+    "id": "role-caller-path-spelling-person-types",
+    "shape": "role-caller",
+    "message": "User: arn:aws:iam::123456789012:role/assumed-role/user/federated-user/u2f/mfa/RDSAccess is not authorized to perform: iam:ListRoles",
+    "want": "User: arn:aws:iam::123456789012:role/assumed-role/user/federated-user/u2f/mfa/RDSAccess is not authorized to perform: iam:ListRoles",
+    "source": "https://docs.aws.amazon.com/IAM/latest/APIReference/API_Role.html"
+  },
+  {
+    "id": "other-arn-identity-policy",
+    "shape": "other-arn",
+    "message": "User: arn:aws:iam::123456789012:role/HR is not authorized to perform: codedeploy:ListDeployments on resource: arn:aws:codedeploy:us-east-1:123456789012:deploymentgroup:* with an explicit deny in an identity-based policy: arn:aws:iam::123456789012:policy/HRAccessPolicy",
+    "want": "User: arn:aws:iam::123456789012:role/HR is not authorized to perform: codedeploy:ListDeployments on resource: arn:aws:codedeploy:us-east-1:123456789012:deploymentgroup:* with an explicit deny in an identity-based policy: arn:aws:iam::123456789012:policy/HRAccessPolicy",
+    "source": "https://docs.aws.amazon.com/IAM/latest/UserGuide/troubleshoot_access-denied.html"
+  },
+  {
+    "id": "other-arn-iam-group",
+    "shape": "other-arn",
+    "message": "User: arn:aws:iam::123456789012:role/HR is not authorized to perform: iam:AddUserToGroup on resource: arn:aws:iam::123456789012:group/division_abc/subdivision_xyz/product_A/Developers",
+    "want": "User: arn:aws:iam::123456789012:role/HR is not authorized to perform: iam:AddUserToGroup on resource: arn:aws:iam::123456789012:group/division_abc/subdivision_xyz/product_A/Developers",
+    "source": "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html"
+  },
+  {
+    "id": "other-arn-identity-store-user",
+    "shape": "other-arn",
+    "message": "User: arn:aws:iam::123456789012:role/HR is not authorized to perform: identitystore:DescribeUser on resource: arn:aws:identitystore:::user/a1b2c3d4-5678-90ab-cdef-EXAMPLE11111",
+    "want": "User: arn:aws:iam::123456789012:role/HR is not authorized to perform: identitystore:DescribeUser on resource: arn:aws:identitystore:::user/a1b2c3d4-5678-90ab-cdef-EXAMPLE11111",
+    "source": "https://docs.aws.amazon.com/service-authorization/latest/reference/list_identitystore.html"
+  },
+  {
+    "id": "partition-aws-cn",
+    "shape": "assumed-role",
+    "message": "User: arn:aws-cn:sts::123456789012:assumed-role/Accounting-Role/Jane is not authorized to perform: iam:ListRoles",
+    "want": "User: arn:aws-cn:sts::123456789012:assumed-role/Accounting-Role/(removed) is not authorized to perform: iam:ListRoles",
+    "source": "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference-arns.html"
+  },
+  {
+    "id": "partition-aws-us-gov",
+    "shape": "iam-user-path",
+    "message": "User: arn:aws-us-gov:iam::123456789012:user/division_abc/subdivision_xyz/Jane is not authorized to perform: iam:ListRoles",
+    "want": "User: arn:aws-us-gov:iam::123456789012:user/(removed) is not authorized to perform: iam:ListRoles",
+    "source": "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference-arns.html"
+  },
+  {
+    "id": "tab-ends-arn",
+    "shape": "forged",
+    "message": "User: arn:aws:iam::123456789012:user/John\tis not authorized to perform: iam:ListRoles",
+    "want": "User: arn:aws:iam::123456789012:user/(removed)\tis not authorized to perform: iam:ListRoles",
+    "source": "synthetic"
+  },
+  {
+    "id": "newline-ends-arn",
+    "shape": "forged",
+    "message": "User: arn:aws:sts::123456789012:assumed-role/Accounting-Role/Jane\r\nis not authorized to perform: iam:GetUser\non resource: arn:aws:iam::123456789012:user/John\n",
+    "want": "User: arn:aws:sts::123456789012:assumed-role/Accounting-Role/(removed)\r\nis not authorized to perform: iam:GetUser\non resource: arn:aws:iam::123456789012:user/(removed)\n",
+    "source": "synthetic"
+  },
+  {
+    "id": "printable-ascii-edges",
+    "shape": "forged",
+    "message": "User: arn:aws:iam::123456789012:user/John~!\u007fis not authorized to perform: iam:ListRoles",
+    "want": "User: arn:aws:iam::123456789012:user/(removed)\u007fis not authorized to perform: iam:ListRoles",
+    "source": "synthetic"
+  },
+  {
+    "id": "non-ascii-ends-arn",
+    "shape": "forged",
+    "message": "User: arn:aws:sts::123456789012:federated-user/Bob\ud83d\ude00 is not authorized to perform: iam:GetUser on resource: arn:aws:iam::123456789012:user/John\u2019s",
+    "want": "User: arn:aws:sts::123456789012:federated-user/(removed)\ud83d\ude00 is not authorized to perform: iam:GetUser on resource: arn:aws:iam::123456789012:user/(removed)\u2019s",
+    "source": "synthetic"
+  },
+  {
+    "id": "text-glued-to-a-name",
+    "shape": "forged",
+    "message": "User: arn:aws:sts::123456789012:assumed-role/Accounting-Role/jane@example.com<script>alert(1)</script> is not authorized to perform: iam:ListRoles",
+    "want": "User: arn:aws:sts::123456789012:assumed-role/Accounting-Role/(removed) is not authorized to perform: iam:ListRoles",
+    "source": "synthetic"
+  },
+  {
+    "id": "session-longer-than-aws-allows",
+    "shape": "forged",
+    "message": "User: arn:aws:sts::123456789012:assumed-role/Accounting-Role/abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@.- is not authorized to perform: iam:ListRoles",
+    "want": "User: arn:aws:sts::123456789012:assumed-role/Accounting-Role/(removed) is not authorized to perform: iam:ListRoles",
+    "source": "synthetic"
+  },
+  {
+    "id": "xarn-prefix",
+    "shape": "forged",
+    "message": "xarn:aws:iam::1:user/bob",
+    "want": "xarn:aws:iam::1:user/(removed)",
+    "source": "synthetic"
+  },
+  {
+    "id": "arn-glued-to-arn",
+    "shape": "forged",
+    "message": "User: arn:arn:aws:iam::123456789012:user/John is not authorized to perform: iam:ListRoles",
+    "want": "User: arn:arn:aws:iam::123456789012:user/(removed) is not authorized to perform: iam:ListRoles",
+    "source": "synthetic"
+  },
+  {
+    "id": "arn-inside-a-word",
+    "shape": "forged",
+    "message": "Warn: request throttled, retry later",
+    "want": "Warn: request throttled, retry later",
+    "source": "synthetic"
+  },
+  {
+    "id": "user-arn-inside-a-role-path",
+    "shape": "forged",
+    "message": "User: arn:aws:iam::123456789012:role/arn:aws:iam::123456789012:user/Jane is not authorized to perform: iam:ListRoles",
+    "want": "User: arn:aws:iam::123456789012:role/arn:aws:iam::123456789012:user/(removed) is not authorized to perform: iam:ListRoles",
+    "source": "synthetic"
+  },
+  {
+    "id": "missing-field",
+    "shape": "forged",
+    "message": "User: arn:aws:iam:123456789012:user/John is not authorized to perform: iam:ListRoles",
+    "want": "User: arn:aws:iam:123456789012:user/John is not authorized to perform: iam:ListRoles",
+    "source": "synthetic"
+  },
+  {
+    "id": "region-filled-in",
+    "shape": "forged",
+    "message": "User: arn:aws:sts:us-east-1:123456789012:assumed-role/Accounting-Role/Jane is not authorized to perform: iam:ListRoles",
+    "want": "User: arn:aws:sts:us-east-1:123456789012:assumed-role/Accounting-Role/Jane is not authorized to perform: iam:ListRoles",
+    "source": "synthetic"
+  },
+  {
+    "id": "empty-partition",
+    "shape": "forged",
+    "message": "User: arn::iam::123456789012:user/John is not authorized to perform: iam:ListRoles",
+    "want": "User: arn::iam::123456789012:user/John is not authorized to perform: iam:ListRoles",
+    "source": "synthetic"
+  },
+  {
+    "id": "no-break-space-inside-a-name",
+    "shape": "forged",
+    "message": "User: arn:aws:sts::123456789012:assumed-role/Accounting-Role/Ja\u00a0ne is not authorized to perform: iam:ListRoles",
+    "want": "User: arn:aws:sts::123456789012:assumed-role/Accounting-Role/(removed)\u00a0ne is not authorized to perform: iam:ListRoles",
+    "source": "synthetic"
+  },
+  {
+    "id": "already-removed",
+    "shape": "forged",
+    "message": "User: arn:aws:sts::123456789012:assumed-role/Accounting-Role/(removed) is not authorized to perform: iam:GetUser on resource: arn:aws:iam::123456789012:user/(removed)",
+    "want": "User: arn:aws:sts::123456789012:assumed-role/Accounting-Role/(removed) is not authorized to perform: iam:GetUser on resource: arn:aws:iam::123456789012:user/(removed)",
+    "source": "synthetic"
+  },
+  {
+    "id": "unanswered-sdk-connection-refused",
+    "shape": "unanswered",
+    "message": "operation error STS: GetCallerIdentity, exceeded maximum number of attempts, 3, https response error StatusCode: 0, RequestID: , request send failed, Post \"http://127.0.0.1:1/\": dial tcp 127.0.0.1:1: connect: connection refused",
+    "want": "operation error STS: GetCallerIdentity, exceeded maximum number of attempts, 3, https response error StatusCode: 0, RequestID: , request send failed, Post \"http://127.0.0.1:1/\": dial tcp 127.0.0.1:1: connect: connection refused",
+    "source": "synthetic"
+  },
+  {
+    "id": "unanswered-no-organization",
+    "shape": "unanswered",
+    "message": "AWS answered without an organization",
+    "want": "AWS answered without an organization",
+    "source": "synthetic"
+  },
+  {
+    "id": "empty-user-name",
+    "shape": "forged",
+    "message": "User: arn:aws:iam::123456789012:user/ is not authorized to perform: iam:ListRoles",
+    "want": "User: arn:aws:iam::123456789012:user/(removed) is not authorized to perform: iam:ListRoles",
+    "source": "synthetic"
+  },
+  {
+    "id": "empty-federated-user-name",
+    "shape": "forged",
+    "message": "User: arn:aws:sts::123456789012:federated-user/ is not authorized to perform: iam:ListRoles",
+    "want": "User: arn:aws:sts::123456789012:federated-user/(removed) is not authorized to perform: iam:ListRoles",
+    "source": "synthetic"
+  },
+  {
+    "id": "empty-u2f-name",
+    "shape": "forged",
+    "message": "User: arn:aws:iam::123456789012:role/HR is not authorized to perform: iam:DeactivateMFADevice on resource: arn:aws:iam::123456789012:u2f/",
+    "want": "User: arn:aws:iam::123456789012:role/HR is not authorized to perform: iam:DeactivateMFADevice on resource: arn:aws:iam::123456789012:u2f/(removed)",
+    "source": "synthetic"
+  },
+  {
+    "id": "empty-mfa-name",
+    "shape": "forged",
+    "message": "User: arn:aws:iam::123456789012:role/HR is not authorized to perform: iam:DeleteVirtualMFADevice on resource: arn:aws:iam::123456789012:mfa/",
+    "want": "User: arn:aws:iam::123456789012:role/HR is not authorized to perform: iam:DeleteVirtualMFADevice on resource: arn:aws:iam::123456789012:mfa/(removed)",
+    "source": "synthetic"
+  },
+  {
+    "id": "empty-session",
+    "shape": "forged",
+    "message": "User: arn:aws:sts::123456789012:assumed-role/Accounting-Role/ is not authorized to perform: iam:ListRoles",
+    "want": "User: arn:aws:sts::123456789012:assumed-role/Accounting-Role/(removed) is not authorized to perform: iam:ListRoles",
+    "source": "synthetic"
+  },
+  {
+    "id": "assumed-role-without-session",
+    "shape": "forged",
+    "message": "User: arn:aws:sts::123456789012:assumed-role/Accounting-Role is not authorized to perform: iam:ListRoles",
+    "want": "User: arn:aws:sts::123456789012:assumed-role/Accounting-Role is not authorized to perform: iam:ListRoles",
+    "source": "synthetic"
+  },
+  {
+    "id": "two-thousand-characters",
+    "shape": "forged",
+    "message": "User: arn:a:iam:::user/A arn:a:iam:::user/B arn:a:iam:::user/C arn:a:iam:::user/D arn:a:iam:::user/E arn:a:iam:::user/F arn:a:iam:::user/G arn:a:iam:::user/H arn:a:iam:::user/I arn:a:iam:::user/J arn:a:iam:::user/K arn:a:iam:::user/L arn:a:iam:::user/M arn:a:iam:::user/N arn:a:iam:::user/O arn:a:iam:::user/P arn:a:iam:::user/Q arn:a:iam:::user/R arn:a:iam:::user/S arn:a:iam:::user/T arn:a:iam:::user/U arn:a:iam:::user/V arn:a:iam:::user/W arn:a:iam:::user/X arn:a:iam:::user/Y arn:a:iam:::user/Z arn:a:iam:::user/a arn:a:iam:::user/b arn:a:iam:::user/c arn:a:iam:::user/d arn:a:iam:::user/e arn:a:iam:::user/f arn:a:iam:::user/g arn:a:iam:::user/h arn:a:iam:::user/i arn:a:iam:::user/j arn:a:iam:::user/k arn:a:iam:::user/l arn:a:iam:::user/m arn:a:iam:::user/n arn:a:iam:::user/o arn:a:iam:::user/p arn:a:iam:::user/q arn:a:iam:::user/r arn:a:iam:::user/s arn:a:iam:::user/t arn:a:iam:::user/u arn:a:iam:::user/v arn:a:iam:::user/w arn:a:iam:::user/x arn:a:iam:::user/y arn:a:iam:::user/z arn:a:iam:::user/0 arn:a:iam:::user/1 arn:a:iam:::user/2 arn:a:iam:::user/3 arn:a:iam:::user/4 arn:a:iam:::user/5 arn:a:iam:::user/6 arn:a:iam:::user/7 arn:a:iam:::user/8 arn:a:iam:::user/9 arn:a:iam:::user/_ arn:a:iam:::user/+ arn:a:iam:::user/= arn:a:iam:::user/, arn:a:iam:::user/. arn:a:iam:::user/@ arn:a:iam:::user/- arn:a:iam:::user/A arn:a:iam:::user/B arn:a:iam:::user/C arn:a:iam:::user/D arn:a:iam:::user/E arn:a:iam:::user/F arn:a:iam:::user/G arn:a:iam:::user/H arn:a:iam:::user/I arn:a:iam:::user/J arn:a:iam:::user/K arn:a:iam:::user/L arn:a:iam:::user/M arn:a:iam:::user/N arn:a:iam:::user/O arn:a:iam:::user/P arn:a:iam:::user/Q arn:a:iam:::user/R arn:a:iam:::user/S arn:a:iam:::user/T arn:a:iam:::user/U arn:a:iam:::user/V arn:a:iam:::user/W arn:a:iam:::user/X arn:a:iam:::user/Y arn:a:iam:::user/Z arn:a:iam:::user/a arn:a:iam:::user/b arn:a:iam:::user/c arn:a:iam:::user/d arn:a:iam:::user/e arn:a:iam:::user/f arn:a:iam:::user/g arn:a:iam:::user/h arn:a:iam:::user/i arn:a:iam:::user/j",
+    "want": "User: arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed) arn:a:iam:::user/(removed)",
+    "source": "synthetic"
+  }
+]

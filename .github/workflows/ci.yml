@@ -29,5 +29,7 @@ jobs:
         run: make determinism
       - name: statement coverage of the pure packages is 100%
         run: make cover
+      - name: the collector, a module of its own, verifies, builds, vets and passes
+        run: make collect
       - name: no secret, routable IP address or .env file is committed
         run: ./scripts/preflight.sh

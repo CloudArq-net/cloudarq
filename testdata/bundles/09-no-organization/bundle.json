@@ -1,0 +1,36 @@
+{
+  "format": "cloudarq.collect/v1",
+  "provider": "aws",
+  "account": "123456789012",
+  "partition": "aws",
+  "alias": null,
+  "collected_at": "2026-10-03T00:00:00Z",
+  "collector": "cloudarq-collect 0.2.0",
+  "pages": [
+    {
+      "Roles": [
+        {
+          "Path": "/",
+          "RoleName": "OrganizationAccountAccessRole",
+          "RoleId": "AROAEXAMPLEORGACCESS",
+          "Arn": "arn:aws:iam::123456789012:role/OrganizationAccountAccessRole",
+          "CreateDate": "2024-01-02T03:04:05Z",
+          "AssumeRolePolicyDocument": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::111122223333:root\"},\"Action\":\"sts:AssumeRole\"}]}",
+          "MaxSessionDuration": 3600
+        },
+        {
+          "Path": "/",
+          "RoleName": "deploy",
+          "RoleId": "AROAEXAMPLEDEPLOY",
+          "Arn": "arn:aws:iam::123456789012:role/deploy",
+          "CreateDate": "2024-01-02T03:04:05Z",
+          "AssumeRolePolicyDocument": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"},\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",\"token.actions.githubusercontent.com:sub\":\"repo:acme/infra:ref:refs/heads/main\"}}}]}",
+          "MaxSessionDuration": 3600
+        }
+      ],
+      "IsTruncated": false
+    }
+  ],
+  "refused": [],
+  "limits": []
+}

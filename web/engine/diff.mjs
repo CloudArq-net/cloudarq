@@ -3,7 +3,8 @@
 // explain, over the policies of the corpus and over the shapes a pasted
 // document can take that no fixture has: nesting at and past the entry's bound, a member the grammar
 // does not define, a document past the engine's bound, a token nested too
-// deep. Then the entry's refusal of depth with the engine answering after
+// deep; and so must the findings of bundles, and every answer re-marked
+// with other owners. Then the entry's refusal of depth with the engine answering after
 // it; the engine's own time on a 50-statement policy in node, which is the
 // engine's number and not that of any page embedding it; where the heap
 // stands over repeated calls on that
@@ -38,7 +39,7 @@ if (!wasmPath || !nativeBin || !work) {
 const { loadEngine } = await import("./engine.ts");
 const engineModule = await WebAssembly.compile(readFileSync(wasmPath));
 const engine = await loadEngine(engineModule);
-for (const name of ["admits", "explain", "findings"]) {
+for (const name of ["admits", "explain", "findings", "remark"]) {
   if (typeof engine[name] !== "function") {
     console.error(`the loader did not return ${name}`);
     process.exit(1);
@@ -153,8 +154,10 @@ for (const file of documents) {
 }
 // Findings: one bundle holding every document above as a role's trust
 // policy, as cloudarq-collect writes one, answered with no owner and with
-// owners declared; then bundles the engine refuses. The engine's name is the
-// one build.sh stamped into the module.
+// owners declared; the same documents on the path AWS gives the roles it
+// makes for a service, where the engine reads each trust to say whether the
+// role is AWS's; every case of the bundle corpus; then bundles the engine
+// refuses. The engine's name is the one build.sh stamped into the module.
 const engineName = `cloudarq ${process.env.CLOUDARQ_ENGINE_VERSION ?? "0.0.0-dev"}`;
 const collected = (documentsAsRoles, edit = b => b) => JSON.stringify(edit({
   format: "cloudarq.collect/v1", provider: "aws", account: "123456789012", partition: "aws", alias: "production",
@@ -172,7 +175,14 @@ const bundles = {
   "bundle-of-a-newer-format.json": collected(corpus.slice(0, 1), b => ({ ...b, format: "cloudarq.collect/v2" })),
   "bundle-of-a-stranger.json": collected(corpus.slice(0, 1), b => ({ ...b, account: "999999999999" })),
   "bundle-not-json.txt": "PK not a bundle",
+  "bundle-on-aws-path.json": collected(documents, b => ({ ...b, pages: b.pages.map(page => ({ ...page, Roles: page.Roles.map(role => ({
+    ...role, Path: "/aws-service-role/organizations.amazonaws.com/",
+    Arn: role.Arn.replace(":role/", ":role/aws-service-role/organizations.amazonaws.com/"),
+  })) })) })),
 };
+for (const name of readdirSync("testdata/bundles").sort()) {
+  bundles[`corpus-${name}.json`] = readFileSync(join("testdata/bundles", name, "bundle.json"), "utf8");
+}
 const ownerLists = { "no-owner.txt": "", "owners.txt": "github:acme\naws:111122223333\nnot an owner" };
 for (const [name, text] of Object.entries({ ...bundles, ...ownerLists })) writeFileSync(join(work, name), text);
 let findingsCalls = 0;
@@ -183,12 +193,68 @@ for (const bundle of Object.keys(bundles)) {
     compare(`findings ${bundle} with ${owners}`, fromWasm, native("findings", join(work, bundle), join(work, owners), engineName));
   }
 }
+// A differential in which no role was said to be AWS's compared that
+// reading on nothing, so the roles explained are counted and must be some.
+const explained = Object.keys(bundles)
+  .map(bundle => JSON.parse(engine.findings(readFileSync(join(work, bundle)), "")).roles ?? [])
+  .reduce((n, roles) => n + roles.filter(role => role.managed !== null).length, 0);
+if (explained === 0) {
+  console.error("FAIL: no role of any bundle was said to be AWS's, so that reading was never compared");
+  process.exit(1);
+}
+// The same for the account a scan read, recognised as the reader's, and for
+// the Organization's questions: a differential in which no owner was
+// recognised, or no role said what a yes would move, compared neither.
+const corpusRoles = Object.keys(bundles).filter(bundle => bundle.startsWith("corpus-"))
+  .flatMap(bundle => JSON.parse(engine.findings(readFileSync(join(work, bundle)), "")).roles ?? []);
+const recognisedRoles = corpusRoles
+  .filter(role => (role.answer.grants ?? []).some(g => (g.populations ?? []).some(p => p.owners.some(o => o.recognised)))).length;
+const movable = corpusRoles.filter(role => role.would_move.length > 0).length;
+if (recognisedRoles === 0 || movable === 0) {
+  console.error(`FAIL: ${recognisedRoles} roles of the bundle corpus recognised an owner and ${movable} said what a yes would move, so one of them was never compared`);
+  process.exit(1);
+}
 const everyRole = JSON.parse(engine.findings(readFileSync(join(work, "bundle-of-every-document.json")), ""));
 if (everyRole.roles?.length !== documents.length || everyRole.engine !== engineName) {
   console.error(`FAIL: the bundle of every document gave ${everyRole.roles?.length} roles for ${documents.length} documents, engine ${everyRole.engine}`);
   process.exit(1);
 }
-console.log(`differential: ${documents.length} documents (${corpus.length} of the corpus, ${Object.keys(shapes).length} generated) through admits, ${explains} explain calls, ${findingsCalls} findings calls over ${Object.keys(bundles).length} bundles, ${differences} differences`);
+// Remark: each document's answer kept as admits writes it, and as the
+// findings keep it with each owner list in the form a caller that parsed
+// them passes back, and each answer of the bundle corpus, which recognise
+// the account their scan read, re-marked with each owner list and with one
+// past its bound; then an answer another build wrote, and text that is no
+// answer. A differential that compared only declines would compare
+// nothing, so the outcomes are counted and each must occur.
+const remarkOwners = { ...ownerLists, "owners-past-the-bound.txt": "github:o\n".repeat(65) };
+writeFileSync(join(work, "owners-past-the-bound.txt"), remarkOwners["owners-past-the-bound.txt"]);
+const kept = documents.map(file => admits(readFileSync(file, "utf8")));
+kept.push(...corpusRoles.map(role => JSON.stringify(role.answer)));
+for (const owners of Object.values(remarkOwners)) {
+  const keptWith = JSON.parse(engine.findings(readFileSync(join(work, "bundle-of-every-document.json")), owners));
+  kept.push(...keptWith.roles.map(role => JSON.stringify(role.answer)));
+}
+const remarkCases = [];
+for (const answer of kept) {
+  for (const owners of Object.keys(remarkOwners)) remarkCases.push([answer, owners, engineName]);
+}
+remarkCases.push([kept[0], "owners.txt", "cloudarq 0.0.0-another-build"], ["{ not an answer", "owners.txt", engineName]);
+const remarked = { redrawn: 0, engine: 0, owners: 0, answer: 0 };
+const keptPath = join(work, "kept-answer.json");
+for (const [answer, owners, wrote] of remarkCases) {
+  const fromWasm = engine.remark(answer, remarkOwners[owners], wrote);
+  writeFileSync(keptPath, answer);
+  compare(`remark of a kept answer with ${owners}, written by ${wrote}`, fromWasm, native("remark", keptPath, join(work, owners), wrote, engineName));
+  const outcome = JSON.parse(fromWasm).declined ?? "redrawn";
+  remarked[outcome] = (remarked[outcome] ?? 0) + 1;
+}
+const said = outcome => (outcome === "redrawn" ? "redrawn" : `declined ${outcome}`);
+console.log(`differential: ${documents.length} documents (${corpus.length} of the corpus, ${Object.keys(shapes).length} generated) through admits, ${explains} explain calls, ${findingsCalls} findings calls over ${Object.keys(bundles).length} bundles (${explained} roles said to be AWS's, ${recognisedRoles} of the corpus recognising the account read, ${movable} saying what a yes would move), ${remarkCases.length} remark calls over ${kept.length} kept answers (${Object.entries(remarked).map(([outcome, n]) => `${n} ${said(outcome)}`).join(", ")}), ${differences} differences`);
+const unseen = Object.keys(remarked).filter(outcome => remarked[outcome] === 0);
+if (unseen.length > 0) {
+  console.error(`FAIL: no remark call was ${unseen.map(said).join(" or ")}, so that outcome was never compared`);
+  process.exit(1);
+}
 if (documents.length === 0 || differences > 0) process.exit(1);
 
 // Depth. A document nested 200 deep trapped the engine on the toolchain's

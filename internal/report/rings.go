@@ -222,11 +222,18 @@ func listing(numbers []int, spans []Span) *Listing {
 // declarationsOf is the declaration as the answer echoes it: the owners in
 // their one normalised form, each refused line as it was written, with why,
 // and each owner declared that no grant which admits is pinned to, with
-// why.
+// why, unless it is recognised as the reader's, which it is whatever the
+// declaration says; then every owner recognised, as the declared ones are
+// echoed whether a grant is pinned to them or not, since re-marking the
+// answer places them again and keeps them out of what is unmatched.
 func declarationsOf(d ring.Declarations, placed []placed) *Declarations {
 	out := &Declarations{Normalised: []string{}, RefusedLines: []RefusedLine{}, Unmatched: []UnmatchedOwner{}}
+	recognised := recognisedIn(placed)
 	for _, owner := range d.Owners {
 		out.Normalised = append(out.Normalised, owner.String())
+		if slices.Contains(recognised, owner) {
+			continue
+		}
 		if matched, spelledLike := match(owner, placed); !matched {
 			out.Unmatched = append(out.Unmatched, UnmatchedOwner{Declaration: owner.String(), Sentence: withoutControls(unmatchedWords(spelledLike))})
 		}
@@ -234,7 +241,17 @@ func declarationsOf(d ring.Declarations, placed []placed) *Declarations {
 	for _, r := range d.Refused {
 		out.RefusedLines = append(out.RefusedLines, RefusedLine{Line: r.Line, Text: r.Text, Reason: r.Reason.String(), Sentence: refusalWords(r.Reason)})
 	}
+	out.Recognitions = recognitionsOf(recognised)
 	return out
+}
+
+// recognisedIn is the owners the grants were placed with as recognised,
+// which are the same for every grant of an answer.
+func recognisedIn(placed []placed) []ring.Declaration {
+	if len(placed) == 0 {
+		return nil
+	}
+	return placed[0].mine.recognised
 }
 
 // OwnerRefused is why one owner declared on its own, one line, declares no
@@ -351,12 +368,14 @@ func reason(pops []population) (basis ring.Basis, first placed, shared, oneIssue
 	return basis, first, shared, oneIssuer
 }
 
-// named is one owner a row names, by its name in a sentence, and whether a
-// grant lets it in for certain.
+// named is one owner a row names, by its name in a sentence, whether a
+// grant lets it in for certain, and whether it is the reader's by
+// recognition alone, which a sentence says in place of its being declared.
 type named struct {
 	ring.Owner
-	name string
-	sure bool
+	name       string
+	sure       bool
+	recognised bool
 }
 
 // owners are the owners the populations here are pinned to, each once, in
@@ -377,7 +396,8 @@ func (r row) owners() []named {
 				out[i].sure = out[i].sure || certain(p)
 				continue
 			}
-			out = append(out, named{Owner: o, name: name, sure: certain(p)})
+			declared, recognised := p.grant.mine.marks(o, p.grant.facts)
+			out = append(out, named{Owner: o, name: name, sure: certain(p), recognised: recognised && !declared})
 		}
 	}
 	return out

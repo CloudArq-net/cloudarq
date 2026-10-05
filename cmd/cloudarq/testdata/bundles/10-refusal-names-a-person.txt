@@ -1,0 +1,32 @@
+"deploy-admin"  "arn:aws:iam::123456789012:role/deploy-admin"
+
+read as an aws trust policy · version 2012-10-17 · 141 bytes · 1 line · 1 statement
+sha256 b040e44fedf47344b562876548d026966610aa0e93f28898a6ecaeab3c00eac8
+
+Nothing outside your company can assume this role.
+
+  Anyone                exact           No grant is placed with people who have no account anywhere.
+  Anyone on a platform  exact           No grant is placed at a whole platform.
+  A named outsider      exact           No grant is placed with a named outsider.
+  Your AWS accounts     exact  grant 1  aws:123456789012, recognised: the account this scan read, can assume this role.
+  Your people           exact           No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] · Allow · aws:sts · yours · exact
+This role admits any AWS principal whose aws:principalaccount is 123456789012 and whose aws:principalarn is arn:aws:iam::123456789012:user/Jane.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM                 ADMITS                                 IN WORDS · AS WRITTEN
+aws:principalaccount  "123456789012"                         exactly this value · from Principal
+aws:principalarn      "arn:aws:iam::123456789012:user/Jane"  exactly this value · from Principal
+any other claim       any                                    unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "aws:principalaccount": "123456789012",
+    "aws:principalarn": "arn:aws:iam::123456789012:user/Jane"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant.
+
+statement[0] · offset 37 · 102 bytes · line 1 · issuer at line 1 Principal · sha256 497d7fd8b2656d967c29c4e5d4b6d9af10571576636c52208e3230ae3c837136

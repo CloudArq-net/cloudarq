@@ -1,0 +1,64 @@
+"OrganizationAccountAccessRole"  "arn:aws:iam::123456789012:role/OrganizationAccountAccessRole"
+
+read as an aws trust policy · version 2012-10-17 · 136 bytes · 1 line · 1 statement
+sha256 fbefc21d0d45d60cb6a255159fc1dd4c83c940a9de1ed757bd157ce569478bf5
+
+A named outsider can assume this role.
+
+  Anyone                exact           No grant is placed with people who have no account anywhere.
+  Anyone on a platform  exact           No grant is placed at a whole platform.
+  A named outsider      exact  grant 1  aws:111122223333 can assume this role and is not declared as yours.
+  Your pipelines        exact           No grant is confined to owners declared as yours.
+  Your people           exact           No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] · Allow · aws:sts · outsider · exact
+This role admits any AWS principal whose aws:principalaccount is 111122223333.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM                 ADMITS          IN WORDS · AS WRITTEN
+aws:principalaccount  "111122223333"  exactly this value · from Principal
+any other claim       any             unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "aws:principalaccount": "111122223333"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant.
+
+statement[0] · offset 37 · 97 bytes · line 1 · issuer at line 1 Principal · sha256 d7660b36a52a5720cd90956cdac377b09ac3a8fd9d2de53a19e159ed17778933
+
+"deploy"  "arn:aws:iam::123456789012:role/deploy"
+
+read as an aws trust policy · version 2012-10-17 · 375 bytes · 1 line · 1 statement
+sha256 c4c8b2f64256ff4d0451421cf030963c74aec404e63163b5783e93617077a974
+
+A named outsider can assume this role.
+
+  Anyone                exact           No grant is placed with people who have no account anywhere.
+  Anyone on a platform  exact           No grant is placed at a whole platform.
+  A named outsider      exact  grant 1  github:acme can assume this role and is not declared as yours.
+  Your pipelines        exact           No grant is confined to owners declared as yours.
+  Your people           exact           No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] · Allow · https://token.actions.githubusercontent.com · outsider · exact
+This role admits any token from token.actions.githubusercontent.com whose aud is sts.amazonaws.com and whose sub is repo:acme/infra:ref:refs/heads/main.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM            ADMITS                                 IN WORDS · AS WRITTEN
+aud              "sts.amazonaws.com"                    exactly this audience · line 1 StringEquals
+sub              "repo:acme/infra:ref:refs/heads/main"  exactly this subject · line 1 StringEquals
+any other claim  any                                    unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "iss": "https://token.actions.githubusercontent.com",
+    "aud": "sts.amazonaws.com",
+    "sub": "repo:acme/infra:ref:refs/heads/main"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant, but for azp. It sets no azp: AWS reads aud from azp whenever a token sets one.
+
+statement[0] · offset 37 · 336 bytes · line 1 · issuer at line 1 Principal.Federated · sha256 648a8eb8299f51aed40e14b935c6dc39406e4709207f0a508b6f7f1d226721da

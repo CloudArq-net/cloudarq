@@ -14,11 +14,13 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/user"
 	"time"
 
 	sdk "github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/iam"
+	"github.com/aws/aws-sdk-go-v2/service/organizations"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 
 	collect "github.com/CloudArq-net/cloudarq/internal/collect/aws"
@@ -35,7 +37,9 @@ const (
 )
 
 // defaultRegion is where STS is asked when nothing names a region. IAM is
-// global, and STS answers GetCallerIdentity in every region of a partition.
+// global, STS answers GetCallerIdentity in every region of a partition, and
+// Organizations answers from one endpoint in each partition, which the
+// region's partition picks.
 const defaultRegion = "us-east-1"
 
 // timeout bounds a whole collection: five pages of roles take seconds, and a
@@ -50,12 +54,13 @@ func usage(w io.Writer) {
 	fmt.Fprint(w, `usage: cloudarq-collect aws [--profile NAME] [--region REGION] [--explain] > estate.json
 
 Reads the AWS account your credentials belong to - who it is, its roles and
-their trust policies, and its alias - and writes them as one bundle on
-standard output. It only reads, with your own credentials from AWS's
-standard chain.
+their trust policies, its alias, and the AWS Organization it is in - and
+writes them as one bundle on standard output. It only reads, with your own
+credentials from AWS's standard chain.
 
   --profile NAME    the profile to use, as the AWS CLI's --profile
-  --region REGION   the region to ask STS in; IAM is global
+  --region REGION   the region to ask STS in, whose partition is the one
+                    asked; IAM is global
   --explain         name every call on standard error before it is made
   --version         print the version and exit
 `)
@@ -104,10 +109,12 @@ func run(args []string, stdout, stderr io.Writer) int {
 	}
 
 	reader := collect.Reader{
-		STS:       sts.NewFromConfig(settings),
-		IAM:       iam.NewFromConfig(settings),
-		Clock:     time.Now,
-		Collector: "cloudarq-collect " + version,
+		STS:           sts.NewFromConfig(settings),
+		IAM:           iam.NewFromConfig(settings),
+		Organizations: organizations.NewFromConfig(settings),
+		Clock:         time.Now,
+		Collector:     "cloudarq-collect " + version,
+		Home:          homeDir(),
 	}
 	if *explain {
 		reader.Explain = stderr
@@ -134,6 +141,12 @@ func report(stderr io.Writer, bundle collect.Bundle) int {
 		name = fmt.Sprintf("%s (%s)", bundle.Account, sdk.ToString(bundle.Alias))
 	}
 	fmt.Fprintf(stderr, "cloudarq-collect: account %s: %s in %s\n", name, counted(bundle.Roles(), "role"), counted(len(bundle.Pages), "page"))
+	switch o := bundle.Organization; o.Status {
+	case "member":
+		fmt.Fprintf(stderr, "cloudarq-collect: in AWS Organization %s, whose management account is %s\n", o.ID, o.ManagementAccount)
+	case "not-a-member":
+		fmt.Fprintln(stderr, "cloudarq-collect: not in an AWS Organization")
+	}
 	for _, refused := range bundle.Refused {
 		fmt.Fprintf(stderr, "cloudarq-collect: AWS refused %s: %s: %s\n", refused.Call, refused.Code, refused.Message)
 	}
@@ -143,8 +156,23 @@ func report(stderr io.Writer, bundle collect.Bundle) int {
 	if !bundle.Partial() {
 		return exitWhole
 	}
-	fmt.Fprintln(stderr, "cloudarq-collect: the bundle is partial, and says what it lacks; a whole read needs iam:ListRoles and iam:ListAccountAliases")
+	fmt.Fprintln(stderr, "cloudarq-collect: the bundle is partial, and says what it lacks; a whole read needs iam:ListRoles, iam:ListAccountAliases and organizations:DescribeOrganization")
 	return exitPartial
+}
+
+// homeDir is the home directory the SDK reads its files under, found by the
+// SDK's own rule, so that the home the collector takes out of the SDK's
+// words is the one those words name: the operating system's answer, $HOME
+// on Unix, and when that is empty, the home of the account the collector
+// runs as. An error from either is an empty answer, as it is to the SDK.
+func homeDir() string {
+	if home, _ := os.UserHomeDir(); home != "" {
+		return home
+	}
+	if account, err := user.Current(); err == nil {
+		return account.HomeDir
+	}
+	return ""
 }
 
 func counted(n int, noun string) string {

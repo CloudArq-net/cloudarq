@@ -51,10 +51,10 @@ echo "── build ──"
 # (web/engine/engine.ts). The trapping fixture is built the same way, so that
 # the recovery it proves is the real module's.
 #
-# The version the findings name is the commit's, as git describes it: the tag
-# alone on a release, as `go install …@v0.2.0` records it for the command.
-version=$(git describe --tags --always --dirty 2>/dev/null || echo 0.0.0-dev)
-version=${version#v}
+# The version the findings name is the commit's, as scripts/version.sh
+# describes it: the tag alone on a release, as `go install …@v0.2.0` records
+# it for the command, and the same rule make release names its files by.
+version=$(scripts/version.sh)
 export CLOUDARQ_ENGINE_VERSION="$version"
 stamp=(-ldflags "-X main.version=$version")
 tinygo build -o "$work/engine.wasm" -target web/wasm/target.json -buildmode=c-shared -scheduler=none -opt=s -no-debug -panic=trap "${stamp[@]}" ./web/wasm

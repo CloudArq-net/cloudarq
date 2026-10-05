@@ -115,8 +115,9 @@ func admits(args []string, stdin io.Reader, stdout, stderr io.Writer, isTerminal
 	return refusal(stderr, answer.Error)
 }
 
-// admitsBundle answers every role of a bundle with the owners declared: as
-// the findings JSON, or as each role's answer under its name. A bundle the
+// admitsBundle answers every role of a bundle with the owners declared, and
+// the account the bundle was read from recognised as the reader's: as the
+// findings JSON, or as each role's answer under its name. A bundle the
 // engine does not read, or a role whose policy it does not, is exit code 1
 // with the reason on standard error; the findings still go to standard
 // output, as one document's answer does.
@@ -137,12 +138,25 @@ func admitsBundle(path string, stdin io.Reader, stdout, stderr io.Writer, owners
 	}
 	code := exitAnswered
 	for i, role := range b.Roles {
-		answer := report.AnswerFor(role.Document, declared)
+		answer, moves := b.Finding(role, declared)
 		if !asJSON {
 			if i > 0 {
 				io.WriteString(stdout, "\n")
 			}
 			fmt.Fprintf(stdout, "%s  %s\n\n", strconv.QuoteToASCII(role.Name), strconv.QuoteToASCII(role.Arn))
+			// The service these words name is a path segment, which the
+			// reader holds to printable ASCII, so nothing a terminal
+			// acts on reaches them.
+			if role.Managed != nil {
+				fmt.Fprintf(stdout, "%s\n%s\n\n", role.Managed.Sentence, role.Managed.Caption)
+			}
+			// What an owner the findings ask about would change of the
+			// role: the owner is an AWS ID the reader holds to its pattern,
+			// the question is the engine's, and the sentence is stripped of
+			// what a terminal acts on where it is composed.
+			for _, m := range moves {
+				fmt.Fprintf(stdout, "%s · %s\n%s\n\n", m.Declaration, m.Question, m.Sentence)
+			}
 			io.WriteString(stdout, answer.Text(options))
 		}
 		if answer.Error != "" {

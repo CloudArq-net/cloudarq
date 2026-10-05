@@ -1,0 +1,2 @@
+exit 1
+cloudarq admits: this bundle's organization management account's ARN "arn:aws:organizations::111122223333:account/o-exampleorgid/444455556666" is not the ARN of 111122223333 in o-exampleorgid, which AWS writes "arn:aws:organizations::111122223333:account/o-exampleorgid/111122223333"

@@ -1,0 +1,23 @@
+# Refused: the step's name is a block scalar on its dash's line, and its
+# uses: names an action by a tag. The name's text is the line indented past
+# the step's keys; the uses: and with: below it, at the keys' own column,
+# are the step's, as YAML reads them, not part of the name.
+name: check
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: |
+          fetch
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - run: make check

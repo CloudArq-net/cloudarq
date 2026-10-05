@@ -42,7 +42,9 @@ var sameNameAlready = map[string][]string{
 // as JSON: each case of testdata/rings with its own declaration, then with
 // lines the engine refuses added to it, and explained for a token; every
 // document of the grants and policy corpora; a document and a token that
-// cannot be read; and a declaration past its bound.
+// cannot be read; a declaration past its bound; and the answers a scan's
+// findings keep for roles trusting the account the scan read, which it
+// recognises, alone and beside an owner declared.
 func contractSamples(t *testing.T) [][]byte {
 	t.Helper()
 	token := []byte(`{"iss":"https://token.actions.githubusercontent.com","aud":"sts.amazonaws.com","sub":"repo:acme/infra:ref:refs/heads/main","repository_owner_id":"123456"}`)
@@ -76,6 +78,12 @@ func contractSamples(t *testing.T) [][]byte {
 		Explain(doc, []byte("not a token")),
 		AdmitsFor(doc, []byte(strings.Repeat("github:o\n", ring.MaxDeclarationLines+1))),
 	)
+	bundle := bundleOf(t, nil, testRole{"admin", ownAccountTrust}, testRole{"both", ownAndManaging})
+	for _, owners := range []string{"", "aws:" + management} {
+		for i := range findingsOf(t, bundle, owners).Roles {
+			out = append(out, findingsOf(t, bundle, owners).Roles[i].Answer)
+		}
+	}
 	if len(out) < 200 {
 		t.Fatalf("%d answers and explanations; the contract would be held over too few", len(out))
 	}

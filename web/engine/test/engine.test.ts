@@ -12,7 +12,7 @@
 //
 // The engine is the built wasm. There is nothing to mock: a mocked engine
 // would prove that the mock answers, which is not the thing worth knowing.
-import { ok, strictEqual, notStrictEqual } from "node:assert/strict";
+import { deepStrictEqual, notDeepStrictEqual, ok, strictEqual, notStrictEqual } from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
@@ -55,6 +55,25 @@ test("the engine answers, and the answer is version 1 of the schema", async () =
 	const explained = JSON.parse(engine.explain(policy, token));
 	strictEqual(explained.v, 1);
 	strictEqual(explained.grants.length, 1);
+});
+
+test("remark re-marks a role the findings kept as the findings answer it with the owners declared now", async () => {
+	const engine = await loadEngine(module);
+	const bundle = new TextEncoder().encode(JSON.stringify({
+		format: "cloudarq.collect/v1", provider: "aws", account: "123456789012", partition: "aws",
+		pages: [{ Roles: [{ RoleName: "deploy", Arn: "arn:aws:iam::123456789012:role/deploy", AssumeRolePolicyDocument: policy }] }],
+		refused: [], limits: [],
+	}));
+	const kept = JSON.parse(engine.findings(bundle, ""));
+	const now = JSON.parse(engine.findings(bundle, "github:acme"));
+	// the owner moves the role, or re-marking it would prove nothing
+	notDeepStrictEqual(now.roles[0].answer, kept.roles[0].answer);
+	const remarked = engine.remark(JSON.stringify(kept.roles[0].answer), "github:acme", kept.engine);
+	deepStrictEqual(JSON.parse(remarked), now.roles[0].answer);
+	const declined = JSON.parse(engine.remark(JSON.stringify(kept.roles[0].answer), "github:acme", `${kept.engine}-another-build`));
+	strictEqual(declined.v, 1);
+	strictEqual(declined.declined, "engine");
+	ok(declined.sentence.length > 0);
 });
 
 test("two loaders over one module are two holders and neither rebinds the other", async () => {

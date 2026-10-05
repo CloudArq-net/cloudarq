@@ -1,0 +1,22 @@
+# Refused as unreadable: the job's permissions key is written as a quoted
+# key with an escape, which YAML reads as permissions and this check does
+# not decode. Unrefused, a pull request from anyone would run with write
+# access and a signing identity.
+name: check
+on: pull_request_target
+
+permissions: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    "permi\x73sions":
+      id-token: write
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha }}
+      - run: make check

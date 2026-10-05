@@ -12,20 +12,44 @@ import (
 const Format = "cloudarq.collect/v1"
 
 // Bundle is what one collection of one AWS account wrote: who the account
-// is, the roles exactly as ListRoles paged them, and everything AWS refused
-// or the collector capped. A refusal or a cap is a line here, never a gap a
-// reader could take for an account with nothing in it.
+// is, the AWS Organization it is in, the roles exactly as ListRoles paged
+// them, and everything AWS refused or the collector capped. A refusal or a
+// cap is a line here, never a gap a reader could take for an account with
+// nothing in it.
+//
+// Organization is new under the same Format: a reader of the format reads
+// the members it knows and no other, so a bundle written before it was is
+// still read, and a reader must take its absence for an Organization not
+// read, never for an account in none.
 type Bundle struct {
-	Format      string    `json:"format"`
-	Provider    string    `json:"provider"`
-	Account     string    `json:"account"`
-	Partition   string    `json:"partition"`
-	Alias       *string   `json:"alias"`
-	CollectedAt time.Time `json:"collected_at"`
-	Collector   string    `json:"collector"`
-	Pages       []Page    `json:"pages"`
-	Refused     []Refused `json:"refused"`
-	Limits      []string  `json:"limits"`
+	Format       string       `json:"format"`
+	Provider     string       `json:"provider"`
+	Account      string       `json:"account"`
+	Partition    string       `json:"partition"`
+	Alias        *string      `json:"alias"`
+	Organization Organization `json:"organization"`
+	CollectedAt  time.Time    `json:"collected_at"`
+	Collector    string       `json:"collector"`
+	Pages        []Page       `json:"pages"`
+	Refused      []Refused    `json:"refused"`
+	Limits       []string     `json:"limits"`
+}
+
+// Organization is what DescribeOrganization answered of the organization
+// the account is in: its ID and ARN, its management account and that
+// account's ARN, and its feature set, as AWS names them. The management
+// account's email address, which the answer also carries, is a person's
+// and is never written, and neither are the policy types AWS deprecated.
+type Organization struct {
+	// Status is what the answer was. Values: member, not-a-member (AWS
+	// answered that the account is in no organization), refused (a line in
+	// Refused says why).
+	Status               string `json:"status"`
+	ID                   string `json:"id,omitempty"`
+	Arn                  string `json:"arn,omitempty"`
+	ManagementAccount    string `json:"management_account,omitempty"`
+	ManagementAccountArn string `json:"management_account_arn,omitempty"`
+	FeatureSet           string `json:"feature_set,omitempty"`
 }
 
 // Page is one ListRoles answer, its fields named as IAM names them.
@@ -50,7 +74,9 @@ type Role struct {
 	MaxSessionDuration       *int32    `json:"MaxSessionDuration,omitempty"`
 }
 
-// Refused is one call AWS answered with an error, in AWS's own code and words.
+// Refused is one call AWS answered with an error, in AWS's own code and
+// words, but for the person who made the call and anyone else an ARN in
+// them names, whose name reads (removed).
 type Refused struct {
 	Call    string `json:"call"`
 	Code    string `json:"code"`

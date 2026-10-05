@@ -5,6 +5,7 @@
 //	native admits <policy.json>
 //	native explain <policy.json> <token.json>
 //	native findings <bundle.json> <owners.txt> <engine>
+//	native remark <answer.json> <owners.txt> <wrote> <engine>
 //
 // The answer is written to standard output exactly as the WebAssembly
 // module returns it: no trailing newline, because the comparison is bytes.
@@ -26,15 +27,16 @@ func main() {
 
 func run(args []string) error {
 	if len(args) < 2 {
-		return fmt.Errorf("usage: native admits <policy> | native explain <policy> <token> | native findings <bundle> <owners> <engine>")
+		return fmt.Errorf("usage: native admits <policy> | native explain <policy> <token> | native findings <bundle> <owners> <engine> | native remark <answer> <owners> <wrote> <engine>")
 	}
-	policy, err := os.ReadFile(args[1])
+	// the policy, the bundle or the answer: every command reads a file first
+	first, err := os.ReadFile(args[1])
 	if err != nil {
 		return err
 	}
 	switch args[0] {
 	case "admits":
-		_, err = os.Stdout.Write(report.Admits(policy))
+		_, err = os.Stdout.Write(report.Admits(first))
 		return err
 	case "explain":
 		if len(args) < 3 {
@@ -44,7 +46,7 @@ func run(args []string) error {
 		if err != nil {
 			return err
 		}
-		_, err = os.Stdout.Write(report.Explain(policy, token))
+		_, err = os.Stdout.Write(report.Explain(first, token))
 		return err
 	case "findings":
 		if len(args) < 4 {
@@ -54,7 +56,17 @@ func run(args []string) error {
 		if err != nil {
 			return err
 		}
-		_, err = os.Stdout.Write(report.Findings(policy, owners, args[3]))
+		_, err = os.Stdout.Write(report.Findings(first, owners, args[3]))
+		return err
+	case "remark":
+		if len(args) < 5 {
+			return fmt.Errorf("remark needs an owners file, the engine that wrote the answer and this engine's name")
+		}
+		owners, err := os.ReadFile(args[2])
+		if err != nil {
+			return err
+		}
+		_, err = os.Stdout.Write(report.Remark(first, owners, args[3], args[4]))
 		return err
 	}
 	return fmt.Errorf("unknown command %q", args[0])

@@ -19,7 +19,13 @@ const (
 )
 
 // Declaration is one owner a user declared as theirs. Nothing in the
-// engine infers ownership: an owner nobody declared stays a named outsider.
+// engine infers ownership, with one exception: a scan's findings recognise
+// the AWS account the scan read as the user's, since the user's own
+// credentials read it, and place it as a declaration of it is placed
+// (internal/report, Bundle.recognised). Any other owner nobody declared
+// stays a named outsider, the management account of that account's AWS
+// Organization and the Organization itself among them, which a reseller
+// or another company may hold.
 type Declaration struct {
 	Namespace Namespace
 	// Scope is ScopeOwner for github, ScopeAccount or ScopeOrganisation for

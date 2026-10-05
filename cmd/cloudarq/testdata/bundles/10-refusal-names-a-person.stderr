@@ -1,0 +1,5 @@
+exit 0
+cloudarq admits: the collector was refused "iam:ListAccountAliases": "AccessDenied: User: arn:aws:sts::123456789012:federated-user/(removed) is not authorized to perform: iam:ListAccountAliases"
+cloudarq admits: the collector was refused "iam:ListRoles": "AccessDenied: User: arn:aws:iam::123456789012:user/(removed) is not authorized to perform: iam:ListRoles because no identity-based policy allows the iam:ListRoles action"
+cloudarq admits: the collector was refused "sts:AssumeRole": "AccessDenied: User: arn:aws:sts::123456789012:assumed-role/AWSReservedSSO_Admin_0123456789abcdef/(removed) is not authorized to perform: sts:AssumeRole on resource: arn:aws:iam::123456789012:role/my-lambda-execution-role"
+cloudarq admits: the collector was refused "iam:CreateVirtualMFADevice": "AccessDenied: User: arn:aws:iam::123456789012:user/(removed) is not authorized to perform: iam:CreateVirtualMFADevice on resource: arn:aws:iam::123456789012:mfa/(removed)"

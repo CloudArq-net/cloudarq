@@ -1,0 +1,12 @@
+# Refused: the job calls a reusable workflow by tag. Its jobs would run with
+# this workflow's token, and the tag can be moved to other code.
+name: check
+on:
+  push:
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  check:
+    uses: octo-org/example-repo/.github/workflows/check.yml@v1

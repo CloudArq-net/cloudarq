@@ -32,6 +32,17 @@ export interface Engine {
 	 *  yours, one a line; it answers every role in it as
 	 *  cloudarq.findings/v1. */
 	findings(bundle: Uint8Array, owners: string): string;
+	/** remark re-marks one answer a scan kept with the owners declared as
+	 *  yours now, one a line, without its policy. `answer` is one role's
+	 *  answer in any JSON form, so a caller that parsed the findings may pass
+	 *  `JSON.stringify(role.answer)`; `engine` is the engine those findings
+	 *  name. It answers exactly what `findings` answers for that role with
+	 *  those owners, or `{"v":1,"declined":…,"sentence":…,"spans":[…]}`, and
+	 *  then the role keeps the answer it has until the next upload: declined
+	 *  is engine when another build wrote the answer, owners when a
+	 *  declaration of owners was refused whole, and answer when what was
+	 *  given does not read as an answer this build writes. */
+	remark(answer: string, owners: string, engine: string): string;
 	/** memoryBytes is the live instance's linear memory, for the gates that
 	 *  watch where the heap settles. */
 	memoryBytes(): number;
@@ -59,7 +70,12 @@ interface EngineExports extends WebAssembly.Exports {
 	admits(policyLength: number): number;
 	explain(policyLength: number, tokenLength: number): number;
 	findings(bundleLength: number, ownersLength: number): number;
+	remark(answerLength: number, ownersLength: number, engineLength: number): number;
 }
+
+/** The exports that answer: each takes the lengths of the inputs the call
+ *  wrote to the inbox, in order, and returns the answer's length. */
+type Answering = "admits" | "explain" | "findings" | "remark";
 
 /** loadEngine instantiates one engine over a compiled module. Prefer
  *  `engineFor`, which hands every holder the same instance. */
@@ -90,7 +106,7 @@ export async function loadEngine(module: WebAssembly.Module, { memoryBound = 1 <
 	// A pointer the module returns is a wasm i32, which reads as negative once
 	// memory has grown past 2 GB; memory.buffer is read after every call into
 	// the module, because growth replaces the buffer.
-	const call = (name: "admits" | "explain" | "findings", parts: Uint8Array[]): string => {
+	const call = (name: Answering, parts: Uint8Array[]): string => {
 		const exports = instance.exports as EngineExports;
 		const { memory, reserve, answerAt } = exports;
 		let text: string;
@@ -101,8 +117,8 @@ export async function loadEngine(module: WebAssembly.Module, { memoryBound = 1 <
 				new Uint8Array(memory.buffer, at + offset, p.length).set(p);
 				offset += p.length;
 			}
-			const length =
-				name === "admits" ? exports.admits(parts[0].length) : exports[name](parts[0].length, parts[1].length);
+			const exported = exports[name] as (...lengths: number[]) => number;
+			const length = exported(...parts.map((p) => p.length));
 			text = decoder.decode(new Uint8Array(memory.buffer, answerAt() >>> 0, length));
 		} catch (err) {
 			// a trap leaves the instance dead, every later call throwing too;
@@ -126,6 +142,7 @@ export async function loadEngine(module: WebAssembly.Module, { memoryBound = 1 <
 		admits: (policy) => call("admits", [encoder.encode(policy)]),
 		explain: (policy, token) => call("explain", [encoder.encode(policy), encoder.encode(token)]),
 		findings: (bundle, owners) => call("findings", [bundle, encoder.encode(owners)]),
+		remark: (answer, owners, engine) => call("remark", [encoder.encode(answer), encoder.encode(owners), encoder.encode(engine)]),
 		memoryBytes: () => (instance.exports as EngineExports).memory.buffer.byteLength,
 		peakMemoryBytes: () => peak,
 		replacements: () => replaced,

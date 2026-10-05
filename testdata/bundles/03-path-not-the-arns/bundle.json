@@ -1,0 +1,27 @@
+{
+  "format": "cloudarq.collect/v1",
+  "provider": "aws",
+  "account": "123456789012",
+  "partition": "aws",
+  "alias": null,
+  "collected_at": "2026-10-03T00:00:00Z",
+  "collector": "cloudarq-collect 0.2.0",
+  "pages": [
+    {
+      "Roles": [
+        {
+          "Path": "/aws-service-role/organizations.amazonaws.com/",
+          "RoleName": "AWSServiceRoleForOrganizations",
+          "RoleId": "AROAEXAMPLEORGANIZATIONS",
+          "Arn": "arn:aws:iam::123456789012:role/AWSServiceRoleForOrganizations",
+          "CreateDate": "2024-01-02T03:04:05Z",
+          "AssumeRolePolicyDocument": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"organizations.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}",
+          "MaxSessionDuration": 3600
+        }
+      ],
+      "IsTruncated": false
+    }
+  ],
+  "refused": [],
+  "limits": []
+}

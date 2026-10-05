@@ -257,10 +257,26 @@ type Listing struct {
 // every owner declared that no grant which admits is pinned to, since a
 // declaration that moved nothing and said nothing would leave its reader
 // believing it had.
+//
+// Recognitions are the owners recognised as the reader's without a
+// declaration, whether a grant is pinned to them or not, as Normalised are
+// the owners declared. Only a scan's findings recognise one, the account
+// the scan read, so an answer to a pasted policy has none and writes none.
+// An owner recognised is never unmatched, declared as well or not: it is
+// the reader's whatever the declaration says, and a role pinned to it
+// nowhere has nothing to say of it.
 type Declarations struct {
 	Normalised   []string         `json:"normalised"`
 	RefusedLines []RefusedLine    `json:"refusedLines"`
 	Unmatched    []UnmatchedOwner `json:"unmatched"`
+	Recognitions []Recognition    `json:"recognitions,omitempty"`
+}
+
+// Recognition is one owner recognised as the reader's, in the form a
+// declaration of it takes, and why it is theirs.
+type Recognition struct {
+	Declaration string `json:"declaration"`
+	Sentence    string `json:"sentence"`
 }
 
 // RefusedLine is one line of the declaration that declared nothing, by its
@@ -336,11 +352,21 @@ type Owner struct {
 	// provider.
 	Scope string `json:"scope"`
 	// Values: name, id.
-	Kind       string `json:"kind"`
-	Value      string `json:"value"`
-	Name       string `json:"name,omitempty"`
-	Declared   bool   `json:"declared"`
-	Recyclable bool   `json:"recyclable"`
+	Kind  string `json:"kind"`
+	Value string `json:"value"`
+	Name  string `json:"name,omitempty"`
+	// Declared is whether the reader declared the owner as theirs, and
+	// nothing more. An owner placed as the reader's is declared,
+	// recognised or both, so a reader asking whether an owner is theirs
+	// reads declared or recognised: the account a scan read is placed as
+	// theirs with declared false until they declare it too.
+	Declared bool `json:"declared"`
+	// Recognised is whether the owner is recognised as the reader's
+	// without a declaration, as the account a scan read is: it is placed as
+	// a declared owner is, and kept apart from one, so a reader can tell
+	// what they said from what the scan did.
+	Recognised bool `json:"recognised,omitempty"`
+	Recyclable bool `json:"recyclable"`
 }
 
 // Claim is one row of a term: the claim, what the engine holds for it, the
@@ -388,7 +414,7 @@ type Span struct {
 
 // Admits reads a trust policy and renders the answer as JSON, with no owner
 // declared. It is what the WebAssembly engine's admits returns.
-func Admits(policy []byte) []byte { return admitsWith(nil, policy, nil) }
+func Admits(policy []byte) []byte { return admitsWith(nil, policy, nil, nil) }
 
 // AppendAdmits appends to dst the answer Admits renders and returns the
 // extended buffer. The WebAssembly engine writes each answer into the
@@ -397,84 +423,145 @@ func Admits(policy []byte) []byte { return admitsWith(nil, policy, nil) }
 // collector for a block of that size and for each smaller one it grew
 // through, and on the 50-statement policy the collector answered those by
 // doubling linear memory once more.
-func AppendAdmits(dst, policy []byte) []byte { return admitsWith(dst, policy, nil) }
+func AppendAdmits(dst, policy []byte) []byte { return admitsWith(dst, policy, nil, nil) }
 
 // AdmitsFor reads a trust policy and the owners the user declares as
 // theirs, one declaration a line, and renders the answer as JSON. With no
 // owners it is Admits, byte for byte.
-func AdmitsFor(policy, owners []byte) []byte { return admitsWith(nil, policy, owners) }
+func AdmitsFor(policy, owners []byte) []byte { return admitsWith(nil, policy, owners, nil) }
 
 // admitsWith is the one path the entry points take, kept out of line so
-// that the WebAssembly engine carries the reading of a policy once.
+// that the WebAssembly engine carries the reading of a policy once. A
+// scan's findings take it too, with the owners they recognise as the
+// reader's; a policy pasted on its own has none.
 //
 //go:noinline
-func admitsWith(dst, policy, owners []byte) []byte {
+func admitsWith(dst, policy, owners []byte, recognised []ring.Declaration) []byte {
 	e := &encoder{b: dst}
-	e.answer(admits(policy, owners))
+	e.answer(admitsRecognising(policy, owners, recognised))
 	return e.b
 }
 
-func admits(policy, owners []byte) Answer {
+func admits(policy, owners []byte) Answer { return admitsRecognising(policy, owners, nil) }
+
+// admitsRecognising is the answer with the owners declared and those
+// recognised as the reader's without a declaration, which the classifier
+// places alike and the answer keeps apart.
+func admitsRecognising(policy, owners []byte, recognised []ring.Declaration) Answer {
+	a, _ := answerPlaced(policy, owners, recognised)
+	return a
+}
+
+// answerPlaced is admitsRecognising's answer and the placing it was built
+// from, nil when the policy or the owners were not read and nothing was
+// placed. A scan's findings place the same grants again with each owner
+// they ask about, so they take both and read the policy once.
+func answerPlaced(policy, owners []byte, recognised []ring.Declaration) (Answer, *placing) {
 	a := Answer{V: Version, Grants: []Grant{}}
 	r, err := readPolicy(policy)
 	if err != nil {
 		a.Error, a.beyondABound = err.Error(), beyondABound(err)
-		return a
+		return a, nil
 	}
 	declared := ring.ReadDeclarations(string(owners))
 	if declared.Overrun != nil {
 		// A declaration past its bounds is refused whole, as a document past
 		// its bounds is: the document was not the fault, so nothing is said
 		// about its dialect.
-		return Answer{V: Version, Error: overrunWords(*declared.Overrun), Grants: []Grant{}, beyondABound: true}
+		return Answer{V: Version, Error: overrunWords(*declared.Overrun), Grants: []Grant{}, beyondABound: true}, nil
 	}
 	a.Document = r.document()
-	placed := r.place(declared.Owners)
+	p := &placing{read: r, declared: declared, recognised: recognised, placed: r.place(declared.Owners, recognised...)}
 	for i := range r.grants {
 		grant, err := r.grant(i)
 		if err != nil {
-			return Answer{V: Version, Error: fmt.Sprintf("grant %d: %v", i+1, err), Grants: []Grant{}}
+			return Answer{V: Version, Error: fmt.Sprintf("grant %d: %v", i+1, err), Grants: []Grant{}}, p
 		}
-		grant.Placement, grant.PlacementState, grant.Populations = placementOf(placed[i].placement)
+		grant.Placement, grant.PlacementState, grant.Populations = p.placed[i].stated()
 		a.Grants = append(a.Grants, grant)
 	}
-	a.rings(placed, declared)
-	return a
+	a.rings(p.placed, declared)
+	return a, p
 }
 
 // place classifies every grant: the census's facts for its issuer, what
 // the parser reads of the statement it came from, whether it modelled the
 // grant's principal and who a grant with no issuer admits, and the owners
-// declared. A policy names few issuers, so each issuer's facts are read
-// once a call rather than once a grant.
-func (r reading) place(declared []ring.Declaration) []placed {
+// declared and recognised, which the one classifier places alike. A policy
+// names few issuers, so each issuer's facts are read once a call rather
+// than once a grant.
+func (r reading) place(declared []ring.Declaration, recognised ...ring.Declaration) []placed {
+	mine := ownership{declared: declared, recognised: recognised}
+	everyOwner := mine.all()
 	var lookedUp []placed
 	out := make([]placed, len(r.grants))
 	for i, g := range r.grants {
 		at := slices.IndexFunc(lookedUp, func(p placed) bool { return p.issuer == g.Issuer })
 		if at < 0 {
 			facts, names := registry.Facts(g.Issuer)
-			lookedUp = append(lookedUp, placed{issuer: g.Issuer, facts: facts, platform: platformName(g.Issuer, names)})
+			lookedUp = append(lookedUp, placed{issuer: g.Issuer, facts: facts, platform: platformName(g.Issuer, names), mine: mine})
 			at = len(lookedUp) - 1
 		}
 		p := lookedUp[at]
 		s := r.doc.Statements[r.statements[i]]
 		p.facts.Issuerless = s.IssuerlessPopulation()
 		p.facts.PrincipalModelled = s.ModelsPrincipalOf(g)
-		p.number, p.placement = i+1, ring.Classify(g, p.facts, declared)
+		p.number, p.placement = i+1, ring.Classify(g, p.facts, everyOwner)
 		out[i] = p
 	}
 	return out
 }
 
 // placed is one grant's placement, with what its sentences name: its
-// number, its issuer, and the platform that issuer is on.
+// number, its issuer, the platform that issuer is on, and whose owners it
+// was placed with.
 type placed struct {
 	number    int
 	issuer    trust.IssuerRef
 	facts     ring.Facts
 	platform  string
 	placement ring.Placement
+	mine      ownership
+}
+
+// ownership is the owners a grant is placed with as the reader's: those
+// they declared, and those recognised as theirs without a declaration,
+// which only a scan's findings recognise. The classifier is given both and
+// places them alike; the answer says which each owner was.
+type ownership struct {
+	declared, recognised []ring.Declaration
+}
+
+// all is every owner the classifier is given.
+func (m ownership) all() []ring.Declaration {
+	if len(m.recognised) == 0 {
+		return m.declared
+	}
+	return slices.Concat(m.declared, m.recognised)
+}
+
+// marks says of an owner the classifier placed as the reader's whether
+// they declared it and whether it is recognised as theirs, by the
+// classifier's own rule for naming an owner: one or both. An owner it did
+// not place as theirs is neither.
+func (m ownership) marks(o ring.Owner, f ring.Facts) (declared, recognised bool) {
+	if !o.Declared {
+		return false, false
+	}
+	names := func(d ring.Declaration) bool { return d.Names(o, f) }
+	return slices.ContainsFunc(m.declared, names), slices.ContainsFunc(m.recognised, names)
+}
+
+// stated is where the grant lands in the answer's vocabulary, each owner
+// marked as declared, recognised, both or neither.
+func (p placed) stated() ([]string, string, []Population) {
+	places, state, populations := placementOf(p.placement)
+	for i, pop := range p.placement.Populations {
+		for j, o := range pop.Owners {
+			populations[i].Owners[j].Declared, populations[i].Owners[j].Recognised = p.mine.marks(o, p.facts)
+		}
+	}
+	return places, state, populations
 }
 
 // placementOf is a placement in the answer's vocabulary.

@@ -302,7 +302,25 @@ func (e *encoder) declarations(d *Declarations) {
 		}
 		e.b = append(e.b, ']')
 	}
+	if len(d.Recognitions) > 0 {
+		e.key("recognitions")
+		e.recognitions(d.Recognitions)
+	}
 	e.end(saved)
+}
+
+// recognitions writes the owners recognised as the reader's, each in the
+// form a declaration of it takes, with why.
+func (e *encoder) recognitions(rs []Recognition) {
+	e.b = append(e.b, '[')
+	for i := range rs {
+		e.comma(i)
+		saved := e.begin()
+		e.str("declaration", rs[i].Declaration)
+		e.str("sentence", rs[i].Sentence)
+		e.end(saved)
+	}
+	e.b = append(e.b, ']')
 }
 
 func (e *encoder) numbers(name string, ns []int) {
@@ -438,6 +456,9 @@ func (e *encoder) population(p *Population) {
 			e.str("value", o.Value)
 			e.strOmit("name", o.Name)
 			e.boolean("declared", o.Declared)
+			if o.Recognised {
+				e.boolean("recognised", true)
+			}
 			e.boolean("recyclable", o.Recyclable)
 			e.end(saved)
 		}

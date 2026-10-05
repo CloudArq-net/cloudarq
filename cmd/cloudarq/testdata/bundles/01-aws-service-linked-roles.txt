@@ -1,0 +1,113 @@
+"AWSServiceRoleForOrganizations"  "arn:aws:iam::123456789012:role/aws-service-role/organizations.amazonaws.com/AWSServiceRoleForOrganizations"
+
+AWS made this role for organizations.amazonaws.com and manages it: the service wrote its trust policy and permissions, and nobody in this account can edit them.
+Who gets in through it is whoever can make organizations.amazonaws.com act. That may be someone this account lets call it, or, if this account's AWS Organization gives the service trusted access, the Organization's management account or a delegated administrator. The engine does not read who yet.
+
+read as an aws trust policy · version 2012-10-17 · 137 bytes · 1 line · 1 statement
+sha256 244ba2f598bfaa12111592c6b246d3dee9ea67b86cce9b9a1f79dae9a919e2f6
+
+organizations.amazonaws.com can assume this role.
+
+  Anyone                unknown           No grant is placed with people who have no account anywhere.
+  Anyone on a platform  exact             No grant is placed at a whole platform.
+  A named outsider      exact             No grant is placed with a named outsider.
+  Your pipelines        exact             No grant is confined to owners declared as yours.
+  Your people           exact             No grant trusts a SAML provider declared as yours.
+  ──
+  Cloud services        unknown  grant 1  organizations.amazonaws.com can assume this role; who can make it act is not read.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] · Allow · aws:service:organizations.amazonaws.com · service · unknown
+This role admits organizations.amazonaws.com, acting for whoever can make it act: no condition constrains this statement.
+Who can make the service act, or receives its session, is not read: who gets in through it is not known.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+sub              any     any subject · no condition names it
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  organizations.amazonaws.com is an AWS service principal; who can make it act, or receives its session, is not read
+     anomaly · service-principal · Service · statement[0].Principal
+
+a token this grant admits
+  {}
+The decoded payload. A claim not shown is unconstrained by this grant, and none of the claims shown names an identity: whoever holds a token like this is admitted.
+
+statement[0] · offset 37 · 98 bytes · line 1 · issuer at line 1 Principal · sha256 7a9faa06ce0bee115770b5a6e7002a454806d26734b66ffc7ec0525edd8387a5
+
+"AWSServiceRoleForSupport"  "arn:aws:iam::123456789012:role/aws-service-role/support.amazonaws.com/AWSServiceRoleForSupport"
+
+AWS made this role for support.amazonaws.com and manages it: the service wrote its trust policy and permissions, and nobody in this account can edit them.
+Who gets in through it is whoever can make support.amazonaws.com act. That may be someone this account lets call it, or, if this account's AWS Organization gives the service trusted access, the Organization's management account or a delegated administrator. The engine does not read who yet.
+
+read as an aws trust policy · version 2012-10-17 · 131 bytes · 1 line · 1 statement
+sha256 dae02e76fb58ab381479638654b56d9933597a3ae3f80b01824a87a784cf52e4
+
+support.amazonaws.com can assume this role.
+
+  Anyone                unknown           No grant is placed with people who have no account anywhere.
+  Anyone on a platform  exact             No grant is placed at a whole platform.
+  A named outsider      exact             No grant is placed with a named outsider.
+  Your pipelines        exact             No grant is confined to owners declared as yours.
+  Your people           exact             No grant trusts a SAML provider declared as yours.
+  ──
+  Cloud services        unknown  grant 1  support.amazonaws.com can assume this role; who can make it act is not read.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] · Allow · aws:service:support.amazonaws.com · service · unknown
+This role admits support.amazonaws.com, acting for whoever can make it act: no condition constrains this statement.
+Who can make the service act, or receives its session, is not read: who gets in through it is not known.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+sub              any     any subject · no condition names it
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  support.amazonaws.com is an AWS service principal; who can make it act, or receives its session, is not read
+     anomaly · service-principal · Service · statement[0].Principal
+
+a token this grant admits
+  {}
+The decoded payload. A claim not shown is unconstrained by this grant, and none of the claims shown names an identity: whoever holds a token like this is admitted.
+
+statement[0] · offset 37 · 92 bytes · line 1 · issuer at line 1 Principal · sha256 54c387af46436b9548df3ea1535ba193c9892570d241416392ebc3402ae5bbf7
+
+"AWSServiceRoleForTrustedAdvisor"  "arn:aws:iam::123456789012:role/aws-service-role/trustedadvisor.amazonaws.com/AWSServiceRoleForTrustedAdvisor"
+
+AWS made this role for trustedadvisor.amazonaws.com and manages it: the service wrote its trust policy and permissions, and nobody in this account can edit them.
+Who gets in through it is whoever can make trustedadvisor.amazonaws.com act. That may be someone this account lets call it, or, if this account's AWS Organization gives the service trusted access, the Organization's management account or a delegated administrator. The engine does not read who yet.
+
+read as an aws trust policy · version 2012-10-17 · 138 bytes · 1 line · 1 statement
+sha256 dc98af69b1c2ca7c2813d048ded82dfec537864ef49019dfd5d5e8f9b2d10a98
+
+trustedadvisor.amazonaws.com can assume this role.
+
+  Anyone                unknown           No grant is placed with people who have no account anywhere.
+  Anyone on a platform  exact             No grant is placed at a whole platform.
+  A named outsider      exact             No grant is placed with a named outsider.
+  Your pipelines        exact             No grant is confined to owners declared as yours.
+  Your people           exact             No grant trusts a SAML provider declared as yours.
+  ──
+  Cloud services        unknown  grant 1  trustedadvisor.amazonaws.com can assume this role; who can make it act is not read.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] · Allow · aws:service:trustedadvisor.amazonaws.com · service · unknown
+This role admits trustedadvisor.amazonaws.com, acting for whoever can make it act: no condition constrains this statement.
+Who can make the service act, or receives its session, is not read: who gets in through it is not known.
+
+CLAIM            ADMITS  IN WORDS · AS WRITTEN
+sub              any     any subject · no condition names it
+any other claim  any     unconstrained · no condition names it
+
+notes
+  1  trustedadvisor.amazonaws.com is an AWS service principal; who can make it act, or receives its session, is not read
+     anomaly · service-principal · Service · statement[0].Principal
+
+a token this grant admits
+  {}
+The decoded payload. A claim not shown is unconstrained by this grant, and none of the claims shown names an identity: whoever holds a token like this is admitted.
+
+statement[0] · offset 37 · 99 bytes · line 1 · issuer at line 1 Principal · sha256 944479f35be318b7a6fbc61b072ed4e53490b62035ee63f860f1e9cc85e10647

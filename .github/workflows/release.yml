@@ -1,0 +1,136 @@
+# The files of a release, built and attested by GitHub: the collector and
+# the command line for macOS and Linux on Intel and ARM, and SHA256SUMS over
+# the eight. A push of a v tag starts it. So can a run started by hand, whose
+# files are a rehearsal and are never a release's.
+#
+# It makes no release, and no job here may write the repository: a person
+# makes the release and uploads these files to it. The files are built
+# twice, from two checkouts with caches of their own, and must agree byte
+# for byte; then GitHub attests all nine, so that
+#
+#   gh attestation verify <file> -R CloudArq-net/cloudarq \
+#     --signer-workflow CloudArq-net/cloudarq/.github/workflows/release.yml
+#
+# confirms that this workflow built that exact file from the tagged commit.
+# Attestations need a public repository, so a private copy of this
+# repository builds and compares the files and skips that step.
+name: release
+on:
+  push:
+    tags: ['v[0-9]*']
+  workflow_dispatch:
+
+permissions: {}
+
+env:
+  # The Go setup-go installs and nothing else, the modules go.sum names and
+  # nothing else, fetched through the public proxy and checked against the
+  # public checksum database.
+  GOTOOLCHAIN: local
+  GOFLAGS: -mod=readonly
+  GOPROXY: https://proxy.golang.org
+  GOSUMDB: sum.golang.org
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: '1.27.1'
+          cache: false
+      - name: every check, the collector's module included
+        run: make check
+
+  build:
+    needs: check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      id-token: write
+      attestations: write
+    steps:
+      - name: check out the commit and its tags
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+          path: first
+      - name: check it out a second time, for the second build
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+          path: second
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: '1.27.1'
+          cache: false
+
+      - name: the version, which on a tag must be the tag
+        id: version
+        working-directory: first
+        run: |
+          described=v$(scripts/version.sh)
+          echo "git describes this commit as $described"
+          if [ "$GITHUB_REF_TYPE" = tag ] && [ "$described" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::git describes this commit as $described, not as the tag $GITHUB_REF_NAME"
+            exit 1
+          fi
+          echo "version=$described" >> "$GITHUB_OUTPUT"
+
+      - name: build the files twice, each with caches of its own
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          for side in first second; do
+            GOCACHE="$RUNNER_TEMP/$side/gocache" GOMODCACHE="$RUNNER_TEMP/$side/gomodcache" \
+              make -C "$side" release VERSION="$VERSION"
+          done
+
+      - name: the two builds wrote the same nine files, byte for byte
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          first=first/dist/release/$VERSION
+          second=second/dist/release/$VERSION
+          names=$(cd "$first" && ls -A)
+          if [ "$names" != "$(cd "$second" && ls -A)" ]; then
+            echo "::error::the two builds wrote different files"
+            exit 1
+          fi
+          compared=0
+          for name in $names; do
+            cmp "$first/$name" "$second/$name"
+            compared=$((compared + 1))
+          done
+          if [ "$compared" -ne 9 ]; then
+            echo "::error::compared $compared files, not 9"
+            exit 1
+          fi
+          echo "the two builds wrote the same $compared files:"
+          cat "$first/SHA256SUMS"
+
+      - name: attest the nine files
+        if: ${{ !github.event.repository.private }}
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: first/dist/release/${{ steps.version.outputs.version }}/*
+      - name: say that a private repository attests nothing
+        if: ${{ github.event.repository.private }}
+        run: echo "::warning::this repository is private, where GitHub makes no attestation; these files are not attested"
+
+      - name: keep the nine files with the run
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-files
+          path: first/dist/release/${{ steps.version.outputs.version }}/
+          if-no-files-found: error

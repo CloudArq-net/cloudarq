@@ -40,6 +40,21 @@ func TestDeterminismOfTheCommand(t *testing.T) {
 			runs++
 		}
 	}
+	// every bundle case, as text and as findings: the roles come out in the
+	// bundle's order, and what is said beside each in one form, in every
+	// process
+	for _, name := range bundleCaseNames(t) {
+		path, owners := bundleCase(t, name)
+		for _, args := range [][]string{append(append([]string{}, owners...), "--bundle", path), append(append([]string{"--json"}, owners...), "--bundle", path)} {
+			first := ask(t, args...)
+			for i := 0; i < 2; i++ {
+				if again := ask(t, args...); again.stdout != first.stdout || again.stderr != first.stderr || again.code != first.code {
+					t.Fatalf("%v: run %d differs", args, i+2)
+				}
+				runs++
+			}
+		}
+	}
 	// one document with many grants, many notes and several terms, through
 	// the twenty fresh processes the determinism gate asks for
 	many := filepath.Join(testdata, "policies", "11-principal-shapes.json")

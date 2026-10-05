@@ -58,8 +58,9 @@ follow the list.
    internal/configsources v1.5.4, internal/endpoints/v2 v2.8.4,
    internal/v4a v1.5.4, service/iam v1.64.1,
    service/internal/accept-encoding v1.13.19,
-   service/internal/presigned-url v1.14.4, service/signin v1.10.1,
-   service/sso v1.38.1, service/ssooidc v1.43.1 and service/sts v1.51.1;
+   service/internal/presigned-url v1.14.4, service/organizations v1.61.0,
+   service/signin v1.10.1, service/sso v1.38.1, service/ssooidc v1.43.1
+   and service/sts v1.51.1;
    and github.com/aws/smithy-go v1.28.2. Their NOTICE files read:
 
      AWS SDK for Go

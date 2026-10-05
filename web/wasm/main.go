@@ -3,12 +3,13 @@
 // The engine as a WebAssembly module: a reactor module whose exports carry
 // bytes in and the answer out, and nothing else. The loader in web/engine
 // (engine.ts, loadEngine) wraps them as admits(policyText),
-// explain(policyText, tokenText) and findings(bundleBytes, ownersText) on
-// the object it returns, each returning the JSON internal/report renders;
-// web/wasm/native renders the same bytes for the differential.
+// explain(policyText, tokenText), findings(bundleBytes, ownersText) and
+// remark(answerText, ownersText, engineText) on the object it returns, each
+// returning the JSON internal/report renders; web/wasm/native renders the
+// same bytes for the differential.
 //
 // The module is built with no scheduler and as a library (-scheduler=none
-// -buildmode=c-shared): the two functions are synchronous and never block,
+// -buildmode=c-shared): the exports are synchronous and never block,
 // so the asyncify instrumentation that syscall/js callbacks need would only
 // double the code size, and a library keeps its exports callable for the
 // life of the instance instead of ending with main.
@@ -16,19 +17,21 @@ package main
 
 import "github.com/CloudArq-net/cloudarq/internal/report"
 
-// inbox holds the caller's bytes: the policy, then the token when there is
-// one. outbox holds the last answer until the next call writes the next one
-// over it: the caller has read an answer before it calls again, so the
-// buffer is kept rather than a new one made for every answer. Both are
-// reachable from here so that the collector keeps them while the caller
-// reads them; the collector does not move objects, so the addresses handed
-// out stay valid.
+// inbox holds the caller's bytes, one input after another: the policy and
+// the token; the bundle and the owners; or an answer, the owners and the
+// engine that wrote the answer. outbox holds the last answer until the next
+// call writes the next one over it: the caller has read an answer before it
+// calls again, so the buffer is kept rather than a new one made for every
+// answer. Both are reachable from here so that the collector keeps them
+// while the caller reads them; the collector does not move objects, so the
+// addresses handed out stay valid.
 var (
 	inbox  []byte
 	outbox []byte
 )
 
-// version is the engine's version the findings name, set by the linker
+// version is the engine's version the findings name, and the one an answer
+// given to remark must have been written by, set by the linker
 // (web/engine/build.sh).
 var version = "0.0.0-dev"
 
@@ -67,9 +70,28 @@ func explain(policyLen, tokenLen int32) int32 {
 //
 //go:wasmexport findings
 func findings(bundleLen, ownersLen int32) int32 {
-	outbox = report.AppendFindings(outbox[:0], inbox[:bundleLen], inbox[bundleLen:bundleLen+ownersLen], "cloudarq "+version)
+	outbox = report.AppendFindings(outbox[:0], inbox[:bundleLen], inbox[bundleLen:bundleLen+ownersLen], engine())
 	return int32(len(outbox))
 }
+
+// remark re-marks the answer in the first answerLen bytes of the inbox with
+// the owners declared in the ownersLen bytes after it, one a line; the
+// engineLen bytes after those name the engine the scan's findings say wrote
+// the answer. It returns the length of what report.Remark renders: the
+// answer for those owners, or why it is declined. One answer a call, never
+// a whole findings file: the heap doubles on large inputs and never
+// shrinks.
+//
+//go:wasmexport remark
+func remark(answerLen, ownersLen, engineLen int32) int32 {
+	owners := inbox[answerLen : answerLen+ownersLen]
+	wrote := inbox[answerLen+ownersLen : answerLen+ownersLen+engineLen]
+	outbox = report.AppendRemark(outbox[:0], inbox[:answerLen], owners, string(wrote), engine())
+	return int32(len(outbox))
+}
+
+// engine is this build's name, as the findings it writes record it.
+func engine() string { return "cloudarq " + version }
 
 // answerAt is where the last answer's bytes start.
 //

@@ -1,0 +1,49 @@
+{
+  "format": "cloudarq.collect/v1",
+  "provider": "aws",
+  "account": "123456789012",
+  "partition": "aws",
+  "alias": null,
+  "collected_at": "2026-10-03T00:00:00Z",
+  "collector": "cloudarq-collect 0.2.0",
+  "pages": [
+    {
+      "Roles": [
+        {
+          "Path": "/",
+          "RoleName": "deploy-admin",
+          "RoleId": "AROAEXAMPLEDEPLOYADMIN",
+          "Arn": "arn:aws:iam::123456789012:role/deploy-admin",
+          "CreateDate": "2024-01-02T03:04:05Z",
+          "AssumeRolePolicyDocument": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::123456789012:user/Jane\"},\"Action\":\"sts:AssumeRole\"}]}",
+          "MaxSessionDuration": 3600
+        }
+      ],
+      "IsTruncated": true,
+      "Marker": "page-2"
+    }
+  ],
+  "refused": [
+    {
+      "call": "iam:ListAccountAliases",
+      "code": "AccessDenied",
+      "message": "User: arn:aws:sts::123456789012:federated-user/Bob.Smith+1=a,b@example.com-_ is not authorized to perform: iam:ListAccountAliases"
+    },
+    {
+      "call": "iam:ListRoles",
+      "code": "AccessDenied",
+      "message": "User: arn:aws:iam::123456789012:user/division_abc/subdivision_xyz/Jane is not authorized to perform: iam:ListRoles because no identity-based policy allows the iam:ListRoles action"
+    },
+    {
+      "call": "sts:AssumeRole",
+      "code": "AccessDenied",
+      "message": "User: arn:aws:sts::123456789012:assumed-role/AWSReservedSSO_Admin_0123456789abcdef/alice@example.com is not authorized to perform: sts:AssumeRole on resource: arn:aws:iam::123456789012:role/my-lambda-execution-role"
+    },
+    {
+      "call": "iam:CreateVirtualMFADevice",
+      "code": "AccessDenied",
+      "message": "User: arn:aws:iam::123456789012:user/Jorge is not authorized to perform: iam:CreateVirtualMFADevice on resource: arn:aws:iam::123456789012:mfa/Jorge"
+    }
+  ],
+  "limits": []
+}

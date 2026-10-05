@@ -1,0 +1,72 @@
+{
+  "format": "cloudarq.collect/v1",
+  "provider": "aws",
+  "account": "123456789012",
+  "partition": "aws",
+  "alias": null,
+  "collected_at": "2026-10-03T00:00:00Z",
+  "collector": "cloudarq-collect 0.2.0",
+  "pages": [
+    {
+      "Roles": [
+        {
+          "Path": "/service-role/",
+          "RoleName": "deploy-function-role",
+          "RoleId": "AROAEXAMPLESERVICEROLE",
+          "Arn": "arn:aws:iam::123456789012:role/service-role/deploy-function-role",
+          "CreateDate": "2024-01-02T03:04:05Z",
+          "AssumeRolePolicyDocument": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}",
+          "MaxSessionDuration": 3600
+        },
+        {
+          "Path": "/aws-service-role/",
+          "RoleName": "NoServiceSegment",
+          "RoleId": "AROAEXAMPLENOSEGMENT",
+          "Arn": "arn:aws:iam::123456789012:role/aws-service-role/NoServiceSegment",
+          "CreateDate": "2024-01-02T03:04:05Z",
+          "AssumeRolePolicyDocument": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"organizations.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}",
+          "MaxSessionDuration": 3600
+        },
+        {
+          "Path": "/AWS-Service-Role/organizations.amazonaws.com/",
+          "RoleName": "CapitalisedPath",
+          "RoleId": "AROAEXAMPLECAPITALS",
+          "Arn": "arn:aws:iam::123456789012:role/AWS-Service-Role/organizations.amazonaws.com/CapitalisedPath",
+          "CreateDate": "2024-01-02T03:04:05Z",
+          "AssumeRolePolicyDocument": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"organizations.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}",
+          "MaxSessionDuration": 3600
+        },
+        {
+          "Path": "/aws-service-role/organizations.amazonaws.com/",
+          "RoleName": "AnAccountBesideTheService",
+          "RoleId": "AROAEXAMPLEANACCOUNT",
+          "Arn": "arn:aws:iam::123456789012:role/aws-service-role/organizations.amazonaws.com/AnAccountBesideTheService",
+          "CreateDate": "2024-01-02T03:04:05Z",
+          "AssumeRolePolicyDocument": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"organizations.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"},{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::111122223333:root\"},\"Action\":\"sts:AssumeRole\"}]}",
+          "MaxSessionDuration": 3600
+        },
+        {
+          "Path": "/aws-service-role/organizations.amazonaws.com/extra/",
+          "RoleName": "TwoSegments",
+          "RoleId": "AROAEXAMPLETWOSEGMENTS",
+          "Arn": "arn:aws:iam::123456789012:role/aws-service-role/organizations.amazonaws.com/extra/TwoSegments",
+          "CreateDate": "2024-01-02T03:04:05Z",
+          "AssumeRolePolicyDocument": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"organizations.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}",
+          "MaxSessionDuration": 3600
+        },
+        {
+          "Path": "/aws-service-role/support.amazonaws.com/",
+          "RoleName": "AnotherServicesPath",
+          "RoleId": "AROAEXAMPLEANOTHERSERVICE",
+          "Arn": "arn:aws:iam::123456789012:role/aws-service-role/support.amazonaws.com/AnotherServicesPath",
+          "CreateDate": "2024-01-02T03:04:05Z",
+          "AssumeRolePolicyDocument": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"organizations.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}",
+          "MaxSessionDuration": 3600
+        }
+      ],
+      "IsTruncated": false
+    }
+  ],
+  "refused": [],
+  "limits": []
+}

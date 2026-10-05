@@ -1,10 +1,12 @@
 // Package aws reads one AWS account for the engine: who the account is, its
-// roles with their trust policies, and its alias, kept as AWS answered them.
+// roles with their trust policies, its alias, and the AWS Organization it is
+// in, kept as AWS answered them.
 //
 // It only reads. Every call is named on the explain writer before it is
 // made, so a person can see what was asked of their account before it is
 // asked, and every call AWS refuses is written into the bundle with AWS's
-// own code and words. Nothing is evaluated here: the engine reads the
+// own code and words, but for the person who made the call, whose name
+// becomes (removed). Nothing is evaluated here: the engine reads the
 // bundle, offline.
 package aws
 
@@ -14,11 +16,15 @@ import (
 	"fmt"
 	"io"
 	"net/url"
+	"path/filepath"
 	"strings"
 	"time"
 
 	sdk "github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/credentials/processcreds"
 	"github.com/aws/aws-sdk-go-v2/service/iam"
+	"github.com/aws/aws-sdk-go-v2/service/organizations"
+	"github.com/aws/aws-sdk-go-v2/service/organizations/types"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/aws/smithy-go"
 )
@@ -31,15 +37,19 @@ const PageSize = 1000
 // pages is not ending, and the collector stops and says so.
 const MaxPages = 100
 
-// Reader holds what a collection needs: the two clients, the clock it
-// stamps the bundle with, where to name each call (nil names nothing) and
-// the collector's own name and version.
+// Reader holds what a collection needs: the three clients, the clock it
+// stamps the bundle with, where to name each call (nil names nothing), the
+// collector's own name and version, and the home directory of whoever runs
+// it, which the SDK's words for a call that was never answered can name
+// (empty replaces nothing).
 type Reader struct {
-	STS       *sts.Client
-	IAM       *iam.Client
-	Clock     func() time.Time
-	Explain   io.Writer
-	Collector string
+	STS           *sts.Client
+	IAM           *iam.Client
+	Organizations *organizations.Client
+	Clock         func() time.Time
+	Explain       io.Writer
+	Collector     string
+	Home          string
 }
 
 // Collect reads the account the credentials belong to. Without that
@@ -69,8 +79,116 @@ func (r Reader) Collect(ctx context.Context) (Bundle, error) {
 		Limits:      []string{},
 	}
 	r.alias(ctx, &bundle)
+	r.organization(ctx, &bundle)
 	r.roles(ctx, &bundle)
+	for i := range bundle.Refused {
+		bundle.Refused[i].Message = r.withoutTheCaller(bundle.Refused[i], sdk.ToString(caller.UserId))
+	}
 	return bundle, nil
+}
+
+// withoutTheCaller is what the bundle says of a refusal: its message
+// without whoever ran the collector, or anyone else an ARN in it names.
+// The passes run in this order:
+//
+//  1. The caller's exact principal ID, when it holds a colon with something
+//     after it, loses what follows the colon wherever it starts outside an
+//     ARN: an assumed role's AROA…:session and a federated user's
+//     account:name hold no "arn:", so the grammar never sees them. An IAM
+//     user's ID and the root user's, the account itself, hold no colon and
+//     name no one. Inside an ARN the grammar alone decides: a federated
+//     user's name can begin a resource type, as "fe" begins
+//     federated-user/, and the principal taken out of an ARN would leave
+//     one the grammar no longer reads, naming whoever it names. Outside,
+//     no boundary is read around the principal: removing too much is the
+//     safer error.
+//  2. The grammar, over every ARN in the message, the caller's own among
+//     them: the grammar reads an ARN wherever it stands, whatever words
+//     surround it, so the caller's ARN needs no pass of its own.
+//  3. For a call that was never answered, whose words are the SDK's and
+//     can name a file under the home directory, the home becomes "~". It
+//     runs after the grammar, so a home inside a person's ARN goes with
+//     the ARN rather than leaving the rest of its name behind. AWS's own
+//     refusals are AWS's words, and only the grammar reads them.
+//  4. The grammar again, so the collector's last act is the grammar's and
+//     the engine's own strip, reading the bundle, changes nothing written
+//     here: a home holding a colon, once replaced, can change how many
+//     fields an ARN has.
+func (r Reader) withoutTheCaller(refused Refused, principal string) string {
+	message := withoutThePrincipal(refused.Message, principal)
+	message = withoutPeople(message)
+	if refused.Code == unanswered {
+		message = withoutHome(message, r.Home)
+	}
+	return withoutPeople(message)
+}
+
+// withoutThePrincipal is message with what follows principal's colon taken
+// out wherever principal starts outside an ARN; a principal without a
+// colon, or with nothing after it, takes nothing out. An ARN is what the
+// grammar reads as one, a stretch nextARNs gives, and a principal starting
+// in one is the grammar's to read. One that starts outside and runs on
+// into an ARN, as account:barn runs into an "arn:", takes the rest of that
+// stretch with it: the ARN cut at its "arn:" would be one the grammar no
+// longer reads.
+func withoutThePrincipal(message, principal string) string {
+	colon := strings.IndexByte(principal, ':')
+	if colon < 0 || colon == len(principal)-1 {
+		return message
+	}
+	var out strings.Builder
+	copied := 0 // message[:copied] is in out
+	arn, arnEnd := nextARNs(message, 0)
+	for from := 0; ; {
+		found := strings.Index(message[from:], principal)
+		if found < 0 {
+			break
+		}
+		at, end := from+found, from+found+len(principal)
+		for arnEnd <= at {
+			arn, arnEnd = nextARNs(message, arnEnd)
+		}
+		if arn <= at { // in an ARN, and so is everything to the stretch's end
+			from = arnEnd
+			continue
+		}
+		for arnEnd < end {
+			arn, arnEnd = nextARNs(message, arnEnd)
+		}
+		if arn < end { // it runs on into an ARN
+			end = arnEnd
+		}
+		out.WriteString(message[copied : at+colon+1])
+		out.WriteString(removed)
+		copied, from = end, end
+	}
+	if out.Len() == 0 {
+		return message
+	}
+	out.WriteString(message[copied:])
+	return out.String()
+}
+
+// withoutHome is message with home written "~" wherever it stands, in the
+// form the SDK joins paths in, filepath.Clean's, and as given when that
+// differs, the clean form first, so that a home given with a trailing
+// separator leaves the separator after the "~". Nothing is replaced for an
+// empty home, a relative one, or the file system's root, whose every
+// separator would become "~". No boundary is read: /srv/jo inside /srv/joe
+// becomes ~e, which removes too much and keeps nothing.
+func withoutHome(message, home string) string {
+	if home == "" {
+		return message
+	}
+	clean := filepath.Clean(home)
+	if !filepath.IsAbs(clean) || filepath.Dir(clean) == clean {
+		return message
+	}
+	message = strings.ReplaceAll(message, clean, "~")
+	if home != clean {
+		message = strings.ReplaceAll(message, home, "~")
+	}
+	return message
 }
 
 func (r Reader) alias(ctx context.Context, bundle *Bundle) {
@@ -83,6 +201,38 @@ func (r Reader) alias(ctx context.Context, bundle *Bundle) {
 	// An account has at most one alias.
 	if len(answer.AccountAliases) > 0 {
 		bundle.Alias = sdk.String(answer.AccountAliases[0])
+	}
+}
+
+// organization asks which AWS Organization the account is in, which any
+// account in one may ask. Organizations answers from one endpoint in each
+// partition, which the client picks from the partition of the region it was
+// given. Only the fields the bundle names are kept: the answer's email
+// address and policy types never reach the bundle.
+func (r Reader) organization(ctx context.Context, bundle *Bundle) {
+	const call = "organizations:DescribeOrganization"
+	r.explain(call, "the AWS Organization the account is in, and which account manages it")
+	answer, err := r.Organizations.DescribeOrganization(ctx, &organizations.DescribeOrganizationInput{})
+	var notInUse *types.AWSOrganizationsNotInUseException
+	switch {
+	case errors.As(err, &notInUse):
+		bundle.Organization = Organization{Status: "not-a-member"}
+	case err != nil:
+		bundle.Organization = Organization{Status: "refused"}
+		bundle.Refused = append(bundle.Refused, refusal(call, err))
+	case answer.Organization == nil:
+		bundle.Organization = Organization{Status: "refused"}
+		bundle.Refused = append(bundle.Refused, Refused{Call: call, Code: unanswered, Message: "AWS answered without an organization"})
+	default:
+		o := answer.Organization
+		bundle.Organization = Organization{
+			Status:               "member",
+			ID:                   sdk.ToString(o.Id),
+			Arn:                  sdk.ToString(o.Arn),
+			ManagementAccount:    sdk.ToString(o.MasterAccountId),
+			ManagementAccountArn: sdk.ToString(o.MasterAccountArn),
+			FeatureSet:           string(o.FeatureSet),
+		}
 	}
 }
 
@@ -156,13 +306,30 @@ func partitionOf(arn string) (string, bool) {
 	return parts[1], true
 }
 
-// refusal keeps AWS's own code and message. An error that never reached
-// AWS - the network, a cancelled run - has no code of AWS's, and is named
-// as unanswered with its own words.
+// unanswered is the code of a call that never reached AWS, or that AWS
+// answered without what was asked: its words are the SDK's or the
+// collector's, not AWS's.
+const unanswered = "Unanswered"
+
+// credentialProcessFailed is what the bundle says of a call whose
+// credentials a profile's credential_process could not give.
+const credentialProcessFailed = "the credentials could not be refreshed: the credential process failed or wrote what the SDK could not read; its output is not kept"
+
+// refusal keeps AWS's own code and message, which Collect then takes the
+// caller out of. An error that never reached AWS - the network, a cancelled
+// run - has no code of AWS's, and is named as unanswered with its own words,
+// but for a credential process's failure: when the SDK cannot read what the
+// process wrote, its words hold all of it, the new secret access key and
+// session token and whatever else the process printed, so the collector
+// says it in a sentence of its own instead.
 func refusal(call string, err error) Refused {
 	var api smithy.APIError
 	if errors.As(err, &api) {
 		return Refused{Call: call, Code: api.ErrorCode(), Message: api.ErrorMessage()}
 	}
-	return Refused{Call: call, Code: "Unanswered", Message: err.Error()}
+	var process *processcreds.ProviderError
+	if errors.As(err, &process) {
+		return Refused{Call: call, Code: unanswered, Message: credentialProcessFailed}
+	}
+	return Refused{Call: call, Code: unanswered, Message: err.Error()}
 }

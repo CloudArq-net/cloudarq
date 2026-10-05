@@ -1,0 +1,53 @@
+{
+  "format": "cloudarq.collect/v1",
+  "provider": "aws",
+  "account": "111122223333",
+  "partition": "aws",
+  "alias": null,
+  "organization": {
+    "status": "member",
+    "id": "o-exampleorgid",
+    "arn": "arn:aws:organizations::111122223333:organization/o-exampleorgid",
+    "management_account": "111122223333",
+    "management_account_arn": "arn:aws:organizations::111122223333:account/o-exampleorgid/111122223333",
+    "feature_set": "ALL"
+  },
+  "collected_at": "2026-10-03T00:00:00Z",
+  "collector": "cloudarq-collect dev",
+  "pages": [
+    {
+      "Roles": [
+        {
+          "Path": "/",
+          "RoleName": "break-glass",
+          "RoleId": "AROAEXAMPLEBREAKGLASS",
+          "Arn": "arn:aws:iam::111122223333:role/break-glass",
+          "CreateDate": "2024-01-02T03:04:05Z",
+          "AssumeRolePolicyDocument": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::111122223333:root\"},\"Action\":\"sts:AssumeRole\"}]}",
+          "MaxSessionDuration": 3600
+        },
+        {
+          "Path": "/",
+          "RoleName": "member-admin",
+          "RoleId": "AROAEXAMPLEMEMBERADMIN",
+          "Arn": "arn:aws:iam::111122223333:role/member-admin",
+          "CreateDate": "2024-01-02T03:04:05Z",
+          "AssumeRolePolicyDocument": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::123456789012:root\"},\"Action\":\"sts:AssumeRole\"}]}",
+          "MaxSessionDuration": 3600
+        },
+        {
+          "Path": "/",
+          "RoleName": "organization-reader",
+          "RoleId": "AROAEXAMPLEORGREADER",
+          "Arn": "arn:aws:iam::111122223333:role/organization-reader",
+          "CreateDate": "2024-01-02T03:04:05Z",
+          "AssumeRolePolicyDocument": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"*\"},\"Action\":\"sts:AssumeRole\",\"Condition\":{\"StringEquals\":{\"aws:PrincipalOrgID\":\"o-exampleorgid\"}}}]}",
+          "MaxSessionDuration": 3600
+        }
+      ],
+      "IsTruncated": false
+    }
+  ],
+  "refused": [],
+  "limits": []
+}

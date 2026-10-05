@@ -150,7 +150,8 @@ them:
   --no-color     never mark the output; NO_COLOR in the environment does
                  the same, and a pipe is never marked
   --bundle <f>   read a bundle cloudarq-collect wrote and answer every role
-                 in it, each as admits answers its trust policy alone; with
+                 in it, each as admits answers its trust policy, with the
+                 account the bundle was read from recognised as yours; with
                  --json, print them as findings, cloudarq.findings/v1
 ```
 
@@ -177,22 +178,46 @@ cloudarq-collect aws --profile <yours> > estate.json
 cloudarq admits --bundle estate.json
 ```
 
-Each release attaches `cloudarq-collect` built for macOS and Linux, on Intel and ARM, with
-`SHA256SUMS` beside the files; the release notes give the Go version and the command that
-built them, so the files can be rebuilt from the tag and compared. It only reads, with your own
-credentials from AWS's standard chain: `sts:GetCallerIdentity`, `iam:ListAccountAliases` and
-`iam:ListRoles`, which is all the permission it needs. It contacts AWS alone, and whatever your AWS
-settings name for your credentials, such as IAM Identity Center. `--explain`
-names each call on standard error before it is made, and a call AWS refuses is written into
-the bundle in AWS's own words rather than dropped. It exits 0 for a whole read, 3 for a partial
-one with the bundle still written, 1 when the account could not be learned, and 2 for a command
-line it does not understand.
+Each release attaches `cloudarq-collect`, and from v0.3.0 the `cloudarq` command as well, built
+for macOS and Linux, on Intel and ARM, as `cloudarq-collect_<os>_<arch>` and
+`cloudarq_<os>_<arch>`, with `SHA256SUMS` beside the files; the release notes give the Go
+version and the command that built them, so the files can be rebuilt from the tag and compared.
+From v0.3.0, GitHub Actions builds each file from the tagged source and attests where it was
+built. The first command below checks that the repository's release workflow built that exact
+file from the tag; the second, that it is the file attached to that release:
+
+```sh
+gh attestation verify cloudarq_linux_amd64 -R CloudArq-net/cloudarq \
+  --signer-workflow CloudArq-net/cloudarq/.github/workflows/release.yml \
+  --source-ref refs/tags/v0.3.0
+gh release verify-asset v0.3.0 cloudarq_linux_amd64 -R CloudArq-net/cloudarq
+```
+
+`cloudarq-collect` only reads, with your own credentials from AWS's standard chain: `sts:GetCallerIdentity`, `iam:ListAccountAliases`,
+`organizations:DescribeOrganization` and `iam:ListRoles`, which is all the permission it needs.
+It contacts AWS alone, and whatever your AWS settings name for your credentials, such as IAM
+Identity Center. `--explain` names each call on standard error before it is made, and a call AWS
+refuses is written into the bundle in AWS's own words rather than dropped, but for the person who
+made it: the call, the account, the role and the permission stay, and where an ARN in those words
+names a user, a role's session, a federated user or an MFA device, the name reads `(removed)`. A
+call that never reached AWS is written in the SDK's words, with your home directory as `~`.
+`cloudarq admits --bundle` takes the same names out of a bundle an earlier collector wrote. It
+exits 0 for a whole read, 3 for a partial one with the bundle still written, 1 when the account
+could not be learned, and 2 for a command line it does not understand.
+
+From your AWS Organization the bundle keeps its ID and ARN, its management account and that
+account's ARN, and its feature set, and never the management account's email address. The account the bundle was read from is
+recognised as yours, since your own credentials read it; the answer says so, and keeps it apart
+from what you declared. The management account and the Organization are not: a reseller or a
+managed service provider may run the one, and the other may hold other companies' accounts. The
+findings ask you about each instead, and say what a yes would change; `--owner` answers yes.
 
 ## What it reads, and what it does not
 
 - **It reads AWS IAM role trust policies**, the document in a role's `AssumeRolePolicyDocument`.
   No other document is read by the command.
-- **It reads nothing else about your account.** Service control policies, resource control
+- **It reads nothing else about your account.** Beyond the roles, `cloudarq-collect` reads the
+  account's alias and which AWS Organization it is in. Service control policies, resource control
   policies and the account's identity providers can narrow who gets in; the answer names them
   as not read rather than assuming them away.
 - **It looks nothing up.** Who holds a GitHub organisation name today, or whether an identity
