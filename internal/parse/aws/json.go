@@ -35,6 +35,9 @@ func (v *value) bytes() []byte { return v.source[v.start:v.end] }
 type member struct {
 	name  string
 	value *value
+	// start is where the member's name is written, its opening quote: the
+	// member's bytes run from there to the end of its value.
+	start int
 }
 
 // kind names the JSON type, for the total mappings in policy.go and for
@@ -247,7 +250,7 @@ func (r *reader) valueOf(tok json.Token, start, end int) (*value, error) {
 func (r *reader) readObject(start int) (*value, error) {
 	v := &value{kind: kindObject, source: r.raw, start: start}
 	for {
-		tok, _, end, err := r.next()
+		tok, nameStart, end, err := r.next()
 		if err != nil {
 			return nil, err
 		}
@@ -260,7 +263,7 @@ func (r *reader) readObject(start int) (*value, error) {
 			return nil, err
 		}
 		// Object keys are always strings in a stream the decoder accepts.
-		v.members = append(v.members, member{name: tok.(string), value: val})
+		v.members = append(v.members, member{name: tok.(string), value: val, start: nameStart})
 	}
 }
 

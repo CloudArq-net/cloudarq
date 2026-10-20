@@ -220,20 +220,7 @@ func (e *encoder) rows(name string, rows []Row) {
 		e.numbers("grantNumbers", r.GrantNumbers)
 		e.str("sentence", r.Sentence)
 		e.spans("spans", r.Spans)
-		if len(r.Questions) > 0 {
-			e.key("questions")
-			e.b = append(e.b, '[')
-			for i := range r.Questions {
-				e.comma(i)
-				q := &r.Questions[i]
-				saved := e.begin()
-				e.str("declaration", q.Declaration)
-				e.str("sentence", q.Sentence)
-				e.spans("spans", q.Spans)
-				e.end(saved)
-			}
-			e.b = append(e.b, ']')
-		}
+		e.questions(r.Questions)
 		e.strOmit("citationsHeading", r.CitationsHeading)
 		if len(r.Citations) > 0 {
 			e.key("citations")
@@ -250,6 +237,110 @@ func (e *encoder) rows(name string, rows []Row) {
 		e.end(saved)
 	}
 	e.b = append(e.b, ']')
+}
+
+// questions writes what a row or a way asks, and nothing when it asks
+// nothing.
+func (e *encoder) questions(qs []Question) {
+	if len(qs) == 0 {
+		return
+	}
+	e.key("questions")
+	e.b = append(e.b, '[')
+	for i := range qs {
+		e.comma(i)
+		q := &qs[i]
+		saved := e.begin()
+		e.str("declaration", q.Declaration)
+		e.str("sentence", q.Sentence)
+		e.spans("spans", q.Spans)
+		e.end(saved)
+	}
+	e.b = append(e.b, ']')
+}
+
+// way writes who a population is and how the policy lets it in.
+func (e *encoder) way(w *Way) {
+	saved := e.begin()
+	e.key("principal")
+	e.b = append(e.b, '[')
+	for i := range w.Principal {
+		e.comma(i)
+		e.leaf(&w.Principal[i])
+	}
+	e.b = append(e.b, ']')
+	for _, s := range []struct {
+		name string
+		s    *Sentence
+	}{{"who", w.Who}, {"how", w.How}} {
+		if s.s == nil {
+			continue
+		}
+		e.key(s.name)
+		saved := e.begin()
+		e.str("sentence", s.s.Sentence)
+		e.spans("spans", s.s.Spans)
+		e.end(saved)
+	}
+	e.questions(w.Questions)
+	if w.Fix != nil {
+		e.key("fix")
+		e.fix(w.Fix)
+	}
+	e.end(saved)
+}
+
+// leaf writes one principal as the statement writes it, and where its
+// literal is when the leaf says.
+func (e *encoder) leaf(l *Leaf) {
+	saved := e.begin()
+	e.str("text", l.Text)
+	e.str("member", l.Member)
+	e.num("line", l.Line)
+	if l.Start != 0 {
+		e.num("start", l.Start)
+	}
+	if l.End != 0 {
+		e.num("end", l.End)
+	}
+	e.end(saved)
+}
+
+// fix writes how the policy could shut a population out.
+func (e *encoder) fix(f *Fix) {
+	saved := e.begin()
+	e.str("status", f.Status)
+	e.strOmit("check", f.Check)
+	e.str("sentence", f.Sentence)
+	e.spans("spans", f.Spans)
+	if d := f.Edit; d != nil {
+		e.key("edit")
+		inner := e.begin()
+		e.str("removes", d.Removes)
+		e.num("statement", d.Statement)
+		e.str("sid", d.Sid)
+		e.num("firstLine", d.FirstLine)
+		e.num("lastLine", d.LastLine)
+		e.key("leaf")
+		e.leaf(&d.Leaf)
+		e.numbers("grantNumbers", d.GrantNumbers)
+		e.str("sha256", d.SHA256)
+		e.end(inner)
+	}
+	for _, s := range []struct {
+		name string
+		s    *Sentence
+	}{{"shutsOut", f.ShutsOut}, {"after", f.After}} {
+		if s.s == nil {
+			continue
+		}
+		e.key(s.name)
+		inner := e.begin()
+		e.str("sentence", s.s.Sentence)
+		e.spans("spans", s.s.Spans)
+		e.end(inner)
+	}
+	e.end(saved)
 }
 
 func (e *encoder) listing(name string, l *Listing) {
@@ -463,6 +554,10 @@ func (e *encoder) population(p *Population) {
 			e.end(saved)
 		}
 		e.b = append(e.b, ']')
+	}
+	if p.Way != nil {
+		e.key("way")
+		e.way(p.Way)
 	}
 	e.end(saved)
 }

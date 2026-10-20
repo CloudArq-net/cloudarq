@@ -1,0 +1,9 @@
+{
+  "Version": "2012-10-17",
+  "Statement": {
+    "Sid": "Vendors",
+    "Effect": "Allow",
+    "Principal": {"AWS": ["arn:aws:iam::111122223333:root", "777788889999"]},
+    "Action": "sts:AssumeRole"
+  }
+}

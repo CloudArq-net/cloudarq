@@ -914,6 +914,15 @@ func holdRecognising(t fataler, policy []byte, account, owners string) (c recogn
 				}
 				ro.Declared, ro.Recognised = do.Declared, false
 			}
+			// who a population is, said in the words of its row, says
+			// recognised where the row does, and is held as the row is
+			if (rp.Way == nil) != (dp.Way == nil) {
+				fail("grant %d, population %d: a way recognised %v, declared %v", i+1, j, rp.Way != nil, dp.Way != nil)
+			}
+			if rp.Way != nil && rp.Way.Who != nil && dp.Way.Who != nil {
+				rp.Way.Who.Spans, dp.Way.Who.Spans = asDeclared(rp.Way.Who.Spans), asDeclared(dp.Way.Who.Spans)
+				rp.Way.Who.Sentence = plain(rp.Way.Who.Spans)
+			}
 		}
 	}
 	if (rec.Declarations == nil) != (dec.Declarations == nil) {

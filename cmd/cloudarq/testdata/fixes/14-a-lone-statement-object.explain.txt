@@ -1,0 +1,15 @@
+cloudarq admits, before it answers:
+  reads ../../testdata/fixes/14-a-lone-statement-object/aws.json, and no other file
+  consults NO_COLOR, and no other environment variable
+  makes no network request and no API call: the answer is computed here
+  writes the answer to standard output and nothing to any file
+cloudarq admits, who and how:
+  grant 1
+    who  aws:111122223333 can assume this role and is not declared as yours.
+         written arn:aws:iam::111122223333:role/vendor-audit at line 6 Principal.AWS
+    how  Statement 1 ("Vendor"), lines 3-9, names this principal, on condition that sts:externalid is a1b2c3.
+    ask  aws:111122223333 · Is aws:111122223333 yours?
+    fix  Replace the whole trust policy with one that lets no one in: statement 1 ("Vendor"), lines 3-9, is its only statement, the only principal it names is "arn:aws:iam::111122223333:role/vendor-audit", and IAM refuses a trust policy with no statement. This stops aws:111122223333 from getting in. If you still work with them, don't apply it. Anyone already in keeps their access until their session ends, which can take hours. The role's "Revoke active sessions" ends those sessions now. Deleting the role instead also removes what its permissions allow.
+         Grant 1 is taken out, and no grant left lets anyone in.
+         after it: Nothing outside your company can assume this role.
+         sha256 of the policy after it: 7fdb6ace1f4ecda9c7bb878ab6bbc2cd620f6eb7d7093b0016c18d1930d24052

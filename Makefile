@@ -5,7 +5,7 @@ GO    ?= go
 PURE_PKGS = eval trust parse ring
 PKG   := ./...
 
-.PHONY: all build test vet purity determinism cover collect release check preflight clean
+.PHONY: all build test vet purity licence determinism cover collect release check preflight clean
 
 all: check
 
@@ -30,6 +30,22 @@ purity:
 	if [ $$status -ne 0 ]; then exit $$status; fi; \
 	echo "$$out" | grep -q '^--- PASS: TestPureLayersHaveNoIO ' || \
 	  { echo "FAIL: TestPureLayersHaveNoIO did not run, so no package was examined"; exit 1; }
+
+## licence: LICENSE is FSL-1.1-ALv2's text, and no file of the release tree
+## names the Apache License 2.0 as the engine's own: no package manifest,
+## and none of the engine's own words but the sentences
+## test/arch/licence_test.go lists. Third-party notices and licence texts
+## keep their own licences.
+# As purity does, the gate requires each test's own PASS line, so a renamed
+# test fails here instead of passing unrun.
+licence:
+	@out=$$($(GO) test ./test/arch/ -count=1 -run '^(TestTheEngineIsUnderItsOwnLicence|TestEachLicenceClaimIsRefusedForItsOwnReason)$$' -v 2>&1); status=$$?; \
+	echo "$$out"; \
+	if [ $$status -ne 0 ]; then exit $$status; fi; \
+	for test in TestTheEngineIsUnderItsOwnLicence TestEachLicenceClaimIsRefusedForItsOwnReason; do \
+	  echo "$$out" | grep -q "^--- PASS: $$test " || \
+	    { echo "FAIL: $$test did not run, so the licence was not checked"; exit 1; }; \
+	done
 
 ## determinism: identical input must produce byte-identical output, in fresh processes.
 # DETERMINISM_TESTS is the number of TestDeterminism* tests the tree holds. The gate
@@ -159,7 +175,7 @@ release:
 	if [ $$ontag = 1 ]; then kind="the tag $$version"; else kind="$$version, a rehearsal and not a tag"; fi; \
 	finished=1; echo "release: $$count binaries, each recorded unmodified, and SHA256SUMS in $$out, built from $$kind"
 
-check: build vet test purity determinism cover collect
+check: build vet test purity licence determinism cover collect
 	@echo "all checks green"
 
 ## preflight: run before every push. A commit is recoverable; a pushed secret is not.

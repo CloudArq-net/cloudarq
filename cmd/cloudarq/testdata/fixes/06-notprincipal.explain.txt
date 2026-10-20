@@ -1,0 +1,10 @@
+cloudarq admits, before it answers:
+  reads ../../testdata/fixes/06-notprincipal/aws.json, and no other file
+  consults NO_COLOR, and no other environment variable
+  makes no network request and no API call: the answer is computed here
+  writes the answer to standard output and nothing to any file
+cloudarq admits, who and how:
+  grant 1
+    who  Anyone could assume this role: it trusts a principal whose kind is not read.
+    how  Statement 1 ("EveryoneButThePartner"), lines 4-9, names a principal whose kind is not read, with no condition, so the set shown is an upper bound.
+    fix  No fix the engine can prove yet: no principal the engine reads lets this way in, and so far it removes only a principal written under Principal.AWS, other than "*".

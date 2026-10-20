@@ -334,6 +334,9 @@ type Population struct {
 	// service-intermediary.
 	Basis  string  `json:"basis"`
 	Owners []Owner `json:"owners"`
+	// Way is who the population is and how the policy lets it in, in words,
+	// with the principal as the statement writes it.
+	Way *Way `json:"way,omitempty"`
 }
 
 // Owner is one owner a term is pinned to, typed as the classifier typed it:
@@ -478,8 +481,10 @@ func answerPlaced(policy, owners []byte, recognised []ring.Declaration) (Answer,
 			return Answer{V: Version, Error: fmt.Sprintf("grant %d: %v", i+1, err), Grants: []Grant{}}, p
 		}
 		grant.Placement, grant.PlacementState, grant.Populations = p.placed[i].stated()
+		r.ways(i, p.placed[i], &grant, a.Document)
 		a.Grants = append(a.Grants, grant)
 	}
+	a.fixes(r, p)
 	a.rings(p.placed, declared)
 	return a, p
 }
@@ -591,7 +596,8 @@ type reading struct {
 	doc        aws.Document
 	lay        layout
 	grants     []trust.Grant
-	statements []int // the statement index of each grant
+	written    []aws.Written // the principal each grant was read from
+	statements []int         // the statement index of each grant
 }
 
 func readPolicy(policy []byte) (reading, error) {
@@ -609,7 +615,8 @@ func readPolicy(policy []byte) (reading, error) {
 	if err != nil {
 		return reading{}, err
 	}
-	r := reading{raw: policy, doc: d, lay: lay, grants: d.Grants(target, vocabulary)}
+	grants, written := d.GrantsWritten(target, vocabulary)
+	r := reading{raw: policy, doc: d, lay: lay, grants: grants, written: written}
 	for i, g := range r.grants {
 		s, ok := statementOf(g, d)
 		if !ok {

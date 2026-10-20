@@ -78,6 +78,100 @@ export interface DocumentReport {
 	anomalies: Note[];
 }
 
+/** One sentence of the answer: its text, and its spans. */
+export interface Sentence {
+	sentence: string;
+	spans: Span[];
+}
+
+/** A question a reader may be asked: the declaration that answers yes, as
+ *  an owner's declaration carries it, and the question in words. */
+export interface Question {
+	declaration: string;
+	sentence: string;
+	spans: Span[];
+}
+
+/** One string under Principal: its text as written, the member it sits
+ *  under, as "Principal.AWS", or "Principal" for a Principal that is "*"
+ *  itself, and its line. `start` and `end` are the byte offsets of its
+ *  literal, [start, end), given only where an edit names the one place it
+ *  removes. */
+export interface Leaf {
+	text: string;
+	member: string;
+	line: number;
+	start?: number;
+	end?: number;
+}
+
+/** The edit a proven fix makes, where it is written, and the digest of the
+ *  policy it leaves, never that policy's text. `removes` is principal,
+ *  member, statement or policy, the last when the policy is replaced by one
+ *  that lets no one in. */
+export interface Edit {
+	removes: string;
+	statement: number;
+	sid: string;
+	firstLine: number;
+	lastLine: number;
+	leaf: Leaf;
+	grantNumbers: number[];
+	sha256: string;
+}
+
+/** How the policy could shut one population out, and whether the engine
+ *  proved it. `status` is proven, unproven or words; `check` says what
+ *  refused an unproven fix: leaf, effect, bound, span, parse, owner, grants,
+ *  placements, condition, principal or managed. */
+export interface Fix {
+	status: string;
+	check?: string;
+	sentence: string;
+	spans: Span[];
+	edit?: Edit;
+	shutsOut?: Sentence;
+	after?: Sentence;
+}
+
+/** Who one population is and how the policy lets it in, each place the
+ *  statement writes its principal, what its owners may be asked, and its
+ *  fix. */
+export interface Way {
+	principal: Leaf[];
+	who: Sentence;
+	how: Sentence;
+	questions?: Question[];
+	fix?: Fix;
+}
+
+/** One owner a population is pinned to. `scope` is owner, repository,
+ *  enterprise, account, organisation, tenant or provider; `kind` is name or
+ *  id. */
+export interface Owner {
+	label: string;
+	declaration?: string;
+	scope: string;
+	kind: string;
+	value: string;
+	name?: string;
+	declared: boolean;
+	recognised?: boolean;
+	recyclable: boolean;
+}
+
+/** Where one term of a grant lands on its own, what decided the place, the
+ *  owners that pin it and its way in. `place` is anyone, platform,
+ *  outsider, yours, people, saml or service; `state` is exact or unknown. */
+export interface Population {
+	term: number;
+	place: string;
+	state: string;
+	basis: string;
+	owners: Owner[];
+	way?: Way;
+}
+
 /** One grant: who a statement admits, and everything the answer says about
  *  it beyond the sentence. */
 export interface Grant {
@@ -100,6 +194,12 @@ export interface Grant {
 	witness?: string;
 	witnessHeading?: string;
 	witnessCaption?: string;
+	/** Where the grant lands: anyone, platform, outsider, yours, people,
+	 *  saml, service, refused or nobody; `placementState` is exact or
+	 *  unknown, and absent beside refused and nobody. */
+	placement?: string[];
+	placementState?: string;
+	populations?: Population[];
 }
 
 /** What `admits` answers. `error` carries the engine's refusal; `stopped` is

@@ -6,6 +6,7 @@
 //	native explain <policy.json> <token.json>
 //	native findings <bundle.json> <owners.txt> <engine>
 //	native remark <answer.json> <owners.txt> <wrote> <engine>
+//	native fixed <bundle.json> <owners.txt> <role ARN> <start> <end>
 //
 // The answer is written to standard output exactly as the WebAssembly
 // module returns it: no trailing newline, because the comparison is bytes.
@@ -14,6 +15,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/CloudArq-net/cloudarq/internal/report"
 )
@@ -27,7 +29,7 @@ func main() {
 
 func run(args []string) error {
 	if len(args) < 2 {
-		return fmt.Errorf("usage: native admits <policy> | native explain <policy> <token> | native findings <bundle> <owners> <engine> | native remark <answer> <owners> <wrote> <engine>")
+		return fmt.Errorf("usage: native admits <policy> | native explain <policy> <token> | native findings <bundle> <owners> <engine> | native remark <answer> <owners> <wrote> <engine> | native fixed <bundle> <owners> <role ARN> <start> <end>")
 	}
 	// the policy, the bundle or the answer: every command reads a file first
 	first, err := os.ReadFile(args[1])
@@ -67,6 +69,24 @@ func run(args []string) error {
 			return err
 		}
 		_, err = os.Stdout.Write(report.Remark(first, owners, args[3], args[4]))
+		return err
+	case "fixed":
+		if len(args) < 6 {
+			return fmt.Errorf("fixed needs an owners file, the role's ARN and the principal's start and end")
+		}
+		owners, err := os.ReadFile(args[2])
+		if err != nil {
+			return err
+		}
+		start, err := strconv.Atoi(args[4])
+		if err != nil {
+			return err
+		}
+		end, err := strconv.Atoi(args[5])
+		if err != nil {
+			return err
+		}
+		_, err = os.Stdout.Write(report.AppendFixed(nil, first, owners, args[3], start, end))
 		return err
 	}
 	return fmt.Errorf("unknown command %q", args[0])

@@ -3,8 +3,9 @@
 // The engine as a WebAssembly module: a reactor module whose exports carry
 // bytes in and the answer out, and nothing else. The loader in web/engine
 // (engine.ts, loadEngine) wraps them as admits(policyText),
-// explain(policyText, tokenText), findings(bundleBytes, ownersText) and
-// remark(answerText, ownersText, engineText) on the object it returns, each
+// explain(policyText, tokenText), findings(bundleBytes, ownersText),
+// remark(answerText, ownersText, engineText) and fixed(bundleBytes,
+// ownersText, roleArn, start, end) on the object it returns, each
 // returning the JSON internal/report renders; web/wasm/native renders the
 // same bytes for the differential.
 //
@@ -87,6 +88,22 @@ func remark(answerLen, ownersLen, engineLen int32) int32 {
 	owners := inbox[answerLen : answerLen+ownersLen]
 	wrote := inbox[answerLen+ownersLen : answerLen+ownersLen+engineLen]
 	outbox = report.AppendRemark(outbox[:0], inbox[:answerLen], owners, string(wrote), engine())
+	return int32(len(outbox))
+}
+
+// fixed answers with the trust policy of the role whose ARN is in the
+// arnLen bytes after the bundle in the first bundleLen bytes of the inbox
+// and the owners declared in the ownersLen bytes after it, one a line, with
+// the principal written at bytes [start, end) of that policy removed, as
+// the role's answer proves the edit, or why it is not given. The policy is
+// the reader's own and is made here, from the bundle they hold; no answer
+// carries it.
+//
+//go:wasmexport fixed
+func fixed(bundleLen, ownersLen, arnLen, start, end int32) int32 {
+	owners := inbox[bundleLen : bundleLen+ownersLen]
+	arn := inbox[bundleLen+ownersLen : bundleLen+ownersLen+arnLen]
+	outbox = report.AppendFixed(outbox[:0], inbox[:bundleLen], owners, string(arn), int(start), int(end))
 	return int32(len(outbox))
 }
 

@@ -1,6 +1,59 @@
 # Changelog
 
-## v0.3.0 (unreleased)
+## v0.4.0
+
+Who each way in lets in and how, a fix for each, proven by reading the policy again, and a new
+licence.
+
+- **Who and how.** Each population of a grant gains `way`, under answer `v` 1: `who`, the
+  population in the words of the ring or line it lands in, read with it alone there; `how`, the
+  statement that lets it in, the principal it names and the conditions its term holds, as the
+  grant's own sentence states them; `principal`, each place the statement writes the principal
+  the grant was read from, as written, with its member and line; and `questions`, what its row
+  would ask of its owners. `--explain` prints them for each grant once the command has answered.
+- **A fix, proven or named.** Every way in has a `fix`. For a named outsider an Allow statement
+  names by an AWS principal, the engine removes that principal, or the member of `Principal` it
+  is the only value of, or the statement it is the only principal of, never from a Deny and
+  never from `NotPrincipal`, where a removal lets more in. It reads the edited policy again with
+  the same owners and offers the edit, as `proven`, only when the edited policy reads with no
+  fault the original does not have, no population pinned to the outsider remains, every other
+  grant is left one for one and none is made, and each grant left is placed by the same facts
+  as its twin. The fix carries the edit (the statement, its Sid and lines, the principal as
+  written with the byte offsets of its literal, the grants it takes out), what it shuts out,
+  the headline the answer opens on after it and the SHA-256 of the edited policy, never its
+  text. Otherwise it is `unproven` and `check` names what refused it. For anyone on a platform
+  and for a cloud service, no edit is proven: where the engine can name the condition that
+  would narrow the way in, the fix names it in words, as `words`. A population placed as yours
+  or your people's keeps its fix in the JSON, so that an answer re-marked with the declaration
+  withdrawn says it again, and `--explain` never offers it. For a role AWS manages, `--explain`
+  says there is no trust policy fix to make. Each answer places at most 256 grants again to
+  prove its fixes, and a principal past that says so.
+- **The policy's only way in.** Where the principal is the only principal of the policy's only
+  statement, removing it would leave a trust policy with no statement, which IAM refuses. The
+  fix then replaces the whole policy with one whose one statement denies `sts:AssumeRole` to
+  every AWS principal, keeping the original's `Version` as written (a `Version` IAM refuses,
+  written twice, not a string or neither language version, leaves the fix unproven), and proves
+  it the same way: the replacement reads with no fault the original lacks beside its own Deny's,
+  every grant it makes is a Deny that lets no population in, and every grant of the original
+  goes. The edit says it removes the policy. Beside it the fix says whom it shuts out, not to
+  apply it while you still work with them, that anyone already in keeps their access until
+  their session ends, which can take hours, or until the role's "Revoke active sessions" ends
+  those sessions, and that deleting the role instead also removes what its permissions allow.
+- **The fixed policy, made where the policy is.** The WebAssembly engine exports
+  `fixed(bundle, owners, role, start, end)`: the trust policy of the bundle's role with that
+  ARN, with the principal written at those offsets removed, or replaced as above, made from the
+  reader's own file, and returned with its SHA-256 only where the role's answer with those
+  owners proves the edit; otherwise, why not. The differential holds it to the native engine's
+  bytes for every principal the corpus bundles' answers name.
+- **The fixes corpus.** `testdata/fixes` holds seventeen cases, each with a rationale for its
+  outcome; each answer and what `--explain` prints of it are goldens.
+- **Licence.** From v0.4.0 the engine is source available under the Functional Source License,
+  Version 1.1, with the Apache License 2.0 as its future licence (FSL-1.1-ALv2): each version
+  becomes available under the Apache License 2.0 on the second anniversary of the day it was
+  made available. v0.1.0 to v0.3.0 stay under the Apache License 2.0. Third-party material keeps
+  its own licence, as NOTICE and THIRD_PARTY_NOTICES list it.
+
+## v0.3.0
 
 Answers placed again with new owners, AWS's own roles and Organization, refusals without the
 person who ran the collector, and downloads that say where they were built.

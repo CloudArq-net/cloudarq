@@ -168,13 +168,75 @@ func remark(a Answer, declared ring.Declarations, recognised []ring.Declaration)
 		placements[i] = placed{number: g.Number, issuer: grant.Issuer, facts: facts, platform: platform, placement: ring.Classify(grant, facts, mine.all()), mine: mine}
 		kept := g.Populations
 		g.Placement, g.PlacementState, g.Populations = placements[i].stated()
-		if !onlyOwnersMoved(kept, g.Populations) {
+		if !onlyOwnersMoved(kept, g.Populations) || !placements[i].wayAgain(g.Populations, kept) {
 			return Answer{}, false
+		}
+	}
+	for i := range a.Grants {
+		for j := range placements[i].placement.Populations {
+			if !fixAgain(a.Grants[i].Populations[j].Way, placements, declared) {
+				return Answer{}, false
+			}
 		}
 	}
 	a.Headline, a.Rings, a.Beside, a.Refused, a.Nobody, a.Declarations, a.Bounds = nil, nil, nil, nil, nil, nil, nil
 	a.rings(placements, declared)
 	return a, true
+}
+
+// wayAgain sets the way of each population placed again: who it is and
+// what is asked of it follow from where it lands, and are said again; the
+// principal as written and how the statement lets it in do not move with
+// the owners, and are kept, as is the fix, which fixAgain says again once
+// every grant is placed. ok is false when a population kept has no way,
+// which every population this build places has.
+func (p placed) wayAgain(placed, kept []Population) bool {
+	for j := range placed {
+		if kept[j].Way == nil {
+			return false
+		}
+		who, questions := p.whoOf(j)
+		placed[j].Way = &Way{Principal: kept[j].Way.Principal, Who: who, How: kept[j].Way.How, Questions: questions, Fix: kept[j].Way.Fix}
+	}
+	return true
+}
+
+// fixAgain sets the fix of a population placed again, with every grant of
+// the answer placed again as placements. Owners move nothing of a fix but
+// the headline a proven edit leaves: the edit was offered only when every
+// grant it leaves is one of the policy's own, placed by the same facts, so
+// the edited policy's answer is the grants placed again without those the
+// edit takes out, whoever the owners are. The rest of a fix depends on the
+// policy alone and is kept, whatever the owners were (fixes). ok is false
+// for a population that kept no fix, or kept a proven one without its
+// edit, neither of which this build writes.
+func fixAgain(w *Way, placements []placed, declared ring.Declarations) bool {
+	switch {
+	case w.Fix == nil:
+		return false
+	case w.Fix.Status != fixProven:
+		return true
+	case w.Fix.Edit == nil:
+		return false
+	}
+	fix := *w.Fix
+	// The policy that replaces a whole one keeps none of its grants, and
+	// none of its own lets anyone in, whoever the owners are: the
+	// headline it opens on does not move with them.
+	if fix.Edit.Removes == removedName(removedPolicy) {
+		return true
+	}
+	var left []placed
+	for _, p := range placements {
+		if !slices.Contains(fix.Edit.GrantNumbers, p.number) {
+			left = append(left, p)
+		}
+	}
+	var after Answer
+	after.rings(left, declared)
+	fix.After = after.Headline
+	w.Fix = &fix
+	return true
 }
 
 // recognisedOf reads the owners an answer recognised as the reader's from

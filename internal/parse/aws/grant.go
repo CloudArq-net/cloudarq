@@ -109,17 +109,69 @@ func DocumentedKeys(documents func(issuer trust.IssuerRef, key string) (document
 // has no early exit: the statement-order property is what that guarantees.
 // The grants are returned in canonical order.
 func (d Document) Grants(target trust.TargetRef, vocabulary ClaimVocabulary) []trust.Grant {
-	var out []trust.Grant
+	grants, _ := d.GrantsWritten(target, vocabulary)
+	return grants
+}
+
+// Written is a principal as a statement writes it: the member of Principal
+// it sits under, "" for a Principal that is "*" itself, and its text. Both
+// are empty for a grant no principal string projected: a statement with no
+// Principal, with NotPrincipal, with a principal of a kind the parser does
+// not know, or with one that is not a string; and for a CanonicalUser,
+// which the parser does not model.
+//
+// Start and End are where the principal's string is written in the
+// document the parser was given, [Start, End): its literal from the opening
+// quote to just past the closing one, escapes as written, read from the
+// decoder's own offsets and never searched for, so that the bytes there are
+// the literal and decode to Text. Both are 0 for a grant no principal
+// string projected; a string always has bytes before it, the document's
+// opening brace at least, so a principal's Start is never 0.
+type Written struct {
+	Member, Text string
+	Start, End   int
+}
+
+// GrantsWritten is Grants, and beside each grant, at the same index, the
+// principal it was projected from as its statement writes it. It reads
+// nothing Grants does not, and decides nothing about what a principal
+// means: it keeps the text each grant came from through the same sort, so
+// a reader can quote the principal back where the grant is shown. Two
+// grants that mean the same keep their document order, the sort being
+// stable, so each keeps its own principal.
+func (d Document) GrantsWritten(target trust.TargetRef, vocabulary ClaimVocabulary) ([]trust.Grant, []Written) {
+	var out []writtenGrant
 	for i, s := range d.Statements {
 		src := "statement[" + strconv.Itoa(i) + "]"
 		for _, p := range s.Principals.list {
 			for _, face := range p.faces(s.Actions, src+".Principal") {
-				out = append(out, s.grant(face, src, target, vocabulary, d.variables))
+				out = append(out, writtenGrant{s.grant(face, src, target, vocabulary, d.variables), face.written()})
 			}
 		}
 	}
 	sortGrants(out)
-	return out
+	grants, written := make([]trust.Grant, len(out)), make([]Written, len(out))
+	for i, w := range out {
+		grants[i], written[i] = w.grant, w.written
+	}
+	return grants, written
+}
+
+// written is the principal as Written gives it. A CanonicalUser's is
+// empty: the parser does not model one, and its text, an S3 canonical user
+// ID or whatever else the statement writes there, is nothing a grant's
+// reader needs to quote back.
+func (p principal) written() Written {
+	if p.kind == principalCanonicalUser {
+		return Written{}
+	}
+	return Written{Member: p.member, Text: p.text, Start: p.start, End: p.end}
+}
+
+// writtenGrant is a grant and the principal it was projected from.
+type writtenGrant struct {
+	grant   trust.Grant
+	written Written
 }
 
 const denyNotApplied = "this Deny statement could not be fully evaluated, so it is not applied; the admitted set is an upper bound"
@@ -193,14 +245,14 @@ func distinct(anomalies []trust.Anomaly) []trust.Anomaly {
 // Source, which carries the statement index, and the statement's bytes;
 // two grants that mean the same keep their document order, the sort being
 // stable.
-func sortGrants(gs []trust.Grant) {
+func sortGrants(gs []writtenGrant) {
 	type keyed struct {
 		key   string
-		grant trust.Grant
+		grant writtenGrant
 	}
 	ks := make([]keyed, len(gs))
 	for i, g := range gs {
-		ks[i] = keyed{grantKey(g), g}
+		ks[i] = keyed{grantKey(g.grant), g}
 	}
 	slices.SortStableFunc(ks, func(a, b keyed) int { return strings.Compare(a.key, b.key) })
 	for i, k := range ks {

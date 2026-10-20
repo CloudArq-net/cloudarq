@@ -108,9 +108,12 @@ dialect is read. "-" reads standard input.
   --token <t>    read a token, decoded payload or whole, and print for each
                  grant whether it is admitted and why
   --explain      print on standard error what the command reads and calls
-                 before it answers, and after it, when a ring's place rests
-                 on the engine's reading of AWS's documentation, the
-                 sentences it read
+                 before it answers; after it, for each grant, who it lets
+                 in, the principal as written, how the statement lets them
+                 in, what is asked of their owners and how to shut them
+                 out, with the digest of the policy a proven fix leaves;
+                 and, when a ring's place rests on the engine's reading of
+                 AWS's documentation, the sentences it read
   --no-color     never mark the output; NO_COLOR in the environment does
                  the same, and a pipe is never marked
   --bundle <f>   read a bundle cloudarq-collect wrote and answer every role

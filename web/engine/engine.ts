@@ -43,6 +43,16 @@ export interface Engine {
 	 *  declaration of owners was refused whole, and answer when what was
 	 *  given does not read as an answer this build writes. */
 	remark(answer: string, owners: string, engine: string): string;
+	/** fixed makes the whole fixed policy where the policy is: the trust
+	 *  policy of the bundle's role whose ARN is `role`, with the principal
+	 *  written at bytes [start, end) of it removed, the offsets a proven
+	 *  fix's `edit.leaf` names. `bundle` is the file's bytes, as `findings`
+	 *  reads it, and `owners` the owners declared as yours, one a line. It
+	 *  answers `{"v":1,"policy":…,"sha256":…}`, whose digest is the one the
+	 *  fix names, only where the role's answer with those owners proves the
+	 *  edit, and `{"v":1,"error":…}` with why otherwise. No answer carries
+	 *  the fixed policy: it is the reader's, made from their own file. */
+	fixed(bundle: Uint8Array, owners: string, role: string, start: number, end: number): string;
 	/** memoryBytes is the live instance's linear memory, for the gates that
 	 *  watch where the heap settles. */
 	memoryBytes(): number;
@@ -71,11 +81,13 @@ interface EngineExports extends WebAssembly.Exports {
 	explain(policyLength: number, tokenLength: number): number;
 	findings(bundleLength: number, ownersLength: number): number;
 	remark(answerLength: number, ownersLength: number, engineLength: number): number;
+	fixed(bundleLength: number, ownersLength: number, roleLength: number, start: number, end: number): number;
 }
 
 /** The exports that answer: each takes the lengths of the inputs the call
- *  wrote to the inbox, in order, and returns the answer's length. */
-type Answering = "admits" | "explain" | "findings" | "remark";
+ *  wrote to the inbox, in order, then any numbers of its own, and returns
+ *  the answer's length. */
+type Answering = "admits" | "explain" | "findings" | "remark" | "fixed";
 
 /** loadEngine instantiates one engine over a compiled module. Prefer
  *  `engineFor`, which hands every holder the same instance. */
@@ -106,7 +118,7 @@ export async function loadEngine(module: WebAssembly.Module, { memoryBound = 1 <
 	// A pointer the module returns is a wasm i32, which reads as negative once
 	// memory has grown past 2 GB; memory.buffer is read after every call into
 	// the module, because growth replaces the buffer.
-	const call = (name: Answering, parts: Uint8Array[]): string => {
+	const call = (name: Answering, parts: Uint8Array[], ...numbers: number[]): string => {
 		const exports = instance.exports as EngineExports;
 		const { memory, reserve, answerAt } = exports;
 		let text: string;
@@ -118,7 +130,7 @@ export async function loadEngine(module: WebAssembly.Module, { memoryBound = 1 <
 				offset += p.length;
 			}
 			const exported = exports[name] as (...lengths: number[]) => number;
-			const length = exported(...parts.map((p) => p.length));
+			const length = exported(...parts.map((p) => p.length), ...numbers);
 			text = decoder.decode(new Uint8Array(memory.buffer, answerAt() >>> 0, length));
 		} catch (err) {
 			// a trap leaves the instance dead, every later call throwing too;
@@ -143,6 +155,7 @@ export async function loadEngine(module: WebAssembly.Module, { memoryBound = 1 <
 		explain: (policy, token) => call("explain", [encoder.encode(policy), encoder.encode(token)]),
 		findings: (bundle, owners) => call("findings", [bundle, encoder.encode(owners)]),
 		remark: (answer, owners, engine) => call("remark", [encoder.encode(answer), encoder.encode(owners), encoder.encode(engine)]),
+		fixed: (bundle, owners, role, start, end) => call("fixed", [bundle, encoder.encode(owners), encoder.encode(role)], start, end),
 		memoryBytes: () => (instance.exports as EngineExports).memory.buffer.byteLength,
 		peakMemoryBytes: () => peak,
 		replacements: () => replaced,

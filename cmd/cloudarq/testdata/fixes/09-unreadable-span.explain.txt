@@ -1,0 +1,20 @@
+cloudarq admits, before it answers:
+  reads ../../testdata/fixes/09-unreadable-span/aws.json, and no other file
+  reads the owner "aws:444455556666" from --owner, as yours
+  consults NO_COLOR, and no other environment variable
+  makes no network request and no API call: the answer is computed here
+  writes the answer to standard output and nothing to any file
+cloudarq admits, who and how:
+  grant 1
+    who  aws:111122223333 can assume this role and is not declared as yours.
+         written 111122223333 at line 7 Principal.AWS
+    how  Statement 1 ("Partner"), lines 4-10, names this account, on condition that aws:sourceaccount was not evaluated, so the set shown is an upper bound.
+    ask  aws:111122223333 · Is aws:111122223333 yours?
+    fix  In statement 1 ("Partner"), lines 4-10, remove "111122223333" from Principal.AWS.
+         Grant 1 is taken out, and no grant left lets aws:111122223333 in by name.
+         after it: Nothing outside your company can assume this role.
+         sha256 of the policy after it: 46d8dafd4c08bd854d9643c65e28b7564a174141f0c7cb17e5927a62f48a4aa6
+  grant 2
+    who  aws:444455556666, declared as yours, can assume this role.
+         written 444455556666 at line 7 Principal.AWS
+    how  Statement 1 ("Partner"), lines 4-10, names this account, on condition that aws:sourceaccount was not evaluated, so the set shown is an upper bound.

@@ -1,0 +1,11 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "Partn\u00e9r",
+      "Effect": "Allow",
+      "Principal": {"AWS": ["arn:aws:iam::111122223333:r\u006fot", "arn:aws:iam::444455556666:role\/deploy"]},
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}

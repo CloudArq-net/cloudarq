@@ -3,8 +3,8 @@
 // explain, over the policies of the corpus and over the shapes a pasted
 // document can take that no fixture has: nesting at and past the entry's bound, a member the grammar
 // does not define, a document past the engine's bound, a token nested too
-// deep; and so must the findings of bundles, and every answer re-marked
-// with other owners. Then the entry's refusal of depth with the engine answering after
+// deep; and so must the findings of bundles, every answer re-marked
+// with other owners, and the whole fixed policy of each principal. Then the entry's refusal of depth with the engine answering after
 // it; the engine's own time on a 50-statement policy in node, which is the
 // engine's number and not that of any page embedding it; where the heap
 // stands over repeated calls on that
@@ -39,7 +39,7 @@ if (!wasmPath || !nativeBin || !work) {
 const { loadEngine } = await import("./engine.ts");
 const engineModule = await WebAssembly.compile(readFileSync(wasmPath));
 const engine = await loadEngine(engineModule);
-for (const name of ["admits", "explain", "findings", "remark"]) {
+for (const name of ["admits", "explain", "findings", "remark", "fixed"]) {
   if (typeof engine[name] !== "function") {
     console.error(`the loader did not return ${name}`);
     process.exit(1);
@@ -248,11 +248,51 @@ for (const [answer, owners, wrote] of remarkCases) {
   const outcome = JSON.parse(fromWasm).declined ?? "redrawn";
   remarked[outcome] = (remarked[outcome] ?? 0) + 1;
 }
+// Fixed: the whole fixed policy of each role of the bundles that hold the
+// corpus, for each principal its answer's ways name, at the offsets of the
+// principal's literal where the role's document first writes it, and at
+// the offsets a proven fix names, one byte in as well; and a role the
+// bundle does not have. A differential that compared only refusals, or
+// only policies, compared one of them on nothing, so both are counted.
+const fixedOutcomes = { policy: 0, error: 0 };
+let fixedCalls = 0;
+for (const bundle of ["bundle-of-every-document.json", ...Object.keys(bundles).filter(name => name.startsWith("corpus-"))]) {
+  const bytes = readFileSync(join(work, bundle));
+  const roles = JSON.parse(bytes.toString("utf8")).pages.flatMap(page => page.Roles);
+  for (const owners of Object.keys(ownerLists)) {
+    const found = JSON.parse(engine.findings(bytes, ownerLists[owners]));
+    // a bundle the engine refuses has no role to ask for; asked all the
+    // same, it says why
+    for (const role of found.roles ?? [{ arn: roles[0]?.Arn ?? "arn:aws:iam::123456789012:role/none", answer: {} }]) {
+      const document = roles.find(r => r.Arn === role.arn)?.AssumeRolePolicyDocument ?? "";
+      const spans = [];
+      for (const population of (role.answer.grants ?? []).flatMap(g => g.populations ?? [])) {
+        for (const leaf of population.way?.principal ?? []) {
+          const at = document.indexOf(JSON.stringify(leaf.text));
+          if (at >= 0) spans.push([at, at + JSON.stringify(leaf.text).length]);
+        }
+        const edit = population.way?.fix?.edit;
+        if (edit) spans.push([edit.leaf.start, edit.leaf.end], [edit.leaf.start + 1, edit.leaf.end]);
+      }
+      spans.push([0, 0]);
+      for (const [arn, [start, end]] of [...spans.map(span => [role.arn, span]), [`${role.arn}-not-in-the-bundle`, spans[0]]]) {
+        fixedCalls++;
+        const fromWasm = engine.fixed(bytes, ownerLists[owners], arn, start, end);
+        compare(`fixed ${bundle}, ${arn} at ${start}-${end}, with ${owners}`, fromWasm, native("fixed", join(work, bundle), join(work, owners), arn, String(start), String(end)));
+        fixedOutcomes[JSON.parse(fromWasm).policy === undefined ? "error" : "policy"]++;
+      }
+    }
+  }
+}
 const said = outcome => (outcome === "redrawn" ? "redrawn" : `declined ${outcome}`);
-console.log(`differential: ${documents.length} documents (${corpus.length} of the corpus, ${Object.keys(shapes).length} generated) through admits, ${explains} explain calls, ${findingsCalls} findings calls over ${Object.keys(bundles).length} bundles (${explained} roles said to be AWS's, ${recognisedRoles} of the corpus recognising the account read, ${movable} saying what a yes would move), ${remarkCases.length} remark calls over ${kept.length} kept answers (${Object.entries(remarked).map(([outcome, n]) => `${n} ${said(outcome)}`).join(", ")}), ${differences} differences`);
+console.log(`differential: ${documents.length} documents (${corpus.length} of the corpus, ${Object.keys(shapes).length} generated) through admits, ${explains} explain calls, ${findingsCalls} findings calls over ${Object.keys(bundles).length} bundles (${explained} roles said to be AWS's, ${recognisedRoles} of the corpus recognising the account read, ${movable} saying what a yes would move), ${remarkCases.length} remark calls over ${kept.length} kept answers (${Object.entries(remarked).map(([outcome, n]) => `${n} ${said(outcome)}`).join(", ")}), ${fixedCalls} fixed calls (${fixedOutcomes.policy} giving a policy, ${fixedOutcomes.error} giving why not), ${differences} differences`);
 const unseen = Object.keys(remarked).filter(outcome => remarked[outcome] === 0);
 if (unseen.length > 0) {
   console.error(`FAIL: no remark call was ${unseen.map(said).join(" or ")}, so that outcome was never compared`);
+  process.exit(1);
+}
+if (fixedOutcomes.policy === 0 || fixedOutcomes.error === 0) {
+  console.error(`FAIL: ${fixedOutcomes.policy} fixed calls gave a policy and ${fixedOutcomes.error} gave why not, so one of them was never compared`);
   process.exit(1);
 }
 if (documents.length === 0 || differences > 0) process.exit(1);

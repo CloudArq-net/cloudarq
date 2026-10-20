@@ -17,9 +17,11 @@ issue. For a vulnerability, follow [SECURITY.md](SECURITY.md) instead.
 
 ## Pull requests
 
-Contributions are accepted under the [Apache License 2.0](LICENSE): by opening a pull request,
-you agree that your contribution is licensed under it, as the licence's "Submission of
-Contributions" clause says.
+Contributions are accepted under the
+[Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0): by opening a pull request,
+you agree that your contribution is licensed under it, as that licence's "Submission of
+Contributions" clause says, and that it is published as part of CloudArq under the licence in
+[LICENSE](LICENSE).
 
 Before opening one, run:
 

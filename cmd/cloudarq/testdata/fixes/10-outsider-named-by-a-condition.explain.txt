@@ -1,0 +1,17 @@
+cloudarq admits, before it answers:
+  reads ../../testdata/fixes/10-outsider-named-by-a-condition/aws.json, and no other file
+  consults NO_COLOR, and no other environment variable
+  makes no network request and no API call: the answer is computed here
+  writes the answer to standard output and nothing to any file
+cloudarq admits, who and how:
+  grant 1
+    who  Any cloud service can assume this role; which ones, and for whom, is not read.
+         written * at line 7 Principal.AWS
+    how  Statement 1 ("OneAccountThroughAStar"), lines 4-10, names "*", and no condition it writes is read as narrowing it, so the set shown is an upper bound.
+    fix  Naming the one AWS service this role is for, in place of "*", would shut every other service out; the engine does not prove that change yet.
+  grant 2
+    who  aws:111122223333 can assume this role and is not declared as yours.
+         written * at line 7 Principal.AWS
+    how  Statement 1 ("OneAccountThroughAStar"), lines 4-10, names "*", on condition that aws:principalaccount is 111122223333.
+    ask  aws:111122223333 · Is aws:111122223333 yours?
+    fix  No fix the engine can prove yet: aws:111122223333 is let in by a condition, not by a principal the statement names.

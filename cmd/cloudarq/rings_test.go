@@ -850,7 +850,8 @@ func TestExplainPrintsTheReportsWordsAlone(t *testing.T) {
 	} {
 		want := report.ExplainPlan(c.file, c.token, c.owners)
 		if c.answersAfter {
-			want = append(want, report.AnswerFor(raw, []byte(strings.Join(c.owners, "\n"))).ExplainCitations()...)
+			answer := report.AnswerFor(raw, []byte(strings.Join(c.owners, "\n")))
+			want = append(append(want, answer.ExplainWays("")...), answer.ExplainCitations()...)
 		}
 		got := c.in.run(t)
 		if got.code != 0 || got.stderr != strings.Join(want, "\n")+"\n" {

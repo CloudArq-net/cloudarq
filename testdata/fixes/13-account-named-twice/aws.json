@@ -1,0 +1,17 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "Partner",
+      "Effect": "Allow",
+      "Principal": {"AWS": ["111122223333", "arn:aws:iam::111122223333:root"]},
+      "Action": "sts:AssumeRole"
+    },
+    {
+      "Sid": "Instances",
+      "Effect": "Allow",
+      "Principal": {"Service": "ec2.amazonaws.com"},
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}

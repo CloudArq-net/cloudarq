@@ -971,8 +971,10 @@ func admitsMeeting(t fataler, policy, owners []byte, met map[int][]eval.Admitted
 			t.Fatalf("grant %d of %s does not render once met: %v", i+1, policy, err)
 		}
 		grant.Placement, grant.PlacementState, grant.Populations = placementOf(placed[i].placement)
+		r.ways(i, placed[i], &grant, a.Document)
 		a.Grants = append(a.Grants, grant)
 	}
+	a.fixes(r, &placing{read: r, declared: declared, placed: placed})
 	a.rings(placed, declared)
 	e := &encoder{}
 	e.answer(a)

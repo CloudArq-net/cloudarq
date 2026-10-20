@@ -80,7 +80,7 @@ func admits(args []string, stdin io.Reader, stdout, stderr io.Writer, isTerminal
 			plan(stderr, *bundle, "", owners)
 		}
 		options := report.Options{Colour: isTerminal && !*noColour && os.Getenv("NO_COLOR") == ""}
-		return admitsBundle(*bundle, stdin, stdout, stderr, owners, options, *asJSON)
+		return admitsBundle(*bundle, stdin, stdout, stderr, owners, options, *asJSON, *explain)
 	}
 	if len(paths) != 1 {
 		fmt.Fprintf(stderr, "cloudarq admits: one document, given as a path or as \"-\"; %d were given.\n", len(paths))
@@ -110,6 +110,7 @@ func admits(args []string, stdin io.Reader, stdout, stderr io.Writer, isTerminal
 	answer := report.AnswerFor(document, declared)
 	write(stdout, answer.JSON(), answer.Text(options), *asJSON)
 	if *explain {
+		lines(stderr, answer.ExplainWays(""))
 		cite(stderr, answer)
 	}
 	return refusal(stderr, answer.Error)
@@ -121,7 +122,7 @@ func admits(args []string, stdin io.Reader, stdout, stderr io.Writer, isTerminal
 // engine does not read, or a role whose policy it does not, is exit code 1
 // with the reason on standard error; the findings still go to standard
 // output, as one document's answer does.
-func admitsBundle(path string, stdin io.Reader, stdout, stderr io.Writer, owners []string, options report.Options, asJSON bool) int {
+func admitsBundle(path string, stdin io.Reader, stdout, stderr io.Writer, owners []string, options report.Options, asJSON, explain bool) int {
 	raw, err := readUpTo(path, stdin, report.MaxBundleBytes)
 	if err != nil {
 		fmt.Fprintln(stderr, "cloudarq admits:", err)
@@ -137,6 +138,7 @@ func admitsBundle(path string, stdin io.Reader, stdout, stderr io.Writer, owners
 		return exitUnread
 	}
 	code := exitAnswered
+	asked := b.Suggested(declared)
 	for i, role := range b.Roles {
 		answer, moves := b.Finding(role, declared)
 		if !asJSON {
@@ -158,6 +160,13 @@ func admitsBundle(path string, stdin io.Reader, stdout, stderr io.Writer, owners
 				fmt.Fprintf(stdout, "%s · %s\n%s\n\n", m.Declaration, m.Question, m.Sentence)
 			}
 			io.WriteString(stdout, answer.Text(options))
+		}
+		// With --explain, who each grant lets in and how, the management
+		// account of the bundle's AWS Organization and the Organization
+		// itself asked about in the words the findings ask them in, and a
+		// role AWS manages given the fix such a role has.
+		if explain {
+			lines(stderr, answer.Asking(asked).Managing(role.Managed).ExplainWays(role.Name))
 		}
 		if answer.Error != "" {
 			fmt.Fprintf(stderr, "cloudarq admits: the role %s: %s\n", strconv.QuoteToASCII(role.Arn), answer.Error)
@@ -297,6 +306,14 @@ func refusal(stderr io.Writer, reasons ...string) int {
 		}
 	}
 	return exitAnswered
+}
+
+// lines writes lines the report composed to standard error, as --explain
+// prints them.
+func lines(stderr io.Writer, composed []string) {
+	for _, line := range composed {
+		fmt.Fprintln(stderr, line)
+	}
 }
 
 // cite is what --explain prints once the command has answered: when a

@@ -508,8 +508,13 @@ func TestDeterminismOfTheRendering(t *testing.T) {
 	// twice, beside two refused: the echo, the rings and the owners each
 	// term names must come out in one order whatever the order written
 	owners := []byte("issuer:https://oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE\ngithub:beta\nnope\ngithub:acme\naws:111122223333\ngithub:beta\ngitlab:x\n")
+	// the ways of the populations, whose who, how and questions are
+	// composed from the rows and the statements, are among the bytes
+	// compared, and are counted, so that a rendering without them fails
+	ways := 0
 	for path, raw := range docs {
 		first, firstExplained := AdmitsFor(raw, owners), ExplainFor(raw, token, owners)
+		ways += bytes.Count(first, []byte(`"way":`))
 		for i := 0; i < 20; i++ {
 			if !bytes.Equal(AdmitsFor(raw, owners), first) {
 				t.Fatalf("%s: run %d rendered differently", path, i)
@@ -518,6 +523,9 @@ func TestDeterminismOfTheRendering(t *testing.T) {
 				t.Fatalf("%s: explain run %d rendered differently", path, i)
 			}
 		}
+	}
+	if ways == 0 {
+		t.Fatalf("no answer of %d documents carried a population's way; the comparison held over none", len(docs))
 	}
 }
 

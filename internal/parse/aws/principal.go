@@ -80,7 +80,13 @@ const (
 // account it belongs to, and what its parse found. A widening finding
 // means the grant admits everything as far as this parser can prove.
 type principal struct {
-	kind       principalKind
+	kind principalKind
+	// member is the member of Principal the text sits under, "" for a
+	// Principal that is "*" itself and for a principal no string names.
+	member string
+	// start and end are where the text's string literal is written in the
+	// document, [start, end), both 0 for a principal no string names.
+	start, end int
 	text       string
 	issuer     trust.IssuerRef
 	identifier string         // OIDC: the provider name as written, which its condition keys start with
@@ -140,7 +146,9 @@ func parsePrincipals(named, excluded *memberGroup, src string, f *findings) Prin
 // whether any one of them is deployed is not known.
 func principalsIn(v *value, src string, f *findings) []principal {
 	if v.kind == kindString && v.text == "*" {
-		return []principal{anyone(src)}
+		p := anyone(src)
+		p.start, p.end = v.start, v.end
+		return []principal{p}
 	}
 	if v.kind != kindObject {
 		f.widen(trust.Anomaly{Kind: Malformed, Construct: "Principal", Message: "Principal is " + describe(v) + `, not "*" or an object, so who it names is not known`, Source: src})
@@ -188,7 +196,9 @@ func principalsOfKind(kind string, v *value, src string) []principal {
 	for _, item := range items {
 		switch {
 		case item.kind == kindString:
-			out = append(out, principalOfKind(kind, item.text, src))
+			p := principalOfKind(kind, item.text, src)
+			p.member, p.start, p.end = kind, item.start, item.end
+			out = append(out, p)
 		case inList:
 			out = append(out, unmodelled(principalUnreadable, "", "", trust.Anomaly{Kind: Malformed, Construct: kind, Message: "the " + kind + " principal lists " + describe(item) + " where a string is expected, so who it names is not known", Source: src}))
 		default:
@@ -270,7 +280,7 @@ func (p principal) faces(actions ActionSet, src string) []principal {
 	case !slices.Contains(granted, assumeRole):
 		whose = "identity providers' tokens"
 	}
-	other := principal{kind: principalAnyIssuer, text: p.text, findings: p.findings.clone()}
+	other := principal{kind: principalAnyIssuer, member: p.member, start: p.start, end: p.end, text: p.text, findings: p.findings.clone()}
 	other.findings.widen(trust.Anomaly{Kind: trust.Unmodelled, Construct: "Principal", Message: "the statement applies to every principal, and which " + whose + " it covers through " + spellActions(granted) + " is not known", Source: src})
 	return []principal{p, other}
 }

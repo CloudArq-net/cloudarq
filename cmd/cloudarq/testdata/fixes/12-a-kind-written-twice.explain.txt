@@ -1,0 +1,17 @@
+cloudarq admits, before it answers:
+  reads ../../testdata/fixes/12-a-kind-written-twice/aws.json, and no other file
+  reads the owner "aws:444455556666" from --owner, as yours
+  consults NO_COLOR, and no other environment variable
+  makes no network request and no API call: the answer is computed here
+  writes the answer to standard output and nothing to any file
+cloudarq admits, who and how:
+  grant 1
+    who  aws:111122223333 can assume this role and is not declared as yours.
+         written arn:aws:iam::111122223333:root at line 7 Principal.AWS
+    how  Statement 1 ("TwoCopies"), lines 4-9, names this account, with no condition, so the set shown is an upper bound.
+    ask  aws:111122223333 · Is aws:111122223333 yours?
+    fix  No fix the engine can prove yet: with the principal removed, grant 2 would not be placed as it is now.
+  grant 2
+    who  aws:444455556666, declared as yours, can assume this role.
+         written 444455556666 at line 7 Principal.AWS
+    how  Statement 1 ("TwoCopies"), lines 4-9, names this account, with no condition, so the set shown is an upper bound.

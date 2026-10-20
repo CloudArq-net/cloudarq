@@ -1,0 +1,17 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "Accounts",
+      "Effect": "Allow",
+      "Principal": {"AWS": ["arn:aws:iam::111122223333:root", "444455556666"]},
+      "Action": "sts:AssumeRole"
+    },
+    {
+      "Sid": "NotThePartner",
+      "Effect": "Deny",
+      "Principal": {"AWS": "arn:aws:iam::111122223333:root"},
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}

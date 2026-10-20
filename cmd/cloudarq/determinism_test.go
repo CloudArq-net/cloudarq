@@ -2,6 +2,7 @@ package main
 
 import (
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -15,9 +16,13 @@ import (
 // processes.
 func TestDeterminismOfTheCommand(t *testing.T) {
 	runs := 0
+	// the ways --explain prints once the command has answered, counted so
+	// that a run in which no grant said who and how fails rather than agrees
+	ways := 0
 	for path := range corpus(t) {
-		for _, args := range [][]string{{path}, {"--json", path}} {
+		for _, args := range [][]string{{path}, {"--json", path}, {"--explain", path}} {
 			first := ask(t, args...)
+			ways += strings.Count(first.stderr, "\n    how  ")
 			for i := 0; i < 2; i++ {
 				again := ask(t, args...)
 				if again.stdout != first.stdout || again.stderr != first.stderr || again.code != first.code {
@@ -45,8 +50,9 @@ func TestDeterminismOfTheCommand(t *testing.T) {
 	// process
 	for _, name := range bundleCaseNames(t) {
 		path, owners := bundleCase(t, name)
-		for _, args := range [][]string{append(append([]string{}, owners...), "--bundle", path), append(append([]string{"--json"}, owners...), "--bundle", path)} {
+		for _, args := range [][]string{append(append([]string{}, owners...), "--bundle", path), append(append([]string{"--json"}, owners...), "--bundle", path), append(append([]string{"--explain"}, owners...), "--bundle", path)} {
 			first := ask(t, args...)
+			ways += strings.Count(first.stderr, "\n    how  ")
 			for i := 0; i < 2; i++ {
 				if again := ask(t, args...); again.stdout != first.stdout || again.stderr != first.stderr || again.code != first.code {
 					t.Fatalf("%v: run %d differs", args, i+2)
@@ -65,5 +71,8 @@ func TestDeterminismOfTheCommand(t *testing.T) {
 		}
 		runs++
 	}
-	t.Logf("%d fresh processes agreed byte for byte", runs)
+	if ways == 0 {
+		t.Fatal("no run with --explain said how a population is let in; the ways were compared over none")
+	}
+	t.Logf("%d fresh processes agreed byte for byte, %d ways among them", runs, ways)
 }

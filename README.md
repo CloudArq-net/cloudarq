@@ -21,6 +21,8 @@ Deny that cannot be evaluated is not applied, with a note saying so. The propert
 go install github.com/CloudArq-net/cloudarq/cmd/cloudarq@latest
 ```
 
+Or download the binary for your machine from the release page.
+
 The module needs Go 1.24.13 or later. Its `toolchain` line names Go 1.27.1, the version the
 tests run on, and the `go` command downloads that toolchain when the local one is older, unless
 `GOTOOLCHAIN` is set otherwise. `cloudarq version` prints the module version the binary was
@@ -144,9 +146,12 @@ them:
   --token <t>    read a token, decoded payload or whole, and print for each
                  grant whether it is admitted and why
   --explain      print on standard error what the command reads and calls
-                 before it answers, and after it, when a ring's place rests
-                 on the engine's reading of AWS's documentation, the
-                 sentences it read
+                 before it answers; after it, for each grant, who it lets
+                 in, the principal as written, how the statement lets them
+                 in, what is asked of their owners and how to shut them
+                 out, with the digest of the policy a proven fix leaves;
+                 and, when a ring's place rests on the engine's reading of
+                 AWS's documentation, the sentences it read
   --no-color     never mark the output; NO_COLOR in the environment does
                  the same, and a pipe is never marked
   --bundle <f>   read a bundle cloudarq-collect wrote and answer every role
@@ -189,8 +194,8 @@ file from the tag; the second, that it is the file attached to that release:
 ```sh
 gh attestation verify cloudarq_linux_amd64 -R CloudArq-net/cloudarq \
   --signer-workflow CloudArq-net/cloudarq/.github/workflows/release.yml \
-  --source-ref refs/tags/v0.3.0
-gh release verify-asset v0.3.0 cloudarq_linux_amd64 -R CloudArq-net/cloudarq
+  --source-ref refs/tags/v0.4.0
+gh release verify-asset v0.4.0 cloudarq_linux_amd64 -R CloudArq-net/cloudarq
 ```
 
 `cloudarq-collect` only reads, with your own credentials from AWS's standard chain: `sts:GetCallerIdentity`, `iam:ListAccountAliases`,
@@ -254,7 +259,7 @@ cd cloudarq
 make check
 ```
 
-`make check` builds, vets and tests every package, then runs three stricter checks, and prints
+`make check` builds, vets and tests every package, then runs four stricter checks, and prints
 `all checks green` only if all of them pass:
 
 - `make purity`: no pure package imports `net`, `os`, `os/exec`, `syscall`, `bufio`,
@@ -262,6 +267,10 @@ make check
   `hash/maphash`) or a cloud SDK, directly or through another package. The one way through is
   `encoding/json`, `fmt`, `crypto/sha256` and `time`, which reach `os` but do IO only on a file
   or connection they are handed.
+- `make licence`: LICENSE is FSL-1.1-ALv2's text, and no file of the repository names the
+  Apache License 2.0 as the engine's own: no package manifest, and none of the engine's own
+  words but the sentences `test/arch/licence_test.go` lists. Third-party notices and licence
+  texts keep their own licences.
 - `make determinism`: the tests that hold the output byte-identical for identical input run in
   twenty fresh processes, and every run must pass.
 - `make cover`: fails if any statement of `internal/eval`, `internal/trust`, `internal/parse`
@@ -282,6 +291,10 @@ Issues and pull requests are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Licence
 
-Apache License 2.0; see [LICENSE](LICENSE). [NOTICE](NOTICE) and
-[THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES) list the third-party material the repository
-contains.
+From v0.4.0, CloudArq is source available under the Functional Source License, Version 1.1,
+with the Apache License 2.0 as its future licence (FSL-1.1-ALv2); see [LICENSE](LICENSE). You
+may use, change and share it for any purpose but a competing use, as LICENSE defines one, and
+each version becomes available under the Apache License 2.0 on the second anniversary of the
+day it was made available. Versions v0.1.0 to v0.3.0 stay under the Apache License 2.0 they
+were released with. [NOTICE](NOTICE) and [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES) list the
+third-party material the repository contains, each under its own licence.

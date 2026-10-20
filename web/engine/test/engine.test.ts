@@ -76,6 +76,69 @@ test("remark re-marks a role the findings kept as the findings answer it with th
 	ok(declined.sentence.length > 0);
 });
 
+test("fixed makes the whole fixed policy from the bundle, the one a proven fix names by its digest, and no answer carries it", async () => {
+	const engine = await loadEngine(module);
+	const partner = JSON.stringify({
+		Version: "2012-10-17",
+		Statement: [
+			{ Effect: "Allow", Principal: { Service: "ec2.amazonaws.com" }, Action: "sts:AssumeRole" },
+			{ Sid: "Partner", Effect: "Allow", Principal: { AWS: ["arn:aws:iam::111122223333:root", "444455556666"] }, Action: "sts:AssumeRole" },
+		],
+	});
+	const arn = "arn:aws:iam::123456789012:role/partner";
+	const bundle = new TextEncoder().encode(JSON.stringify({
+		format: "cloudarq.collect/v1", provider: "aws", account: "123456789012", partition: "aws",
+		pages: [{ Roles: [{ RoleName: "partner", Arn: arn, AssumeRolePolicyDocument: partner }] }],
+		refused: [], limits: [],
+	}));
+	const findings = engine.findings(bundle, "aws:444455556666");
+	const fix = JSON.parse(findings).roles[0].answer.grants
+		.flatMap((g: { populations?: { way?: { fix?: { status: string; edit?: { sha256: string; leaf: { start: number; end: number } } } } }[] }) => g.populations ?? [])
+		.map((p: { way?: { fix?: { status: string; edit?: { sha256: string; leaf: { start: number; end: number } } } } }) => p.way?.fix)
+		.find((f: { status: string } | undefined) => f?.status === "proven");
+	ok(fix?.edit, "the partner's account has no proven fix");
+	const fixed = JSON.parse(engine.fixed(bundle, "aws:444455556666", arn, fix.edit.leaf.start, fix.edit.leaf.end));
+	const want = partner.replace(`"arn:aws:iam::111122223333:root",`, "");
+	strictEqual(fixed.policy, want);
+	strictEqual(fixed.sha256, fix.edit.sha256);
+	strictEqual(fixed.error, undefined);
+	ok(!findings.includes(JSON.stringify(want).slice(1, -1)), "the findings carry the fixed policy");
+	const refused = JSON.parse(engine.fixed(bundle, "aws:444455556666", arn, fix.edit.leaf.start + 1, fix.edit.leaf.end));
+	strictEqual(refused.policy, undefined);
+	ok(refused.error.length > 0);
+});
+
+test("fixed makes the policy that lets no one in where removing the principal would leave no statement, and no answer carries it", async () => {
+	const engine = await loadEngine(module);
+	const alone = JSON.stringify({
+		Version: "2012-10-17",
+		Statement: [{ Sid: "Partner", Effect: "Allow", Principal: { AWS: "arn:aws:iam::111122223333:root" }, Action: "sts:AssumeRole" }],
+	});
+	const arn = "arn:aws:iam::123456789012:role/partner";
+	const bundle = new TextEncoder().encode(JSON.stringify({
+		format: "cloudarq.collect/v1", provider: "aws", account: "123456789012", partition: "aws",
+		pages: [{ Roles: [{ RoleName: "partner", Arn: arn, AssumeRolePolicyDocument: alone }] }],
+		refused: [], limits: [],
+	}));
+	const findings = engine.findings(bundle, "");
+	const fix = JSON.parse(findings).roles[0].answer.grants[0].populations[0].way.fix;
+	strictEqual(fix.status, "proven");
+	strictEqual(fix.edit.removes, "policy");
+	const fixed = JSON.parse(engine.fixed(bundle, "", arn, fix.edit.leaf.start, fix.edit.leaf.end));
+	const want = '{\n  "Version": "2012-10-17",\n  "Statement": [\n    {\n      "Sid": "DenyEveryone",\n      "Effect": "Deny",\n      "Principal": {"AWS": "*"},\n      "Action": "sts:AssumeRole"\n    }\n  ]\n}';
+	strictEqual(fixed.policy, want);
+	strictEqual(fixed.sha256, fix.edit.sha256);
+	strictEqual(fixed.error, undefined);
+	ok(!findings.includes("DenyEveryone"), "the findings carry the policy that replaces it");
+	// the replacement, answered on its own, lets no one in
+	const again = JSON.parse(engine.admits(fixed.policy));
+	ok(again.grants.length > 0);
+	for (const g of again.grants) {
+		strictEqual(g.effect, "Deny");
+		deepStrictEqual(g.placement, ["refused"]);
+	}
+});
+
 test("two loaders over one module are two holders and neither rebinds the other", async () => {
 	const a = await loadEngine(module);
 	const b = await loadEngine(module);

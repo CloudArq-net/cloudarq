@@ -1,0 +1,23 @@
+cloudarq admits, before it answers:
+  reads ../../testdata/fixes/13-account-named-twice/aws.json, and no other file
+  consults NO_COLOR, and no other environment variable
+  makes no network request and no API call: the answer is computed here
+  writes the answer to standard output and nothing to any file
+cloudarq admits, who and how:
+  grant 1
+    who  ec2.amazonaws.com can assume this role; who can make it act is not read.
+         written ec2.amazonaws.com at line 13 Principal.Service
+    how  Statement 2 ("Instances"), lines 10-15, names this service, with no condition.
+    fix  Where ec2.amazonaws.com sends aws:SourceAccount, a condition on it naming this account keeps the service acting for this account's own resources; the engine does not prove that change yet.
+  grant 2
+    who  aws:111122223333 can assume this role and is not declared as yours.
+         written 111122223333 at line 7 Principal.AWS
+    how  Statement 1 ("Partner"), lines 4-9, names this account, with no condition.
+    ask  aws:111122223333 · Is aws:111122223333 yours?
+    fix  No fix the engine can prove yet: grant 3 also lets aws:111122223333 in by name, so removing this principal does not shut it out.
+  grant 3
+    who  aws:111122223333 can assume this role and is not declared as yours.
+         written arn:aws:iam::111122223333:root at line 7 Principal.AWS
+    how  Statement 1 ("Partner"), lines 4-9, names this account, with no condition.
+    ask  aws:111122223333 · Is aws:111122223333 yours?
+    fix  No fix the engine can prove yet: grant 2 also lets aws:111122223333 in by name, so removing this principal does not shut it out.

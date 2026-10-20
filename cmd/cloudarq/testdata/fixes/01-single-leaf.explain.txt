@@ -1,0 +1,20 @@
+cloudarq admits, before it answers:
+  reads ../../testdata/fixes/01-single-leaf/aws.json, and no other file
+  consults NO_COLOR, and no other environment variable
+  makes no network request and no API call: the answer is computed here
+  writes the answer to standard output and nothing to any file
+cloudarq admits, who and how:
+  grant 1
+    who  ec2.amazonaws.com can assume this role; who can make it act is not read.
+         written ec2.amazonaws.com at line 7 Principal.Service
+    how  Statement 1 ("Instances"), lines 4-9, names this service, with no condition.
+    fix  Where ec2.amazonaws.com sends aws:SourceAccount, a condition on it naming this account keeps the service acting for this account's own resources; the engine does not prove that change yet.
+  grant 2
+    who  aws:111122223333 can assume this role and is not declared as yours.
+         written arn:aws:iam::111122223333:root at line 13 Principal.AWS
+    how  Statement 2 ("Partner"), lines 10-15, names this account, with no condition.
+    ask  aws:111122223333 · Is aws:111122223333 yours?
+    fix  Remove statement 2 ("Partner"), lines 10-15: the only principal it names is "arn:aws:iam::111122223333:root".
+         Grant 2 is taken out, and no grant left lets aws:111122223333 in by name.
+         after it: ec2.amazonaws.com can assume this role.
+         sha256 of the policy after it: dc469cb91dcf87427d953abd407d63feb07b8672d14c055a686e6249ed8359da
