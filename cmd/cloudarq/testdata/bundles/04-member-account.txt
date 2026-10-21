@@ -16,6 +16,8 @@ A named outsider can assume this role.
 
 Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
 
+aws-account/no-external-id · aws:111122223333 can assume this role and is not declared as yours. · 47cfa92d1575302a2104b07f1c54049ce4d3e3b37f7a0d688072d79b9731f6aa
+
 grant 1 of 1 · statement[0] · Allow · aws:sts · outsider · exact
 This role admits any AWS principal whose aws:principalaccount is 111122223333.
 Who holds those identities now is not computed here: no network request is made.
@@ -107,6 +109,8 @@ A named outsider can assume this role.
   Your people           exact           No grant trusts a SAML provider declared as yours.
 
 Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+aws-account/no-external-id · aws:444455556666 can assume this role and is not declared as yours. · 88196272d1207f49dde2fb2f1e4630478bd796a2b8ec07dd004fd5c30413d398
 
 grant 1 of 1 · statement[0] · Allow · aws:sts · outsider · exact
 This role admits any AWS principal whose aws:principalaccount is 444455556666.

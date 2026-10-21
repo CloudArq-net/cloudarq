@@ -970,7 +970,7 @@ func admitsMeeting(t fataler, policy, owners []byte, met map[int][]eval.Admitted
 		if err != nil {
 			t.Fatalf("grant %d of %s does not render once met: %v", i+1, policy, err)
 		}
-		grant.Placement, grant.PlacementState, grant.Populations = placementOf(placed[i].placement)
+		grant.Placement, grant.PlacementState, grant.Populations = placed[i].stated(r.grants[i], deniesOf(r.grants))
 		r.ways(i, placed[i], &grant, a.Document)
 		a.Grants = append(a.Grants, grant)
 	}
@@ -1263,16 +1263,29 @@ func recognisedAnswers(t *testing.T) (kept []struct {
 // with the owners declared now, is the answer the findings give its policy
 // with those owners and the account the scan read recognised still, in
 // every form a caller keeps it in. The account is the reader's whatever
-// they declare, so no declaration made later drops it.
+// they declare, so no declaration made later drops it. Where the role is,
+// an account its Organization's management account manages, its findings
+// say as the answer kept it (located), and an answer that kept no finding
+// does not say it. A finding's keys are the ones the answer kept it with,
+// if any: the findings give its policy none, as they name no role.
 func TestRemarkKeepsTheAccountRecognised(t *testing.T) {
 	recognised := Bundle{Account: bundleAccount}.recognised()
 	marked := 0
 	for _, k := range recognisedAnswers(t) {
 		for _, now := range []string{"", "aws:" + management, "aws:" + bundleAccount, "github:acme", "aws:" + orgID} {
 			want := admitsWith(nil, []byte(k.policy), []byte(now), recognised)
+			if len(inputsOf(t, k.answer)) > 0 {
+				want = located(want, "no")
+			}
 			for _, kf := range keptForms {
-				if got := remarkNow(kf.form(t, k.answer), now); !bytes.Equal(got, want) {
+				got := remarkNow(kf.form(t, k.answer), now)
+				if !bytes.Equal(unkeyed(got), want) {
 					t.Fatalf("%s, kept with %+q, re-marked %s with %+q:\n got %s\nwant %s", k.policy, k.upload, kf.name, now, got, want)
+				}
+				for _, f := range keyedFindings(t, got) {
+					if f.id != "" && !slices.Contains(keyedFindings(t, k.answer), f) {
+						t.Fatalf("%s, kept with %+q, re-marked %s with %+q: the finding %+v is keyed as none kept was", k.policy, k.upload, kf.name, now, f)
+					}
 				}
 			}
 			if a := answerOf(t, want); a.Declarations != nil && len(a.Declarations.Recognitions) > 0 {

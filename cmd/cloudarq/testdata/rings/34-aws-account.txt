@@ -11,6 +11,8 @@ A named outsider can assume this role.
 
 Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
 
+aws-account/no-external-id · aws:111122223333 can assume this role and is not declared as yours.
+
 grant 1 of 1 · statement[0] "PartnerAccount" · Allow · aws:sts · outsider · exact
 This role admits any AWS principal whose aws:principalaccount is 111122223333.
 Who holds those identities now is not computed here: no network request is made.

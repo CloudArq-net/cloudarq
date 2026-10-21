@@ -156,21 +156,31 @@ func AppendRemark(dst, answer, owners []byte, wrote, engine string) []byte {
 // declared and recognised, and says again everything that follows from
 // where they land. ok is false when a grant is not one this build placed.
 func remark(a Answer, declared ring.Declarations, recognised []ring.Declaration) (Answer, bool) {
+	where, ok := keptManagement(a)
+	if !ok {
+		return Answer{}, false
+	}
 	mine := ownership{declared: declared.Owners, recognised: recognised}
-	placements := make([]placed, len(a.Grants))
+	grants := make([]trust.Grant, len(a.Grants))
 	for i := range a.Grants {
-		g := &a.Grants[i]
-		grant, ok := grantOf(*g)
-		if !ok || g.Number != i+1 {
+		grant, ok := grantOf(a.Grants[i])
+		if !ok || a.Grants[i].Number != i+1 {
 			return Answer{}, false
 		}
+		grants[i] = grant
+	}
+	refusals := deniesOf(grants)
+	placements := make([]placed, len(a.Grants))
+	for i, grant := range grants {
+		g := &a.Grants[i]
 		facts, platform := factsOf(grant.Issuer, g.Populations)
 		placements[i] = placed{number: g.Number, issuer: grant.Issuer, facts: facts, platform: platform, placement: ring.Classify(grant, facts, mine.all()), mine: mine}
 		kept := g.Populations
-		g.Placement, g.PlacementState, g.Populations = placements[i].stated()
-		if !onlyOwnersMoved(kept, g.Populations) || !placements[i].wayAgain(g.Populations, kept) {
+		g.Placement, g.PlacementState, g.Populations = placements[i].stated(grant, refusals)
+		if !onlyOwnersMoved(kept, g.Populations) || !placements[i].wayAgain(g.Populations, kept) || !keysAgain(g.Populations, kept) {
 			return Answer{}, false
 		}
+		g.findingParts()
 	}
 	for i := range a.Grants {
 		for j := range placements[i].placement.Populations {
@@ -179,9 +189,59 @@ func remark(a Answer, declared ring.Declarations, recognised []ring.Declaration)
 			}
 		}
 	}
+	a.locate(where)
 	a.Headline, a.Rings, a.Beside, a.Refused, a.Nobody, a.Declarations, a.Bounds = nil, nil, nil, nil, nil, nil, nil
 	a.rings(placements, declared)
 	return a, true
+}
+
+// keptManagement is where the role an answer is of is, as its findings
+// kept it, which owners move nothing of: each finding placed again says
+// it again. A finding is the only place an answer says it, so an answer
+// that kept none says not-known. ok is false where two findings kept
+// disagree, or one says what no finding this build writes says.
+func keptManagement(a Answer) (string, bool) {
+	where := ""
+	for _, g := range a.Grants {
+		for _, p := range g.Populations {
+			if p.Finding == nil {
+				continue
+			}
+			m := p.Finding.Inputs.Management
+			if m != inputYes && m != inputNo && m != inputNotKnown || where != "" && m != where {
+				return "", false
+			}
+			where = m
+		}
+	}
+	if where == "" {
+		return inputNotKnown, true
+	}
+	return where, true
+}
+
+// keysAgain sets the keys of each finding placed again that meets the rule
+// its finding kept met: the role, the issuer and the term they were made
+// from are the ones they would be made from now, since owners move none of
+// them, so they are the keys the findings would give. A finding that meets
+// a rule only now, or meets another, has none, since an answer does not
+// name the role it is of; the next read of the role gives them. It is
+// false where a finding kept has keys this build does not write: one
+// without the other, or either not the lowercase hex of a SHA-256.
+func keysAgain(placed, kept []Population) bool {
+	for j := range placed {
+		k := kept[j].Finding
+		if k == nil {
+			continue
+		}
+		if (k.ID == "") != (k.PairingKey == "") || k.ID != "" && (!isSumHex(k.ID) || !isSumHex(k.PairingKey)) {
+			return false
+		}
+		if f := placed[j].Finding; f != nil && f.Rule == k.Rule {
+			f.ID, f.PairingKey = k.ID, k.PairingKey
+		}
+	}
+	return true
 }
 
 // wayAgain sets the way of each population placed again: who it is and

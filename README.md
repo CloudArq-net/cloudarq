@@ -54,6 +54,8 @@ Anyone on GitHub can assume this role.
 
 Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
 
+web-identity/owner-left-open · Anyone on GitHub can assume this role; no condition confines its tokens to one owner.
+
 grant 1 of 2 · statement[0] "DeployFromMain" · Allow · https://token.actions.githubusercontent.com · outsider · exact
 This role admits any token from token.actions.githubusercontent.com whose aud is sts.amazonaws.com and whose sub is repo:acme/infra:ref:refs/heads/main.
 …
@@ -173,6 +175,63 @@ field is removed or renamed, or a field's meaning changes. New fields, and new v
 existing field, arrive under the same `v`; a consumer should ignore fields it does not know and
 read a value it does not know as unknown, never as clean.
 
+## Findings
+
+A way in placed exactly that meets one of these rules carries a `finding` in its population, and
+the text prints it under the rings, one line each: the rule, the sentence saying who the way in
+lets in, and, for a role read from a bundle, the finding's id. A way in placed as `unknown` meets
+no rule, and neither does one a `Deny` of the same policy refuses whole, so a population with no
+`finding` is not one the engine found clean: its `state` and `basis` say how far it was read.
+
+| Rule | The way in |
+|---|---|
+| `web-identity/no-owner` | Anyone who holds an account on a web-identity issuer's platform can present a token the grant admits, since nothing the grant constrains names an owner: for GitHub, no subject at all, or one such as `repo:*`, which every repository's subject matches. |
+| `web-identity/owner-left-open` | As `web-identity/no-owner`, but the subject writes the start of an owner's name and leaves the rest to a wildcard, as `repo:acme*` or `repo:acm?/x` do, or several such starts, one in each pattern of a list: whoever registers a name that begins with one, `acme-evil` or `acmz`, can present a token the grant admits. |
+| `aws-account/no-external-id` | A named AWS account, or a role or user in it, that nobody declared as theirs and no scan recognised as the account it read, can assume the role without sending any particular external ID: the grant asks for none, or accepts any value, as `StringLike` `"*"` does, or passes when the caller sends none, as `StringEqualsIfExists`, `StringNotEquals` and `Null` `"true"` do. |
+| `aws-account/any-account` | Anyone with an AWS account can assume the role: the principal is `"*"` or `{"AWS": "*"}`, and nothing the grant constrains names an account or an organisation. |
+
+A rule's id is never renamed and never given to another rule. A `finding` holds:
+
+- `rule`, the id of the rule the way in meets.
+- `id` and `pairingKey`, for a role read from a bundle; a policy read alone names no role, and
+  its findings have neither. The id is the SHA-256, in lowercase hex, of the JSON array
+  `["cloudarq.finding/1", rule, role, issuer, condition]` written with no whitespace: the role's
+  ARN as the bundle lists it, the grant's `issuer`, and the finding's `condition` followed by its
+  `unread` as one array. Each string is written as Go's `encoding/json` writes one: a quotation
+  mark and a backslash escaped with a backslash; a control character as `\b`, `\f`, `\n`, `\r` or
+  `\t` where it is one of those, and as `\u00` and two lowercase hex digits otherwise; `<`, `>`,
+  `&`, U+2028 and U+2029 as `\u` and four lowercase hex digits (`&` is `\u0026`); and every other
+  character as its UTF-8 bytes. JavaScript's `JSON.stringify`, and Python's `json.dumps` with
+  `ensure_ascii=False`, write `<`, `>`, `&`, U+2028 and U+2029 as they are, so a key recomputed
+  with either must escape those five first. The pairing key is the same hash without the
+  condition, which pairs a finding with what it was before its condition changed. The same rule
+  met by the same way into the same role keeps its id with the statements in another order, laid
+  out with other whitespace or given other Sids.
+- `callers`, who the way in lets in that the rule is about, never empty, each a `kind` and a
+  `value`: `platform`, everyone with an account on the platform the grant's issuer is on, whose
+  value is null; or `aws-account`, one AWS account the way in names that is neither declared nor
+  recognised, whose value is its ID.
+- `through`, what the way in comes through, as the statement writes it: the identity provider's
+  ARN for a web-identity or SAML principal, or the service for a service principal. Null for an
+  AWS principal, which comes through none.
+- `condition`, each claim the way in's term holds, in the claims' byte order, written
+  `claim=rendering` as `admits` renders the constraint: `?` for one not read, followed by what the
+  parser could not read, in parentheses. Empty where the term holds no claim.
+- `unread`, the conditions the statement writes that the grant does not read, each written
+  `operator key values`, the operator and the key in ASCII lowercase and the values as a JSON
+  array, in byte order and each once. The grant writes the same list as its own `unread`. Null
+  where the engine cannot tell which of the statement's principals the grant was read from,
+  which says they are not known, never that there are none.
+- `inputs`, facts about the way in, each written on every finding: `noSecret`, `yes` where
+  anyone with an account on the platform comes in with nothing of yours to know or hold, an
+  external ID among them, else `no`; `ownerLeftOpen`, the starts of an owner's name the subject
+  leaves to a wildcard, as written, in byte order, each once and none beginning with another,
+  and empty where it writes none; `externalId`, `required` (a value of the policy's own),
+  `absent` (none, or any the caller chooses), `not-applicable` (a principal that sends none) or
+  `not-known` (a constraint the engine did not read); `management`, `yes` or `no` for a role in
+  an AWS Organization, as a bundle says, and `not-known` otherwise; `refs`, `reach` and `used`,
+  `not-read`; and `registrableName` and `danglingIssuer`, `not-checked`.
+
 ## A whole AWS account
 
 `cloudarq-collect` reads the AWS account your credentials belong to and writes one bundle,
@@ -194,8 +253,8 @@ file from the tag; the second, that it is the file attached to that release:
 ```sh
 gh attestation verify cloudarq_linux_amd64 -R CloudArq-net/cloudarq \
   --signer-workflow CloudArq-net/cloudarq/.github/workflows/release.yml \
-  --source-ref refs/tags/v0.4.0
-gh release verify-asset v0.4.0 cloudarq_linux_amd64 -R CloudArq-net/cloudarq
+  --source-ref refs/tags/v0.5.0
+gh release verify-asset v0.5.0 cloudarq_linux_amd64 -R CloudArq-net/cloudarq
 ```
 
 `cloudarq-collect` only reads, with your own credentials from AWS's standard chain: `sts:GetCallerIdentity`, `iam:ListAccountAliases`,

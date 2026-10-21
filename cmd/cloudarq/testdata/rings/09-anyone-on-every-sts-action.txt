@@ -11,6 +11,8 @@ Anyone could assume this role.
 
 Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
 
+aws-account/any-account · Anyone on AWS can assume this role; no condition confines callers to one account or organisation.
+
 grant 1 of 2 · statement[0] "AnyoneAnySTSAction" · Allow · anyone · unknown
 Who this statement admits is not known: the statement applies to every principal, and which AWS services and identity providers' tokens it covers through sts:AssumeRole, sts:AssumeRoleWithWebIdentity or sts:AssumeRoleWithSAML is not known.
 The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.

@@ -197,12 +197,18 @@ const (
 // identityKeys are the AWS principal keys that describe who the caller is,
 // lower-cased. Any other service key describes the request.
 var identityKeys = map[string]bool{
-	"aws:principalarn":     true,
-	"aws:principalaccount": true,
-	"aws:principalorgid":   true,
-	"aws:principaltype":    true,
-	"sts:externalid":       true,
+	"aws:principalarn":      true,
+	"aws:principalaccount":  true,
+	"aws:principalorgid":    true,
+	"aws:principaltype":     true,
+	string(ExternalIDClaim): true,
 }
+
+// ExternalIDClaim is the claim this parser files a condition on
+// sts:ExternalId under, for an AWS principal: the key lower-cased, as it
+// files every key. The caller chooses the value it sends, and it names no
+// account.
+const ExternalIDClaim trust.ClaimKey = "sts:externalid"
 
 // scope says how the principal reads key, and which claim it names. The
 // claim is the folded key, except for the principal's own claims, whose
@@ -348,7 +354,7 @@ func (c constraint) evaluate(p principal, effect trust.Effect, vocabulary ClaimV
 	}
 	op := parseOperator(c.operator)
 	on := spellOperator(c.operator) + " on " + spellClaim(claim)
-	vacuous := on + " passes when the claim is absent, so it does not restrict what it looks like it restricts"
+	vacuous := vacuousSentence(on)
 	switch {
 	case effect == trust.Deny && op.negated:
 		// The value a negated Deny names is the one token it does not deny.
@@ -366,7 +372,7 @@ func (c constraint) evaluate(p principal, effect trust.Effect, vocabulary ClaimV
 	case op.base == "Null":
 		facts = append(facts, fact{c.operator, trust.Unmodelled, c.operator, c.nullMessage(on)})
 	case op.base == "StringNotEquals", op.base == "StringNotLike", op.base == "StringNotEqualsIgnoreCase":
-		facts = append(facts, fact{c.operator, trust.Unmodelled, c.operator, on + " admits every value but the ones listed and passes when the claim is absent; this parser does not model complements, so the claim is not constrained"})
+		facts = append(facts, fact{c.operator, trust.Unmodelled, c.operator, complementSentence(on)})
 	case op.base == "StringEqualsIgnoreCase":
 		facts = append(facts, fact{c.operator, trust.Unmodelled, c.operator, on + " matches the value in any casing, which this parser cannot express, so the claim is not constrained"})
 	case op.base != "StringEquals" && op.base != "StringLike":
@@ -462,9 +468,154 @@ func (c constraint) valueSet(texts []string, claim trust.ClaimKey, like bool, va
 	}
 	set := joinAll(sets, eval.StringSet.Join)
 	if set.IsTop() {
-		return nil, []fact{{c.operator, trust.Unmodelled, c.operator, spellOperator(c.operator) + " on " + spellClaim(claim) + " matches every value but only when the claim is present, which this parser cannot express, so the claim is not constrained"}}, notes
+		return nil, []fact{{c.operator, trust.Unmodelled, c.operator, presenceSentence(c.operator, claim)}}, notes
 	}
 	return set, nil, notes
+}
+
+// presenceSentence is what this parser says of a pattern list on claim that
+// admits every string: the condition passes whenever the claim is present,
+// whatever its value, and a set of values cannot say so.
+func presenceSentence(operator string, claim trust.ClaimKey) string {
+	return spellOperator(operator) + " on " + spellClaim(claim) + " matches every value but only when the claim is present, which this parser cannot express, so the claim is not constrained"
+}
+
+// vacuousSentence is what this parser says, for an Allow, of a condition
+// that passes when the claim is absent: an operator with the IfExists
+// suffix or the ForAllValues prefix.
+func vacuousSentence(on string) string {
+	return on + " passes when the claim is absent, so it does not restrict what it looks like it restricts"
+}
+
+// complementSentence is what this parser says of StringNotEquals,
+// StringNotLike and StringNotEqualsIgnoreCase: each admits every value but
+// the ones it lists, and passes when the claim is absent.
+func complementSentence(on string) string {
+	return on + " admits every value but the ones listed and passes when the claim is absent; this parser does not model complements, so the claim is not constrained"
+}
+
+// nullSentence is what this parser says of a Null condition whose value is
+// "true", which passes only when the claim is absent, or "false", which
+// passes whenever it is present, whatever value it holds.
+func nullSentence(on, polarity string) string {
+	if polarity == "true" {
+		return on + ` is "true": the claim must be absent, which this parser cannot express, so the claim is not constrained`
+	}
+	return on + ` is "false": the claim must be present, which this parser cannot express, so the claim is not constrained`
+}
+
+// AsksNoParticularValue reports whether a caveat this parser filed for an
+// Allow is one it files for a condition a caller meets by sending no value
+// for the claim the caveat is filed under, or a value of its own choosing,
+// and which so asks for no value in particular: a StringLike whose values
+// admit every string, as "*" does, which passes whenever the claim is
+// present; an operator with the IfExists suffix or the ForAllValues
+// prefix, and StringNotEquals, StringNotLike and StringNotEqualsIgnoreCase,
+// each of which passes when the claim is absent; and Null, which passes
+// when the claim is absent for "true", and for "false" whenever it holds
+// any value. Every other caveat is not one and says nothing of what the
+// claim may hold: ForAnyValue, which fails when the claim is absent; a
+// Null of neither value; an operator this parser does not model; and a
+// StringLike that lists no values. A condition beside it on the same claim
+// may still ask for a value, and the claim's set in the term says so.
+func AsksNoParticularValue(c eval.Caveat) bool {
+	text, _, found := strings.Cut(c.Reason, " on "+spellClaim(c.Claim)+" ")
+	op := parseOperator(text)
+	if !found || !op.recognised {
+		return false
+	}
+	on := text + " on " + spellClaim(c.Claim)
+	switch {
+	case op.setPrefix == "ForAllValues", op.ifExists:
+		return c.Reason == vacuousSentence(on)
+	case op.setPrefix != "":
+		return false
+	case op.base == "StringLike":
+		return c.Reason == presenceSentence(text, c.Claim)
+	case op.base == "Null":
+		return c.Reason == nullSentence(on, "true") || c.Reason == nullSentence(on, "false")
+	case op.base == "StringNotEquals", op.base == "StringNotLike", op.base == "StringNotEqualsIgnoreCase":
+		return c.Reason == complementSentence(on)
+	}
+	return false
+}
+
+// Condition is one key under one operator as a statement writes it: the
+// operator and the key as they are spelt there, and the values listed, in
+// the statement's order, a value written alone being a list of one. A value
+// that is not a string is written as its text: a number as written, a
+// boolean as true or false, null as null, and a list or an object, which
+// the IAM grammar does not allow there, as its JSON exactly as written.
+type Condition struct {
+	Operator, Key string
+	Values        []string
+}
+
+// Unread lists the conditions of the statement at index statement that the
+// grant projected from its principal w, for issuer, did not read: each key
+// under an operator against which the projection recorded a fact that kept
+// it from being evaluated, leaving its claim Unknown, whatever the grant's
+// terms then kept of that Unknown; and every key, where the statement or
+// the principal is one whose conditions are not read at all. A grant is
+// named by its statement and by the principal GrantsWritten gives beside
+// it, with its issuer, which tells the two faces of "*" apart. found is
+// false where the statement holds no principal so written with that
+// issuer, or more than one, as two principals whose strings were not read
+// may be, so that one is never guessed for the other.
+func (d Document) Unread(statement int, w Written, issuer trust.IssuerRef, vocabulary ClaimVocabulary) (unread []Condition, found bool) {
+	if statement < 0 || statement >= len(d.Statements) {
+		return nil, false
+	}
+	s := d.Statements[statement]
+	src := "statement[" + strconv.Itoa(statement) + "]"
+	var faces []principal
+	for _, p := range s.Principals.list {
+		if p.written() != w {
+			continue
+		}
+		for _, face := range p.faces(s.Actions, src+".Principal") {
+			if face.issuer == issuer {
+				faces = append(faces, face)
+			}
+		}
+	}
+	if len(faces) != 1 {
+		return nil, false
+	}
+	face := faces[0]
+	widened := len(s.findings.widenings)+len(face.findings.widenings) > 0
+	unread = []Condition{}
+	for _, c := range s.Conditions.constraints {
+		if widened || len(c.evaluate(face, s.Effect, vocabulary, d.variables, src+".Condition").anomalies) > 0 {
+			unread = append(unread, Condition{Operator: c.operator, Key: c.key, Values: valuesWritten(c.value)})
+		}
+	}
+	return unread, true
+}
+
+// valuesWritten is what a condition lists, as Condition gives it.
+func valuesWritten(v *value) []string {
+	if v.kind != kindArray {
+		return []string{valueText(v)}
+	}
+	out := make([]string, len(v.items))
+	for i, item := range v.items {
+		out[i] = valueText(item)
+	}
+	return out
+}
+
+// valueText is one value as Condition gives it.
+func valueText(v *value) string {
+	switch v.kind {
+	case kindString, kindNumber:
+		return v.text
+	case kindBool:
+		return strconv.FormatBool(v.boolean)
+	case kindNull:
+		return "null"
+	}
+	return string(v.bytes())
 }
 
 // nullMessage says which way a Null condition reads. AWS documents the
@@ -482,11 +633,8 @@ func (c constraint) nullMessage(on string) string {
 	case kindString:
 		polarity = v.text
 	}
-	switch polarity {
-	case "true":
-		return on + ` is "true": the claim must be absent, which this parser cannot express, so the claim is not constrained`
-	case "false":
-		return on + ` is "false": the claim must be present, which this parser cannot express, so the claim is not constrained`
+	if polarity == "true" || polarity == "false" {
+		return nullSentence(on, polarity)
 	}
 	return on + " has the value " + quoteOrDescribe(c.value) + `, which is neither "true" nor "false", so the claim is not constrained`
 }

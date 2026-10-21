@@ -169,6 +169,15 @@ type Population struct {
 	State  State
 	Basis  Basis
 	Owners []Owner
+	// OwnerStarts are, for an alternative placed with the whole platform
+	// because nothing it constrains names an owner, the starts of an
+	// owner's name its subject writes and leaves to a wildcard: "acme" of
+	// "repo:acme*", and "acme" and "beta" of "repo:acme*" or "repo:beta*".
+	// Whoever registers a name beginning with one of them is admitted.
+	// They are in byte order, each once, and none begins with another,
+	// which admits every name it would. Nil when the subject writes none,
+	// and for every other place.
+	OwnerStarts []string
 }
 
 // Placement is where a grant lands.

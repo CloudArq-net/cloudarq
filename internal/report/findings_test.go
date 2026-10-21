@@ -484,7 +484,11 @@ const recognitionEchoed = `,"recognitions":[{"declaration":"aws:123456789012","s
 
 // A role whose grants no recognised owner is pinned to is answered as its
 // trust policy is alone, byte for byte, but for the echo of the account
-// recognised: recognising moves nothing there, and says nothing else.
+// recognised, and for where the role is and which role it is, which each
+// finding says and a policy alone does not: an account its Organization's
+// management account manages (located), and the finding's keys, which every
+// finding of the role carries. Recognising moves nothing there, and says
+// nothing else.
 func TestARoleNotPinnedToTheAccountIsAnsweredAsItsPolicyAlone(t *testing.T) {
 	bundle := bundleOf(t, organizationMember(management, nil), testRole{"deploy", githubTrust}, testRole{"stranger", strangerTrust},
 		testRole{"managed", managementTrust}, testRole{"org", orgTrust}, testRole{"worker", serviceTrust})
@@ -495,7 +499,7 @@ func TestARoleNotPinnedToTheAccountIsAnsweredAsItsPolicyAlone(t *testing.T) {
 			if bytes.Count(got, []byte(recognitionEchoed)) != 1 {
 				t.Fatalf("owners %+q, %s: the account is not echoed as recognised once:\n%s", owners, f.Roles[i].Name, got)
 			}
-			if want := AdmitsFor([]byte(document), []byte(owners)); !bytes.Equal(bytes.Replace(got, []byte(recognitionEchoed), nil, 1), want) {
+			if want := located(AdmitsFor([]byte(document), []byte(owners)), "no"); !bytes.Equal(roleUnkeyed(t, bytes.Replace(got, []byte(recognitionEchoed), nil, 1)), want) {
 				t.Errorf("owners %+q, %s: the answer is not AdmitsFor's\n got %s\nwant %s", owners, f.Roles[i].Name, got, want)
 			}
 		}
@@ -1070,6 +1074,15 @@ func oneRoleBundle(t fataler, policy []byte, account, management, id string) []b
 	return raw
 }
 
+// located is the answer a bundle that names no Organization gives a role,
+// with each finding saying where the role is as a bundle naming one says
+// it, management: the one fact an Organization adds to a role's answer.
+// Inside a string of the answer a quote is escaped, so the bytes replaced
+// are a finding's input and nothing else.
+func located(answer []byte, management string) []byte {
+	return bytes.ReplaceAll(answer, []byte(`"management":"not-known"`), []byte(`"management":`+strconv.Quote(management)))
+}
+
 // oneRoleFindings are the findings of a bundle of one role, which must read.
 func oneRoleFindings(t fataler, bundle []byte, owners string) findingsShape {
 	var f findingsShape
@@ -1105,7 +1118,10 @@ func (c *suggestionCounts) add(d suggestionCounts) {
 // id managed by management, with one declaration, to the property: an owner
 // the findings ask about moves nothing until it is declared, and declared,
 // it is an owner declared by hand. The role's answer is the one it gives
-// in a bundle that names no Organization, byte for byte; the findings ask
+// in a bundle that names no Organization, byte for byte, but for where the
+// role is, which every finding of it says (located), and that one is its
+// policy's with the account read recognised, but for the keys every
+// finding of the role carries; the findings ask
 // about the management account, unless it is the account read, and the
 // Organization, each said to be declared exactly when the declaration
 // declares it; and declaring one gives the answer a bundle that names no
@@ -1117,8 +1133,12 @@ func holdSuggesting(t fataler, policy []byte, account, management, id, owners st
 	fail := func(what string, args ...any) {
 		t.Fatalf("read from %s, managed by %s in %s, owners %q: "+what+"\npolicy: %s", append(append([]any{account, management, id, clipped(owners)}, args...), policy)...)
 	}
+	where := "no"
+	if management == account {
+		where = "yes"
+	}
 	answer := f.Roles[0].Answer
-	if !bytes.Equal(answer, g.Roles[0].Answer) || !bytes.Equal(answer, admitsWith(nil, policy, []byte(owners), Bundle{Account: account}.recognised())) {
+	if !bytes.Equal(answer, located(g.Roles[0].Answer, where)) || !bytes.Equal(roleUnkeyed(t, g.Roles[0].Answer), admitsWith(nil, policy, []byte(owners), Bundle{Account: account}.recognised())) {
 		fail("the Organization moved the answer\nnamed %s\n none %s", answer, g.Roles[0].Answer)
 	}
 	if len(g.Suggested) != 0 || len(g.Roles[0].WouldMove) != 0 {
@@ -1161,7 +1181,7 @@ func holdSuggesting(t fataler, policy []byte, account, management, id, owners st
 			fail("declaring %s beside the owners passes a bound; the property needs a smaller declaration", s.Declaration)
 		}
 		fy, gy := oneRoleFindings(t, member, yes), oneRoleFindings(t, none, yes)
-		if !bytes.Equal(fy.Roles[0].Answer, gy.Roles[0].Answer) {
+		if !bytes.Equal(fy.Roles[0].Answer, located(gy.Roles[0].Answer, where)) {
 			fail("%s declared is not %s declared by hand\nasked %s\n hand %s", s.Declaration, s.Declaration, fy.Roles[0].Answer, gy.Roles[0].Answer)
 		}
 		if at := slices.IndexFunc(fy.Suggested, func(d suggestedShape) bool { return d.Declaration == s.Declaration }); at < 0 || !fy.Suggested[at].Declared {

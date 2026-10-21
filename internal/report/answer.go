@@ -163,11 +163,21 @@ type Grant struct {
 	Admits string `json:"admits"`
 	// Terms are the alternatives of the admitted set, each a conjunction of
 	// claims in claim order; a Term shows one row per claim it names.
-	Terms    [][]Claim `json:"terms"`
-	Notes    []Note    `json:"notes"`
-	Sentence string    `json:"sentence"`
-	Spans    []Span    `json:"spans"`
-	Caption  string    `json:"caption"`
+	Terms [][]Claim `json:"terms"`
+	Notes []Note    `json:"notes"`
+	// Unread are the conditions the grant's statement writes that the
+	// grant does not read, as unreadOf writes them: each key under an
+	// operator whose reading recorded what kept it from being evaluated,
+	// and every condition of a statement or a principal whose conditions
+	// are not read at all. The notes say why in words. Empty where it reads
+	// every one, and null where the engine cannot tell which of the
+	// statement's principals the grant was read from, which says they are
+	// not known, never that there are none. A finding of the grant writes
+	// them again beside its condition.
+	Unread   []string `json:"unread"`
+	Sentence string   `json:"sentence"`
+	Spans    []Span   `json:"spans"`
+	Caption  string   `json:"caption"`
 	// Witness is the decoded payload of one token the grant admits, or ""
 	// when none could be built. WitnessHeading and WitnessCaption are the
 	// words printed over it, in the grant's effect and saying what
@@ -337,6 +347,10 @@ type Population struct {
 	// Way is who the population is and how the policy lets it in, in words,
 	// with the principal as the statement writes it.
 	Way *Way `json:"way,omitempty"`
+	// Finding is the rule the population meets, with its inputs, present
+	// only when it meets one; a population whose state is not exact never
+	// does.
+	Finding *Finding `json:"finding,omitempty"`
 }
 
 // Owner is one owner a term is pinned to, typed as the classifier typed it:
@@ -475,12 +489,13 @@ func answerPlaced(policy, owners []byte, recognised []ring.Declaration) (Answer,
 	}
 	a.Document = r.document()
 	p := &placing{read: r, declared: declared, recognised: recognised, placed: r.place(declared.Owners, recognised...)}
+	refusals := deniesOf(r.grants)
 	for i := range r.grants {
 		grant, err := r.grant(i)
 		if err != nil {
 			return Answer{V: Version, Error: fmt.Sprintf("grant %d: %v", i+1, err), Grants: []Grant{}}, p
 		}
-		grant.Placement, grant.PlacementState, grant.Populations = p.placed[i].stated()
+		grant.Placement, grant.PlacementState, grant.Populations = p.placed[i].stated(r.grants[i], refusals)
 		r.ways(i, p.placed[i], &grant, a.Document)
 		a.Grants = append(a.Grants, grant)
 	}
@@ -557,14 +572,17 @@ func (m ownership) marks(o ring.Owner, f ring.Facts) (declared, recognised bool)
 	return slices.ContainsFunc(m.declared, names), slices.ContainsFunc(m.recognised, names)
 }
 
-// stated is where the grant lands in the answer's vocabulary, each owner
-// marked as declared, recognised, both or neither.
-func (p placed) stated() ([]string, string, []Population) {
+// stated is where grant g, placed as p, lands in the answer's vocabulary,
+// each owner marked as declared, recognised, both or neither, and each
+// population with the rule it meets, read with its owners so marked and
+// beside refusals, the Deny grants of its policy read exactly.
+func (p placed) stated(g trust.Grant, refusals []trust.Grant) ([]string, string, []Population) {
 	places, state, populations := placementOf(p.placement)
 	for i, pop := range p.placement.Populations {
 		for j, o := range pop.Owners {
 			populations[i].Owners[j].Declared, populations[i].Owners[j].Recognised = p.mine.marks(o, p.facts)
 		}
+		populations[i].Finding = findingOf(wayIn{grant: g, pop: pop, owners: populations[i].Owners, refusals: refusals})
 	}
 	return places, state, populations
 }
@@ -705,6 +723,9 @@ func (r reading) grant(i int) (Grant, error) {
 		Admits:    g.Admits.String(),
 		Terms:     [][]Claim{},
 		Notes:     notesOf(g),
+	}
+	if unread, found := r.doc.Unread(s, r.written[i], g.Issuer, vocabulary); found {
+		out.Unread = unreadOf(unread)
 	}
 	out.Beyond = g.Effect == trust.Allow && out.Exact && !out.Empty && g.WithoutAudience().IsTop()
 	if at.principalLine != 0 {

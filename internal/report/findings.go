@@ -367,7 +367,7 @@ func AppendFindings(dst, bundle, owners []byte, engine string) []byte {
 		digest := sha256.Sum256(role.Document)
 		e.str("document_sha256", hex.EncodeToString(digest[:]))
 		e.key("answer")
-		answer, placing := answerPlaced(role.Document, owners, recognised)
+		answer, placing := b.answered(role, owners)
 		e.answer(answer)
 		e.moves(placing.moves(asked))
 		e.end(inner)
@@ -411,7 +411,46 @@ func (e *encoder) organization(o Organization) {
 // with the owners declared one a line: its trust policy's, with the
 // account the bundle was read from recognised as the reader's.
 func (b Bundle) AnswerFor(role BundleRole, owners []byte) Answer {
-	return admitsRecognising(role.Document, owners, b.recognised())
+	a, _ := b.answered(role, owners)
+	return a
+}
+
+// answered is AnswerFor's answer and the placing it was built from, nil
+// when the policy or the owners were not read: each finding of it with
+// where the role is, which the bundle says, and its keys, which the role's
+// ARN is part of.
+func (b Bundle) answered(role BundleRole, owners []byte) (Answer, *placing) {
+	a, p := answerPlaced(role.Document, owners, b.recognised())
+	a.locate(b.management())
+	a.identify(role.Arn)
+	return a, p
+}
+
+// management is whether the bundle's account is the management account of
+// its AWS Organization, which the bundle says exactly of an account in
+// one; of any other, and of a bundle that did not read it, it is not
+// known.
+func (b Bundle) management() string {
+	switch {
+	case b.Organization.Status != orgMember:
+		return inputNotKnown
+	case b.Organization.ManagementAccount == b.Account:
+		return inputYes
+	}
+	return inputNo
+}
+
+// locate writes where the role is, as management, into every finding of
+// an answer to one of a bundle's roles, each of which is in the bundle's
+// account.
+func (a *Answer) locate(management string) {
+	for i := range a.Grants {
+		for _, p := range a.Grants[i].Populations {
+			if p.Finding != nil {
+				p.Finding.Inputs.Management = management
+			}
+		}
+	}
 }
 
 // recognised are the owners the findings recognise as the reader's
@@ -475,7 +514,7 @@ type Move struct {
 // about and the reader has not declared whose declaring would move where a
 // population of the role's grants lands.
 func (b Bundle) Finding(role BundleRole, owners []byte) (Answer, []Move) {
-	answer, placing := answerPlaced(role.Document, owners, b.recognised())
+	answer, placing := b.answered(role, owners)
 	return answer, placing.moves(b.Suggested(owners))
 }
 

@@ -13,6 +13,9 @@ Anyone on AWS can assume this role; so can cloud services.
 
 Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
 
+aws-account/any-account · Anyone on AWS can assume this role; no condition confines callers to one account or organisation.
+aws-account/no-external-id · aws:111122223333 can assume this role and is not declared as yours.
+
 grant 1 of 4 · statement[0] "RolesOfOneAccount" · Allow · service · unknown
 Who this statement admits is not known: the condition key "aws:PrincipalArn" is a fact about the request, not a claim of the token, so this parser does not evaluate it and the claim is not constrained; the statement applies to every principal, and which AWS services it covers through sts:AssumeRole is not known.
 The set shown is an upper bound, not the set: a token not excluded here may still be refused by AWS.

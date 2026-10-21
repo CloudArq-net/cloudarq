@@ -1,5 +1,34 @@
 # Changelog
 
+## v0.5.0
+
+What the engine finds of each way in, by a rule with a permanent id.
+
+- **Findings.** A population placed exactly whose way in meets a rule gains `finding`, under
+  answer `v` 1: `rule`, one of `web-identity/no-owner`, `web-identity/owner-left-open`,
+  `aws-account/no-external-id` and `aws-account/any-account`; `callers`, who the way in lets in
+  that the rule is about, each a `kind`, `platform` or `aws-account`, and a `value`, null for
+  the platform and the account's ID for an account; `through`, the identity provider or the
+  service the principal names, and null for an AWS principal; `condition`, each claim the way
+  in's term holds; `unread`, the conditions its statement writes that the grant does not read;
+  and `inputs`, nine facts about the way in, each written on every finding, `not-read` or
+  `not-checked` where the engine did not read or check it. A way in placed as `unknown` meets no
+  rule, and neither does one a Deny of the same policy refuses whole. The README's *Findings*
+  says what each rule and each member means.
+- **A stable id.** Each finding of a role read from a bundle has an `id` and a `pairingKey`,
+  SHA-256 hashes of the rule, the role's ARN, the grant's issuer and, for the id, the condition
+  and the unread conditions: the same however the policy orders, lays out or names its
+  statements. A policy read alone names no role, and its findings have neither.
+- **Unread conditions.** Each grant gains `unread`, the conditions its statement writes that it
+  does not read, as its findings write them, and null where the engine cannot tell which of the
+  statement's principals the grant was read from. An answer marked again keeps them.
+- **In the text.** Under the rings, one line for each finding: its rule, the sentence saying who
+  the way in lets in, and its id where it has one.
+- **Types.** `web/engine/answer.ts` types `finding`, its callers and inputs, and each grant's
+  `unread`.
+- **The WebAssembly build** uses `-opt=z` in place of `-opt=s`: the module is 21,266 bytes
+  smaller, and a call on a policy of 50 statements takes about 0.9 ms longer.
+
 ## v0.4.0
 
 Who each way in lets in and how, a fix for each, proven by reading the policy again, and a new

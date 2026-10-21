@@ -114,21 +114,32 @@ Each of these changes an answer silently when it is read wrongly, and each has a
 
 ```sh
 tinygo build -o cloudarq.wasm -target web/wasm/target.json -buildmode=c-shared \
-  -scheduler=none -opt=s -no-debug -panic=trap ./web/wasm
+  -scheduler=none -opt=z -no-debug -panic=trap ./web/wasm
 ```
 
 `target.json` is TinyGo's `wasm` target with a 1 MiB stack, because the readers recurse once
 per level of nesting. The module is a library: start it with the `wasm_exec.js` in TinyGo's
 `targets` directory, whose `run` initialises it and returns. It exports `reserve`, `admits`,
-`explain` and `answerAt`. A caller reserves room for its input, writes the policy's bytes, and
-for `explain` the token's bytes after them, calls `admits(policyLength)` or
-`explain(policyLength, tokenLength)`, and reads that many bytes from `answerAt()`. The answer is
-the JSON `cloudarq admits --json` prints for the same policy and token, without `--owner`, byte
-for byte but for the newline the command ends its output with.
+`explain`, `findings`, `remark`, `fixed` and `answerAt`. A caller reserves room for its input,
+writes its parts one after another, calls one of the five that answer with the length of each
+part, and reads as many bytes as it returns from `answerAt()`:
+
+- `admits(policyLength)` and `explain(policyLength, tokenLength)` read a policy, and for
+  `explain` the token after it. The answer is the JSON `cloudarq admits --json` prints for the
+  same policy and token, without `--owner`, byte for byte but for the newline the command ends
+  its output with.
+- `findings(bundleLength, ownersLength)` reads a bundle `cloudarq-collect` wrote and the owners
+  declared as yours, one a line, and answers every role in it as `cloudarq.findings/v1`.
+- `remark(answerLength, ownersLength, engineLength)` reads one role's answer a scan kept, the
+  owners declared now and the engine that scan's findings name, and answers that role again for
+  those owners, or why it declines to.
+- `fixed(bundleLength, ownersLength, roleLength, start, end)` reads a bundle, the owners and one
+  role's ARN, and answers with that role's trust policy with the principal written at bytes
+  `[start, end)` removed, or why it is not given.
 
 `web/engine/engine.ts` does those steps for a caller. `loadEngine` takes a compiled module and
-returns an object with `admits(policy)` and `explain(policy, token)`, each returning the JSON as
-a string; it writes nothing to `globalThis`, and it replaces an instance that trapped or whose
+returns an object with `admits`, `explain`, `findings`, `remark` and `fixed`, each returning the
+JSON as a string; it writes nothing to `globalThis`, and it replaces an instance that trapped or whose
 memory grew past a bound, so the next call meets a live engine. `answer.ts` holds the types of
 the JSON. `wasm_exec.js` is TinyGo 0.42.0's, vendored unchanged below a first line that records
 its digest.

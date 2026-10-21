@@ -1771,3 +1771,52 @@ func TestMayNameReadsKeysAsTheParserFilesThem(t *testing.T) {
 		t.Error("a key with the provider's trailing slash is not read as the provider's")
 	}
 }
+
+// TestAsksNoParticularValueReadsTheCaveatsTheParserFiles: each condition
+// below is parsed from a statement a vendor's account is trusted by, and
+// every caveat the parser files on the external ID is read. A condition a
+// caller meets by sending no external ID, or one of its own choosing, asks
+// for none in particular; every other caveat says nothing of what the
+// claim may hold.
+func TestAsksNoParticularValueReadsTheCaveatsTheParserFiles(t *testing.T) {
+	cases := []struct {
+		name      string
+		condition string
+		want      bool
+	}{
+		{"StringLike with a star", `{"StringLike": {"sts:ExternalId": "*"}}`, true},
+		{"StringLike with wildcards alone", `{"StringLike": {"sts:ExternalId": ["**", "*"]}}`, true},
+		{"an operator with the IfExists suffix", `{"StringEqualsIfExists": {"sts:ExternalId": "vendor-abc"}}`, true},
+		{"an operator with the ForAllValues prefix", `{"ForAllValues:StringEquals": {"sts:ExternalId": "vendor-abc"}}`, true},
+		{"StringNotEquals", `{"StringNotEquals": {"sts:ExternalId": "vendor-abc"}}`, true},
+		{"StringNotLike", `{"StringNotLike": {"sts:ExternalId": "vendor-*"}}`, true},
+		{"StringNotEqualsIgnoreCase", `{"StringNotEqualsIgnoreCase": {"sts:ExternalId": "vendor-abc"}}`, true},
+		{"Null true", `{"Null": {"sts:ExternalId": "true"}}`, true},
+		{"Null false", `{"Null": {"sts:ExternalId": "false"}}`, true},
+		{"an operator with the ForAnyValue prefix", `{"ForAnyValue:StringEquals": {"sts:ExternalId": "vendor-abc"}}`, false},
+		{"Null of neither value", `{"Null": {"sts:ExternalId": "maybe"}}`, false},
+		{"an operator this parser does not model", `{"StringEqualsIgnoreCase": {"sts:ExternalId": "vendor-abc"}}`, false},
+		{"StringLike that lists no values", `{"StringLike": {"sts:ExternalId": []}}`, false},
+		{"an operator block written twice", `{"StringEquals": {"sts:ExternalId": "vendor-abc"}, "StringEquals": {"sts:ExternalId": "vendor-xyz"}}`, false},
+		{"an operator spelled unlike the grammar", `{"stringequals": {"sts:ExternalId": "vendor-abc"}}`, false},
+		{"Null with the IfExists suffix", `{"NullIfExists": {"sts:ExternalId": "true"}}`, false},
+	}
+	for _, c := range cases {
+		g := oneGrant(t, statement(`"Effect": "Allow", "Principal": {"AWS": "123456789012"}, "Action": "sts:AssumeRole", "Condition": `+c.condition))
+		var caveats []eval.Caveat
+		for _, cv := range g.Admits.Caveats() {
+			if cv.Claim == ExternalIDClaim {
+				caveats = append(caveats, cv)
+			}
+		}
+		if len(caveats) == 0 {
+			t.Errorf("%s: no caveat on %s, so nothing here was examined: %v", c.name, ExternalIDClaim, g.Admits.Caveats())
+			continue
+		}
+		for _, cv := range caveats {
+			if got := AsksNoParticularValue(cv); got != c.want {
+				t.Errorf("%s: AsksNoParticularValue(%q) = %v, want %v", c.name, cv.Reason, got, c.want)
+			}
+		}
+	}
+}

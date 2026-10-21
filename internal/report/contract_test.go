@@ -220,6 +220,59 @@ func TestEveryMemberNameMeansOneThing(t *testing.T) {
 	}
 }
 
+// TestEveryObjectNameIsOneType: within the answer, and within the
+// explanation, a name that holds an object holds one kind of object
+// wherever it is written, so that a consumer reading the members of one
+// reads the same members everywhere: who a population is, as words, is
+// never also who it is as a typed kind and value. The corpus test above
+// holds the kind of value a name holds; this one holds which object, by
+// the type that writes it.
+func TestEveryObjectNameIsOneType(t *testing.T) {
+	for _, root := range []any{Answer{}, Explanation{}} {
+		objects := map[string]map[string]bool{}
+		objectTypes(reflect.TypeOf(root), objects, map[reflect.Type]bool{})
+		for _, name := range slices.Sorted(maps.Keys(objects)) {
+			if types := slices.Sorted(maps.Keys(objects[name])); len(types) > 1 {
+				t.Errorf("in the %T, %q holds %d kinds of object: %s", root, name, len(types), strings.Join(types, ", "))
+			}
+		}
+		if len(objects) == 0 {
+			t.Fatalf("the %T holds no object; the check examined nothing", root)
+		}
+		t.Logf("the %T: %d names hold an object, each one kind of object", root, len(objects))
+	}
+}
+
+// objectTypes records, for every exported field of t and of the types it
+// holds whose value is an object or a list of objects, its JSON name and
+// the type of that object.
+func objectTypes(t reflect.Type, into map[string]map[string]bool, done map[reflect.Type]bool) {
+	for t.Kind() == reflect.Pointer || t.Kind() == reflect.Slice {
+		t = t.Elem()
+	}
+	if t.Kind() != reflect.Struct || done[t] {
+		return
+	}
+	done[t] = true
+	for i := range t.NumField() {
+		f := t.Field(i)
+		if !f.IsExported() {
+			continue
+		}
+		held := f.Type
+		for held.Kind() == reflect.Pointer || held.Kind() == reflect.Slice {
+			held = held.Elem()
+		}
+		if name, _, _ := strings.Cut(f.Tag.Get("json"), ","); name != "" && name != "-" && held.Kind() == reflect.Struct {
+			if into[name] == nil {
+				into[name] = map[string]bool{}
+			}
+			into[name][held.String()] = true
+		}
+		objectTypes(f.Type, into, done)
+	}
+}
+
 // tagNames collects the JSON names of every exported field of t and of the
 // types it holds.
 func tagNames(t reflect.Type, into map[string]bool, done map[reflect.Type]bool) {
@@ -276,6 +329,18 @@ func enumerated() map[string][]string {
 		"RefusedLine.reason":     reasons,
 		"Bound.bound":            {rcpBound, scpBound, providersBound, settingsBound},
 		"Explanation.result":     {refusedResult, admittedResult, notProvenResult, notAdmittedResult, notKnownResult},
+		// a finding's rule, its inputs, and the kinds it names its callers
+		// by: a closed set each, as a consumer keys on them
+		"Finding.rule":           {RuleOwnerLeftOpen, RuleNoOwner, RuleNoExternalID, RuleAnyAccount},
+		"Caller.kind":            {"platform", "aws-account"},
+		"Inputs.noSecret":        {inputYes, inputNo},
+		"Inputs.externalId":      {externalIDRequired, externalIDAbsent, inputNotApplicable, inputNotKnown},
+		"Inputs.refs":            {inputNotRead},
+		"Inputs.management":      {inputYes, inputNo, inputNotKnown},
+		"Inputs.registrableName": {inputNotChecked},
+		"Inputs.danglingIssuer":  {inputNotChecked},
+		"Inputs.reach":           {inputNotRead},
+		"Inputs.used":            {inputNotRead},
 	}
 }
 
@@ -299,7 +364,7 @@ func writtenValues(t *testing.T) map[string][]string {
 	t.Helper()
 	out := map[string][]string{}
 	fset := gotoken.NewFileSet()
-	for _, file := range []string{"answer.go", "explain.go"} {
+	for _, file := range []string{"answer.go", "explain.go", "finding.go"} {
 		f, err := parser.ParseFile(fset, file, nil, parser.ParseComments)
 		if err != nil {
 			t.Fatal(err)
@@ -346,6 +411,17 @@ var valueAt = map[string]string{
 	".declarations.refusedLines[].reason":    "RefusedLine.reason",
 	".bounds.items[].bound":                  "Bound.bound",
 	".result":                                "Explanation.result",
+
+	".grants[].populations[].finding.rule":                   "Finding.rule",
+	".grants[].populations[].finding.callers[].kind":         "Caller.kind",
+	".grants[].populations[].finding.inputs.noSecret":        "Inputs.noSecret",
+	".grants[].populations[].finding.inputs.externalId":      "Inputs.externalId",
+	".grants[].populations[].finding.inputs.refs":            "Inputs.refs",
+	".grants[].populations[].finding.inputs.management":      "Inputs.management",
+	".grants[].populations[].finding.inputs.registrableName": "Inputs.registrableName",
+	".grants[].populations[].finding.inputs.danglingIssuer":  "Inputs.danglingIssuer",
+	".grants[].populations[].finding.inputs.reach":           "Inputs.reach",
+	".grants[].populations[].finding.inputs.used":            "Inputs.used",
 }
 
 // valuesAt walks a decoded JSON value and calls at with every string it

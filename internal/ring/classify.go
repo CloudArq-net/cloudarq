@@ -215,6 +215,7 @@ type reading struct {
 	pins   [][]Owner
 	unread bool
 	doubt  Basis
+	starts []string
 }
 
 // add takes one constraint's confinement. Of two doubts, a fact missing
@@ -226,6 +227,8 @@ func (r *reading) add(c confinement) {
 		r.pins = append(r.pins, c.owners)
 	case c.unread && (!r.unread || c.doubt == TenancyNotRecorded):
 		r.unread, r.doubt = true, c.doubt
+	case c.starts != nil:
+		r.starts = c.starts
 	}
 }
 
@@ -246,14 +249,18 @@ func (c classifier) decide(r reading) Population {
 	case c.requestUnread():
 		return Population{Place: Platform, Basis: UnreadConstraint}
 	}
-	return Population{Place: Platform, State: StateExact, Basis: Unpinned}
+	return Population{Place: Platform, State: StateExact, Basis: Unpinned, OwnerStarts: r.starts}
 }
 
 // requestUnread reports whether the grant is an upper bound because a
-// condition on a key an AWS service fills was not read.
+// condition on a key an AWS service fills was not read. A condition on
+// sts:ExternalId that the parser says asks for no value in particular is
+// not one: the external ID is a value the caller chooses to send, which
+// names no account, and a caller sending none, or one of its own
+// choosing, meets it, as one does a StringLike "?*" the parser reads.
 func (c classifier) requestUnread() bool {
 	return slices.ContainsFunc(c.grant.Admits.Caveats(), func(cv eval.Caveat) bool {
-		return aws.IsServiceKey(cv.Claim)
+		return aws.IsServiceKey(cv.Claim) && !(cv.Claim == aws.ExternalIDClaim && aws.AsksNoParticularValue(cv))
 	})
 }
 
@@ -284,6 +291,9 @@ type confinement struct {
 	owners []Owner
 	unread bool
 	doubt  Basis
+	// starts are the starts of an owner's name a subject that names none
+	// writes and leaves open, nil when it writes none.
+	starts []string
 }
 
 // confine reads claim's constraint in term. value names the owners one
@@ -414,7 +424,122 @@ func (c classifier) subject(term eval.Term, t *Tenancy) confinement {
 	}
 	value := func(v string) []Owner { return c.subjectOwners(t, v, true) }
 	prefix := func(p string) []Owner { return c.subjectOwners(t, p, false) }
-	return c.confine(term, subject, value, prefix)
+	read := c.confine(term, subject, value, prefix)
+	if set, present := term[subject]; present && read.owners == nil && !read.unread {
+		read.starts = c.ownerStarts(t, eval.ShapeOf(set), value, prefix)
+	}
+	return read
+}
+
+// ownerStarts are the starts of an owner's name that every subject a
+// shape admits, and no owner pins, begins with one of: the name a
+// pattern's literal prefix writes and leaves open, as "repo:acme*" and
+// "repo:acm?/x" leave "acme" and "acm", which whoever registers a name
+// that begins with it can extend. They are nil where some subject the
+// shape admits begins with none, as every one "repo:*" admits. A union is
+// open through each member that pins no owner, and holds the starts of
+// every such member, none where one of them writes none. An intersection
+// admits only what each of its patterns does: a start one of them writes
+// holds, and of a start each of two write, a subject both admit begins
+// with the longer where one begins with the other. Where no start of one
+// begins with, or is the beginning of, a start of the other, no subject
+// begins with both, and none is written. The starts are written as
+// shortest says.
+func (c classifier) ownerStarts(t *Tenancy, s eval.Shape, value, prefix func(string) []Owner) []string {
+	switch s.Kind {
+	case eval.ShapeGlob:
+		if start := c.writtenStart(t, eval.LiteralPrefix(s.Text)); start != "" {
+			return []string{start}
+		}
+	case eval.ShapeUnion:
+		var starts []string
+		for _, m := range s.Members {
+			if confineShape(m, value, prefix).owners != nil {
+				continue
+			}
+			ms := c.ownerStarts(t, m, value, prefix)
+			if ms == nil {
+				return nil
+			}
+			starts = append(starts, ms...)
+		}
+		return shortest(starts)
+	case eval.ShapeIntersection:
+		var starts []string
+		for _, m := range s.Members {
+			ms := c.ownerStarts(t, m, value, prefix)
+			switch {
+			case ms == nil:
+				continue
+			case starts == nil:
+				starts = ms
+			default:
+				starts = longerOf(starts, ms)
+			}
+			if len(starts) == 0 {
+				return nil
+			}
+		}
+		return shortest(starts)
+	}
+	return nil
+}
+
+// longerOf are, of each start in a beside each in b where one begins with
+// the other, the longer: what a subject beginning with one of a and with
+// one of b begins with.
+func longerOf(a, b []string) []string {
+	out := []string{}
+	for _, x := range a {
+		for _, y := range b {
+			switch {
+			case strings.HasPrefix(y, x):
+				out = append(out, y)
+			case strings.HasPrefix(x, y):
+				out = append(out, x)
+			}
+		}
+	}
+	return out
+}
+
+// shortest are starts in byte order, each once, without any that begins
+// with another of them: a name that begins with it begins with the other,
+// which says all it would. Nil when there are none.
+func shortest(starts []string) []string {
+	sorted := slices.Sorted(slices.Values(starts))
+	var out []string
+	for _, s := range sorted {
+		if len(out) == 0 || !strings.HasPrefix(s, out[len(out)-1]) {
+			out = append(out, s)
+		}
+	}
+	return out
+}
+
+// writtenStart is the start of an owner's name text writes, where every
+// subject beginning with text begins with it and no more of the name is
+// written: each subject form that can read text stops inside its first
+// part, at the end of a run of an owner's characters, the same run for
+// each. A literal that never pins writes none.
+func (c classifier) writtenStart(t *Tenancy, text string) string {
+	for _, lead := range t.NeverPin {
+		if leads(text, lead, false) {
+			return ""
+		}
+	}
+	start := ""
+	for _, form := range t.SubjectForms {
+		owner, open, fits := c.readForm(t, form, text, false)
+		switch {
+		case !fits:
+			continue
+		case owner != nil || open == "" || start != "" && open != start:
+			return ""
+		}
+		start = open
+	}
+	return start
 }
 
 // subjectOwners is who every subject that is text, or begins with it when
@@ -430,7 +555,7 @@ func (c classifier) subjectOwners(t *Tenancy, text string, complete bool) []Owne
 	}
 	var owners []Owner
 	for _, form := range t.SubjectForms {
-		owner, fits := c.readForm(t, form, text, complete)
+		owner, _, fits := c.readForm(t, form, text, complete)
 		switch {
 		case !fits:
 			continue
@@ -471,25 +596,30 @@ func (t *Tenancy) partRecyclable(scope Scope, kind Kind) bool {
 // the part's delimiter. When it fits, owner is who the deepest part the
 // text closes names, nil when it closes none: the text stops before a
 // delimiter, a part is empty, or the form cannot show where its parts end.
-// A complete value closes its last part where it ends.
-func (c classifier) readForm(t *Tenancy, f SubjectForm, text string, complete bool) (owner *Owner, fits bool) {
+// A complete value closes its last part where it ends. open is the run of
+// an owner's characters text ends on when it stops inside the first part,
+// the start of a name it leaves open; "" when it closes an owner or writes
+// none of the name.
+func (c classifier) readForm(t *Tenancy, f SubjectForm, text string, complete bool) (owner *Owner, open string, fits bool) {
 	switch {
 	case !leads(text, f.Lead, complete):
-		return nil, false
+		return nil, "", false
 	case len(text) < len(f.Lead) || !t.readable(f):
-		return nil, true
+		return nil, "", true
 	}
 	rest, name := text[len(f.Lead):], ""
 	for _, part := range f.Parts {
 		run := t.ownerRun(rest)
 		after := rest[len(run):]
 		switch {
+		case after == "" && !complete && owner == nil:
+			return nil, run, true
 		case after == "" && !complete:
-			return owner, true
+			return owner, "", true
 		case after != "" && !strings.HasPrefix(after, part.Delimiter):
-			return nil, false
+			return nil, "", false
 		case run == "":
-			return owner, true
+			return owner, "", true
 		}
 		o := Owner{Issuer: c.grant.Issuer, Namespace: c.facts.Namespace, Scope: f.Scope, Kind: part.Kind, Value: run, Recyclable: t.partRecyclable(f.Scope, part.Kind)}
 		if part.Kind == KindID {
@@ -499,11 +629,11 @@ func (c classifier) readForm(t *Tenancy, f SubjectForm, text string, complete bo
 		}
 		owner = &o
 		if after == "" {
-			return owner, true
+			return owner, "", true
 		}
 		rest = after[len(part.Delimiter):]
 	}
-	return owner, true
+	return owner, "", true
 }
 
 // readable reports whether a form can show where each of its parts ends: it

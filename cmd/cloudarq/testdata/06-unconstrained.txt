@@ -11,6 +11,8 @@ Anyone on GitHub can assume this role.
 
 Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
 
+web-identity/no-owner · Anyone on GitHub can assume this role; no condition confines its tokens to one owner.
+
 grant 1 of 1 · statement[0] "GitHubUnconstrained" · Allow · https://token.actions.githubusercontent.com · platform · exact
 This role admits every identity token.actions.githubusercontent.com issues a token to, whoever holds it: the only claim named is aud, and an audience is not a boundary.
 Exact means the set is known exactly, not that it is small: no construct went unevaluated.

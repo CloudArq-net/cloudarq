@@ -11,6 +11,8 @@ Anyone on GitHub can assume this role.
 
 Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
 
+web-identity/owner-left-open · Anyone on GitHub can assume this role; no condition confines its tokens to one owner.
+
 grant 1 of 1 · statement[0] "OneCharacterOfTheOwnerOpen" · Allow · https://token.actions.githubusercontent.com · platform · exact
 This role admits any token from token.actions.githubusercontent.com whose aud is sts.amazonaws.com and whose sub matches repo:acm?/*.
 Who holds those identities now is not computed here: no network request is made.

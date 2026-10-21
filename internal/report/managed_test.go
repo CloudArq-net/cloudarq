@@ -222,7 +222,7 @@ func (n *explanations) check(t interface {
 			t.Fatalf("at %+q: %v, %+v", path, err, f)
 		}
 		role := f.Roles[0]
-		if want := admitsWith(nil, policy, []byte(declared), bundleRead.recognised()); !bytes.Equal(role.Answer, want) {
+		if want := admitsWith(nil, policy, []byte(declared), bundleRead.recognised()); !bytes.Equal(roleUnkeyed(t, role.Answer), want) {
 			t.Fatalf("at %+q with owners %+q, the answer moved:\n got %s\nwant %s\npolicy %s", path, declared, role.Answer, want, policy)
 		}
 		if role.Managed == nil {
@@ -273,7 +273,9 @@ func nearAWSsPath(service string) []string {
 // path, and on AWS's path and each path that resembles it, for each service
 // the policy names and for one it does not, the role's answer is the one
 // its trust policy gives with the bundle's account recognised, byte for
-// byte, with no owner, with owners and with owners past their bounds; and
+// byte but for the keys every finding of the role carries, which name the
+// role and so its path, with no owner, with owners and with owners past
+// their bounds; and
 // only a role on AWS's own path is explained. A count of zero explained
 // roles, or of none on AWS's path left unexplained, fails: the property
 // would then have examined only one side of the rule.

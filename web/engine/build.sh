@@ -6,7 +6,7 @@
 # the loader's own tests, the differential that holds every answer to the
 # native engine's byte for byte, the entry's refusal of depth, where the heap
 # settles, the loader's replacement of an instance past its memory bound and
-# after a trap, and what -opt=z would cost. Every step prints what it
+# after a trap, and what -opt=s would cost. Every step prints what it
 # measured; a step that cannot run fails the build rather than printing a
 # pass.
 #
@@ -39,11 +39,12 @@ echo "── build ──"
 # target, is the fixture that proves the loader recovers from a trap; it is
 # not the module anyone runs.
 #
-# -opt=s and wasm-opt -Os rather than z. A caller that re-reads a policy as it
-# is edited calls the engine on every change, and that call is the largest
-# single cost of each change, so the bytes z would save are not bought with
-# the time it costs. The last step below measures both on every build, so the
-# choice can be revisited from numbers.
+# -opt=z and wasm-opt -Oz rather than s. With its findings, the engine built
+# at s is past the brotli budget above, and z keeps the whole engine in the
+# browser within it. z is the slower of the two, and a caller that re-reads a
+# policy as it is edited calls the engine on every change, so the time z adds
+# is measured with the bytes it saves by the last step below, on every build,
+# and the choice can be revisited from numbers.
 #
 # -panic=trap: a panic is a trap, without its message text, which is the
 # only thing given up. It measured about 6.3 KB smaller gzipped, at no
@@ -57,9 +58,9 @@ echo "── build ──"
 version=$(scripts/version.sh)
 export CLOUDARQ_ENGINE_VERSION="$version"
 stamp=(-ldflags "-X main.version=$version")
-tinygo build -o "$work/engine.wasm" -target web/wasm/target.json -buildmode=c-shared -scheduler=none -opt=s -no-debug -panic=trap "${stamp[@]}" ./web/wasm
-tinygo build -o "$work/trapping.wasm" -target wasm -buildmode=c-shared -scheduler=none -opt=s -no-debug -panic=trap "${stamp[@]}" ./web/wasm
-wasm-opt -Os --enable-bulk-memory --enable-nontrapping-float-to-int --enable-sign-ext \
+tinygo build -o "$work/engine.wasm" -target web/wasm/target.json -buildmode=c-shared -scheduler=none -opt=z -no-debug -panic=trap "${stamp[@]}" ./web/wasm
+tinygo build -o "$work/trapping.wasm" -target wasm -buildmode=c-shared -scheduler=none -opt=z -no-debug -panic=trap "${stamp[@]}" ./web/wasm
+wasm-opt -Oz --enable-bulk-memory --enable-nontrapping-float-to-int --enable-sign-ext \
   --enable-mutable-globals --enable-reference-types --enable-multivalue \
   "$work/engine.wasm" -o "$work/cloudarq.wasm"
 go build -o "$work/native" ./web/wasm/native
@@ -127,17 +128,17 @@ if ! printf %s "$differential" | grep -qF -- "at or under the"; then
 fi
 
 echo
-echo "── what -opt=z would cost ──"
+echo "── what -opt=s would cost ──"
 # Not spent, and measured rather than remembered: the same engine built for
-# size, its compressed size against the budget and its time on the
+# speed, its compressed size against the budget and its time on the
 # 50-statement policy the differential wrote.
-tinygo build -o "$work/engine-z.wasm" -target web/wasm/target.json -buildmode=c-shared -scheduler=none -opt=z -no-debug -panic=trap "${stamp[@]}" ./web/wasm
-wasm-opt -Oz --enable-bulk-memory --enable-nontrapping-float-to-int --enable-sign-ext \
+tinygo build -o "$work/engine-s.wasm" -target web/wasm/target.json -buildmode=c-shared -scheduler=none -opt=s -no-debug -panic=trap "${stamp[@]}" ./web/wasm
+wasm-opt -Os --enable-bulk-memory --enable-nontrapping-float-to-int --enable-sign-ext \
   --enable-mutable-globals --enable-reference-types --enable-multivalue \
-  "$work/engine-z.wasm" -o "$work/cloudarq-z.wasm"
-br_z=$(brotli -q 11 -c "$work/cloudarq-z.wasm" | wc -c | tr -d ' ')
-opt_s="$work/cloudarq.wasm" opt_z="$work/cloudarq-z.wasm" fifty="$work/fifty-statements.json" \
-br_s="$br" br_z="$br_z" budget="$budget_brotli" node --input-type=module -e '
+  "$work/engine-s.wasm" -o "$work/cloudarq-s.wasm"
+br_s=$(brotli -q 11 -c "$work/cloudarq-s.wasm" | wc -c | tr -d ' ')
+opt_s="$work/cloudarq-s.wasm" opt_z="$work/cloudarq.wasm" fifty="$work/fifty-statements.json" \
+br_s="$br_s" br_z="$br" budget="$budget_brotli" node --input-type=module -e '
 import { readFileSync } from "node:fs";
 const { loadEngine } = await import("./web/engine/engine.ts");
 const { opt_s, opt_z, fifty: fiftyPath, br_s, br_z, budget } = process.env;
@@ -151,9 +152,9 @@ const medianMs = async path => {
 };
 const s = await medianMs(opt_s);
 const z = await medianMs(opt_z);
-console.log(`-opt=s, the module:      ${br_s} bytes brotli, admits on 50 statements in node: median ${s.toFixed(2)} ms`);
-console.log(`-opt=z, for comparison: ${br_z} bytes brotli, median ${z.toFixed(2)} ms`);
-console.log(`the trade: ${br_s - br_z} bytes saved for ${(z - s).toFixed(2)} ms added to every call, against ${budget - br_s} bytes of headroom in the ${budget} byte budget`);
+console.log(`-opt=z, the module:      ${br_z} bytes brotli, admits on 50 statements in node: median ${z.toFixed(2)} ms`);
+console.log(`-opt=s, for comparison: ${br_s} bytes brotli, median ${s.toFixed(2)} ms`);
+console.log(`the trade: ${br_s - br_z} bytes the module would spend to save ${(z - s).toFixed(2)} ms on every call, against ${budget - br_z} bytes of headroom in the ${budget} byte budget`);
 '
 
 echo

@@ -69,8 +69,9 @@ func (x Explanation) JSON() []byte {
 // IAM grammar reads it and the reader must know that before any answer;
 // then the headline, the rings, the lines beside them, the grants in no
 // ring, what was not read that could narrow the rings, and the owners
-// declared; then one block per grant — the sentence, the terms as a table,
-// the notes, a token the grant admits, and where the statement is written.
+// declared; then one line per finding; then one block per grant — the
+// sentence, the terms as a table, the notes, a token the grant admits, and
+// where the statement is written.
 func (a Answer) Text(o Options) string {
 	t := &text{colour: o.Colour}
 	if a.Error != "" {
@@ -79,6 +80,7 @@ func (a Answer) Text(o Options) string {
 	}
 	t.document(a.Document)
 	t.rings(a)
+	t.findings(a.Grants)
 	for i := range a.Grants {
 		t.grant(&a.Grants[i], a.Document, len(a.Grants))
 	}
@@ -275,6 +277,34 @@ func (t *text) rings(a Answer) {
 		}
 	}
 	t.boundsAndDeclarations(a.Bounds, a.Declarations)
+}
+
+// findings is one line for each finding of the answer, as one block, in the
+// order of the grants and their populations: the rule it meets, the sentence
+// saying who its way in lets in, and its id where it has one, which only a
+// role read from a bundle does. An answer with no finding prints nothing.
+func (t *text) findings(grants []Grant) {
+	written := false
+	for i := range grants {
+		for j := range grants[i].Populations {
+			p := &grants[i].Populations[j]
+			if p.Finding == nil {
+				continue
+			}
+			parts := []string{p.Finding.Rule}
+			if p.Way != nil && p.Way.Who != nil {
+				parts = append(parts, t.paint(p.Way.Who.Spans))
+			}
+			if p.Finding.ID != "" {
+				parts = append(parts, p.Finding.ID)
+			}
+			t.line(strings.Join(parts, " · "))
+			written = true
+		}
+	}
+	if written {
+		t.block()
+	}
 }
 
 // boundsAndDeclarations is what every view that prints a ring prints with

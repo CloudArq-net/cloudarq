@@ -503,6 +503,7 @@ func (e *encoder) grant(g *Grant) {
 		e.b = append(e.b, ']')
 	}
 	e.notes("notes", g.Notes)
+	e.strings("unread", g.Unread)
 	e.str("sentence", g.Sentence)
 	e.spans("spans", g.Spans)
 	e.str("caption", g.Caption)
@@ -559,6 +560,55 @@ func (e *encoder) population(p *Population) {
 		e.key("way")
 		e.way(p.Way)
 	}
+	if p.Finding != nil {
+		e.key("finding")
+		finding := e.begin()
+		e.str("rule", p.Finding.Rule)
+		e.strOmit("id", p.Finding.ID)
+		e.strOmit("pairingKey", p.Finding.PairingKey)
+		e.callers(p.Finding.Callers)
+		e.optional("through", p.Finding.Through)
+		e.strings("condition", p.Finding.Condition)
+		e.strings("unread", p.Finding.Unread)
+		e.inputs(p.Finding.Inputs)
+		e.end(finding)
+	}
+	e.end(saved)
+}
+
+// callers writes whom a finding's way in lets in, each with its value,
+// null where its kind names none.
+func (e *encoder) callers(cs []Caller) {
+	e.key("callers")
+	if cs == nil {
+		e.null()
+		return
+	}
+	e.b = append(e.b, '[')
+	for i := range cs {
+		e.comma(i)
+		saved := e.begin()
+		e.str("kind", cs[i].Kind)
+		e.optional("value", cs[i].Value)
+		e.end(saved)
+	}
+	e.b = append(e.b, ']')
+}
+
+// inputs writes a finding's inputs, every one of them, in the order Inputs
+// declares them.
+func (e *encoder) inputs(in Inputs) {
+	e.key("inputs")
+	saved := e.begin()
+	e.str("noSecret", in.NoSecret)
+	e.strings("ownerLeftOpen", in.OwnerLeftOpen)
+	e.str("externalId", in.ExternalID)
+	e.str("refs", in.Refs)
+	e.str("management", in.Management)
+	e.str("registrableName", in.RegistrableName)
+	e.str("danglingIssuer", in.DanglingIssuer)
+	e.str("reach", in.Reach)
+	e.str("used", in.Used)
 	e.end(saved)
 }
 

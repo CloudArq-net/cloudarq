@@ -93,10 +93,45 @@ func (p placed) whoOf(j int) (*Sentence, []Question) {
 }
 
 // ways sets the way of every population of grant i, placed as p, with what
-// the reading holds of the statement it came from.
+// the reading holds of the statement it came from, and the parts of each
+// finding that follow from the way and the grant.
 func (r reading) ways(i int, p placed, g *Grant, d *Document) {
 	at := r.lay.statements[r.statements[i]]
 	p.ways(g, d.Statements[r.statements[i]], at.principalLeaves(r.written[i]), len(at.keys))
+	g.findingParts()
+}
+
+// findingParts sets, on each finding of a grant's populations, what owners
+// move none of and the population's term does not say: what the way in
+// comes through, from its principal as written, and the conditions its
+// statement writes that the grant does not read, as the grant writes them.
+// An answer marked again keeps both, in its ways and its grants, and so
+// says them again of a finding it meets only now.
+func (g *Grant) findingParts() {
+	for j := range g.Populations {
+		pop := &g.Populations[j]
+		if pop.Finding == nil {
+			continue
+		}
+		pop.Finding.Through = throughOf(pop.Way)
+		pop.Finding.Unread = slices.Clone(g.Unread)
+	}
+}
+
+// throughOf is what a way in comes through: the principal its statement
+// writes, where it names an identity provider, under Federated, or a
+// service, under Service. An AWS principal, or a Principal that is "*"
+// itself, names neither, and a way with no principal written says none.
+func throughOf(w *Way) *string {
+	if w == nil || len(w.Principal) == 0 {
+		return nil
+	}
+	switch l := w.Principal[0]; l.Member {
+	case "Principal.Federated", "Principal.Service":
+		text := l.Text
+		return &text
+	}
+	return nil
 }
 
 // ways sets the way of every population of a grant the answer placed: who

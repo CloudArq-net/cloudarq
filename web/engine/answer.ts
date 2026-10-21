@@ -160,9 +160,63 @@ export interface Owner {
 	recyclable: boolean;
 }
 
+/** One of whom a finding's way in lets in. `kind` is platform, everyone
+ *  with an account on the platform the grant's issuer is on, whose `value`
+ *  is null; or aws-account, one AWS account, whose `value` is its id. */
+export interface Caller {
+	kind: string;
+	value: string | null;
+}
+
+/** Facts about a finding's way in, each written on every finding, so that
+ *  one the engine did not read says so. `noSecret` is yes or no;
+ *  `ownerLeftOpen` holds the starts of an owner's name the subject writes
+ *  and leaves to a wildcard, as the policy writes them, in byte order, each
+ *  once and none beginning with another, and is empty where it writes
+ *  none; `externalId` is required, absent, not-applicable or not-known;
+ *  `management` is yes, no or not-known; `refs`, `reach` and `used` are
+ *  not-read; `registrableName` and `danglingIssuer` are not-checked. */
+export interface Inputs {
+	noSecret: string;
+	ownerLeftOpen: string[];
+	externalId: string;
+	refs: string;
+	management: string;
+	registrableName: string;
+	danglingIssuer: string;
+	reach: string;
+	used: string;
+}
+
+/** What the engine finds of one way in when it meets a rule. `rule` is
+ *  web-identity/no-owner, web-identity/owner-left-open,
+ *  aws-account/no-external-id or aws-account/any-account. `id` and
+ *  `pairingKey` are given to the findings of a role a scan's bundle lists,
+ *  and to no finding of a policy read alone, which names no role.
+ *  `callers` are who the way in lets in that the rule is about, never
+ *  empty. `through` is the identity provider's ARN or the service the
+ *  principal names, and null for an AWS principal. `condition` is each
+ *  claim the way in's term holds, written claim=rendering, empty where it
+ *  holds none. `unread` are the conditions its statement writes that the
+ *  grant does not read, written "operator key values", empty where it reads
+ *  every one. Either is null where it is not known, never where there are
+ *  none. */
+export interface Finding {
+	rule: string;
+	id?: string;
+	pairingKey?: string;
+	callers: Caller[];
+	through: string | null;
+	condition: string[] | null;
+	unread: string[] | null;
+	inputs: Inputs;
+}
+
 /** Where one term of a grant lands on its own, what decided the place, the
- *  owners that pin it and its way in. `place` is anyone, platform,
- *  outsider, yours, people, saml or service; `state` is exact or unknown. */
+ *  owners that pin it, its way in, and what the engine finds of it.
+ *  `place` is anyone, platform, outsider, yours, people, saml or service;
+ *  `state` is exact or unknown. A population with no finding is not one the
+ *  engine found clean: its state and basis say how far it was read. */
 export interface Population {
 	term: number;
 	place: string;
@@ -170,6 +224,7 @@ export interface Population {
 	basis: string;
 	owners: Owner[];
 	way?: Way;
+	finding?: Finding;
 }
 
 /** One grant: who a statement admits, and everything the answer says about
@@ -188,6 +243,11 @@ export interface Grant {
 	admits: string;
 	terms: Claim[][];
 	notes: Note[];
+	/** The conditions the grant's statement writes that the grant does not
+	 *  read, as a finding of the grant writes them: empty where it reads
+	 *  every one, and null where it is not known, never where there are
+	 *  none. */
+	unread: string[] | null;
 	sentence: string;
 	spans: Span[];
 	caption: string;

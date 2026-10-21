@@ -885,3 +885,41 @@ func TestRendering(t *testing.T) {
 		}
 	}
 }
+
+// TestOwnerStarts: a subject that pins no owner keeps every start of an
+// owner's name its patterns write and leave open, in byte order, each
+// once, and none that begins with another, which admits every name it
+// would. A union holds the starts of each member that pins no owner, and
+// none where one writes none; an intersection holds the longer of two
+// starts one of which begins with the other, and a start one pattern
+// writes beside one that writes none.
+func TestOwnerStarts(t *testing.T) {
+	for _, c := range []struct {
+		name string
+		sub  eval.StringSet
+		want []string
+	}{
+		{"one start", like("repo:acme*"), []string{"acme"}},
+		{"a start ended by a question mark", like("repo:acm?/x"), []string{"acm"}},
+		{"no start", like("repo:*"), nil},
+		{"two starts", either(like("repo:beta*"), like("repo:acme*")), []string{"acme", "beta"}},
+		{"a start and one that begins with it", either(like("repo:acmex*"), like("repo:acme*")), []string{"acme"}},
+		{"three starts, one beginning with another", either(like("repo:beta*"), like("repo:acmex*"), like("repo:acme*")), []string{"acme", "beta"}},
+		{"a start beside a member that writes none", either(like("repo:acme*"), like("repo:*")), nil},
+		{"a start beside a member that pins", either(like("repo:acme/*"), like("repo:beta*")), []string{"beta"}},
+		{"a start met with a pattern that writes none", both(like("repo:acme*"), like("*:ref:refs/heads/main")), []string{"acme"}},
+		{"a start met with a longer one", both(like("repo:acme*"), like("repo:acmex*:*")), []string{"acmex"}},
+		// A dash sorts before the question mark, so the pattern writing the
+		// longer start is the first of the two.
+		{"a longer start met with one it begins with", both(like("repo:acme-*"), like("repo:acme?*")), []string{"acme-"}},
+	} {
+		p := Classify(grantOf(githubIssuer, eval.Term{"sub": c.sub}), githubFacts(), nil)
+		if len(p.Populations) != 1 {
+			t.Fatalf("%s: %d populations, want one", c.name, len(p.Populations))
+		}
+		pop := p.Populations[0]
+		if pop.Place != Platform || pop.State != StateExact || pop.Basis != Unpinned || !slices.Equal(pop.OwnerStarts, c.want) {
+			t.Errorf("%s (shape kind %v): placed %s %s by %v with starts %q, want platform exact by unpinned with %q", c.name, eval.ShapeOf(c.sub).Kind, pop.Place, pop.State, pop.Basis, pop.OwnerStarts, c.want)
+		}
+	}
+}

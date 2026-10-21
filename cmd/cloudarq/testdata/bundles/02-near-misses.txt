@@ -120,6 +120,8 @@ A named outsider can assume this role; so can a cloud service.
 
 Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
 
+aws-account/no-external-id · aws:111122223333 can assume this role and is not declared as yours. · c47a86733edc145f8e13d5c60a20f5e5559f990087e124b6bd575e20c26cde62
+
 grant 1 of 2 · statement[0] · Allow · aws:service:organizations.amazonaws.com · service · unknown
 This role admits organizations.amazonaws.com, acting for whoever can make it act: no condition constrains this statement.
 Who can make the service act, or receives its session, is not read: who gets in through it is not known.

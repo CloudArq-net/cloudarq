@@ -451,6 +451,16 @@ func (a Answer) strings() []string {
 		}
 		out = append(out, g.Placement...)
 		out = append(out, g.PlacementState)
+		for _, p := range g.Populations {
+			if p.Finding == nil {
+				continue
+			}
+			out = append(out, p.Finding.Rule, p.Finding.ID)
+			if p.Way != nil && p.Way.Who != nil {
+				out = append(out, p.Way.Who.Sentence)
+				out = append(out, spanStrings(p.Way.Who.Spans)...)
+			}
+		}
 	}
 	if a.Headline != nil {
 		out = append(out, a.Headline.Sentence)
@@ -957,5 +967,63 @@ func TestARepeatedNoteSentenceIsPrintedOnce(t *testing.T) {
 	}
 	if n := strings.Count(got, once); n != 1 {
 		t.Errorf("the repeated sentence is printed %d times, want once", n)
+	}
+}
+
+// TestTheTextSaysEachFinding: under the rings of a role's answer, before
+// its first grant, one line for each finding, in the order of its grants
+// and their populations: the rule, the sentence saying who the way in lets
+// in, and the finding's id; a policy read alone, whose findings name no
+// role and so have no id, says the rule and the sentence.
+func TestTheTextSaysEachFinding(t *testing.T) {
+	b, err := ReadBundle(bundleOf(t, nil, testRole{"parts", partsPolicy}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for name, a := range map[string]Answer{
+		"a scanned role":        b.AnswerFor(b.Roles[0], []byte(partsDeclared)),
+		"the policy read alone": AnswerFor([]byte(partsPolicy), []byte(partsDeclared)),
+	} {
+		var want []string
+		for _, g := range a.Grants {
+			for _, p := range g.Populations {
+				if p.Finding == nil {
+					continue
+				}
+				if p.Way == nil || p.Way.Who == nil {
+					t.Fatalf("%s: a finding of grant %d has no sentence saying who it lets in", name, g.Number)
+				}
+				line := p.Finding.Rule + " · " + p.Way.Who.Sentence
+				if p.Finding.ID != "" {
+					line += " · " + p.Finding.ID
+				}
+				want = append(want, line)
+			}
+		}
+		if len(want) != len(wantParts) {
+			t.Fatalf("%s: the answer has %d findings, want the %d of the policy", name, len(want), len(wantParts))
+		}
+		if scanned := name == "a scanned role"; scanned != (strings.Count(strings.Join(want, "\n"), " · ") == 2*len(want)) {
+			t.Fatalf("%s: the findings are %q; a scanned role's each have an id and the policy's alone none", name, want)
+		}
+		text := a.Text(Options{})
+		lines := strings.Split(text, "\n")
+		var got []string
+		at, firstGrant := -1, slices.IndexFunc(lines, func(l string) bool { return strings.HasPrefix(l, "grant 1 of ") })
+		for i, l := range lines {
+			if slices.ContainsFunc(wantRules, func(rule string) bool { return strings.HasPrefix(l, rule+" · ") }) {
+				if at < 0 {
+					at = i
+				}
+				got = append(got, l)
+			}
+		}
+		if !slices.Equal(got, want) {
+			t.Errorf("%s: the text says the findings\n %q\nwant\n %q\nin:\n%s", name, got, want, text)
+			continue
+		}
+		if !slices.Equal(lines[at:at+len(want)], want) || firstGrant < at+len(want) || at < 1 || lines[at-1] != "" {
+			t.Errorf("%s: the findings are not one block of their own before the first grant, at line %d, the first grant at %d:\n%s", name, at, firstGrant, text)
+		}
 	}
 }
