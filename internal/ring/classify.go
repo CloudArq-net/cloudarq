@@ -170,7 +170,7 @@ func (c classifier) shared(term eval.Term) Population {
 		if claim.Scope == ScopeNone || t.namesNoTenant(claim.Claim) {
 			continue
 		}
-		r.add(c.confine(term, claim.Claim, c.claimOwner(t, claim), patternOn(claim)))
+		r.add(c.confine(term, claim.Claim, exactly(c.claimOwner(t, claim)), patternOn(claim)))
 	}
 	r.add(c.subject(term, t))
 	return c.decide(r)
@@ -185,7 +185,7 @@ func (c classifier) awsPrincipal(term eval.Term) Population {
 	for _, claim := range aws.TenancyClaims() {
 		value := func(v string) []Owner { return c.awsOwner(aws.TenantOfValue(claim, v)) }
 		prefix := func(p string) []Owner { return c.awsOwner(aws.TenantOfPrefix(claim, p)) }
-		r.add(c.confine(term, claim, value, prefix))
+		r.add(c.confine(term, claim, exactly(value), prefix))
 	}
 	return c.decide(r)
 }
@@ -216,12 +216,16 @@ type reading struct {
 	unread bool
 	doubt  Basis
 	starts []string
+	// bounded is set when a constraint was read only as a bound on whoever
+	// its value names, which may be wider than any credential it admits.
+	bounded bool
 }
 
 // add takes one constraint's confinement. Of two doubts, a fact missing
 // from the census outranks a constraint the parser could not read, so the
 // basis does not depend on the order the claims were read in.
 func (r *reading) add(c confinement) {
+	r.bounded = r.bounded || c.bounded
 	switch {
 	case c.owners != nil:
 		r.pins = append(r.pins, c.owners)
@@ -235,7 +239,9 @@ func (r *reading) add(c confinement) {
 // decide places an alternative by what its constraints said. Any pin
 // confines it, because an alternative is a conjunction. With none, it is
 // the platform, exact only when every constraint that could have pinned was
-// read and found not to. A condition on a key of AWS's request context is
+// read and found not to. A constraint read only as a bound leaves either
+// place unknown: the alternative lands no farther out than it, and may admit
+// nobody at all. A condition on a key of AWS's request context is
 // one that could have: some of those keys name the account or organisation
 // a request comes from (aws:PrincipalOrgPaths, aws:SourceAccount), some are
 // absent from whole kinds of request, and a condition on an absent key is
@@ -243,13 +249,22 @@ func (r *reading) add(c confinement) {
 func (c classifier) decide(r reading) Population {
 	switch {
 	case len(r.pins) > 0:
-		return c.pinned(r.pins, Pinned)
+		return r.boundedIn(c.pinned(r.pins, Pinned))
 	case r.unread:
 		return Population{Place: Platform, Basis: r.doubt}
 	case c.requestUnread():
 		return Population{Place: Platform, Basis: UnreadConstraint}
 	}
-	return Population{Place: Platform, State: StateExact, Basis: Unpinned, OwnerStarts: r.starts}
+	return r.boundedIn(Population{Place: Platform, State: StateExact, Basis: Unpinned, OwnerStarts: r.starts})
+}
+
+// boundedIn is pop, unknown and marked as a bound where the reading holds
+// one.
+func (r reading) boundedIn(pop Population) Population {
+	if r.bounded {
+		pop.State, pop.Bounded = StateUnknown, true
+	}
+	return pop
 }
 
 // requestUnread reports whether the grant is an upper bound because a
@@ -294,10 +309,19 @@ type confinement struct {
 	// starts are the starts of an owner's name a subject that names none
 	// writes and leaves open, nil when it writes none.
 	starts []string
+	// bounded is set where an exact value was read only as a bound: whoever
+	// holds a credential it admits is among its owners, or anyone on the
+	// platform where they are nil, and nobody may.
+	bounded bool
 }
 
-// confine reads claim's constraint in term. value names the owners one
-// exact value confines to, and prefix the owners every value beginning with
+// exactly is a reader of exact values that reads each one for what it is.
+func exactly(value func(string) []Owner) func(string) confinement {
+	return func(v string) confinement { return confinement{owners: value(v)} }
+}
+
+// confine reads claim's constraint in term. value reads one exact value
+// for the owners it confines to, and prefix the owners every value beginning with
 // a pattern's literal prefix does, or is nil where a pattern on the claim
 // cannot be read for an owner. An absent claim is unconstrained, which
 // pins nothing. What was read and pins nothing is unread all the same when
@@ -305,7 +329,7 @@ type confinement struct {
 // another constraint vanishes from the term (Meet's identity), so a claim
 // present with an open pattern may also have had a constraint that pinned,
 // and nobody read it.
-func (c classifier) confine(term eval.Term, claim trust.ClaimKey, value, prefix func(string) []Owner) confinement {
+func (c classifier) confine(term eval.Term, claim trust.ClaimKey, value func(string) confinement, prefix func(string) []Owner) confinement {
 	var read confinement
 	if set, present := term[claim]; present {
 		read = confineShape(eval.ShapeOf(set), value, prefix)
@@ -317,30 +341,40 @@ func (c classifier) confine(term eval.Term, claim trust.ClaimKey, value, prefix 
 }
 
 // confineShape reads one constraint by its shape. A union confines only
-// when every alternative does, to all their owners; an intersection when
+// when every alternative does, to all their owners, and is a bound when
+// one of them is; where one does not, it is read as that one, one read
+// for what it is before any read as a bound. An intersection confines when
 // any of its patterns does, since the others only narrow, and is unread
 // when none does and one could not be read. Unknown pins nothing and says
 // so, and so does a pattern with no prefix reader; Any and None, which no
 // term holds, name no owner.
-func confineShape(s eval.Shape, value, prefix func(string) []Owner) confinement {
+func confineShape(s eval.Shape, value func(string) confinement, prefix func(string) []Owner) confinement {
 	switch s.Kind {
 	case eval.ShapeExact:
-		return confinement{owners: value(s.Text)}
+		return value(s.Text)
 	case eval.ShapeGlob:
 		if prefix == nil {
 			return confinement{unread: true, doubt: UnreadConstraint}
 		}
 		return confinement{owners: prefix(eval.LiteralPrefix(s.Text))}
 	case eval.ShapeUnion:
-		var owners []Owner
+		var read confinement
+		var bound *confinement
 		for _, m := range s.Members {
 			member := confineShape(m, value, prefix)
-			if member.owners == nil {
+			switch {
+			case member.owners == nil && !member.bounded:
 				return member
+			case member.owners == nil && bound == nil:
+				bound = &member
 			}
-			owners = append(owners, member.owners...)
+			read.owners = append(read.owners, member.owners...)
+			read.bounded = read.bounded || member.bounded
 		}
-		return confinement{owners: owners}
+		if bound != nil {
+			return *bound
+		}
+		return read
 	case eval.ShapeIntersection:
 		var owners []Owner
 		var unread confinement
@@ -417,12 +451,30 @@ func (t *Tenancy) namesNoTenant(claim trust.ClaimKey) bool {
 
 // subject reads the sub constraint through the census's subject forms. With
 // no verified owner character set, no delimiter can be shown to end an
-// owner, so a constrained subject cannot be read for one.
+// owner, so a constrained subject cannot be read for one. An exact value
+// holding a * or a ? is read as a bound. AWS compares a StringEquals value
+// as written, so the value admits only a token whose subject is that text,
+// and whether any token carries it is not read. A value a form reads is
+// placed where the form reads it. One no form reads is placed where every
+// subject beginning with its literal prefix is: read whole, it would pin
+// nobody and land on the platform, farther out than the same text written
+// as a pattern; read so, it lands no farther out than that pattern, and on
+// the platform where the prefix pins nobody, as after a literal that never
+// pins. Either way the place is an upper bound and never exact: the grant
+// may admit nobody.
 func (c classifier) subject(term eval.Term, t *Tenancy) confinement {
 	if _, present := term[subject]; present && len(t.OwnerCharacters) == 0 {
 		return confinement{unread: true, doubt: TenancyNotRecorded}
 	}
-	value := func(v string) []Owner { return c.subjectOwners(t, v, true) }
+	value := func(v string) confinement {
+		switch {
+		case !strings.ContainsAny(v, "*?"):
+			return confinement{owners: c.subjectOwners(t, v, true)}
+		case c.someFormReads(t, v):
+			return confinement{owners: c.subjectOwners(t, v, true), bounded: true}
+		}
+		return confinement{owners: c.subjectOwners(t, eval.LiteralPrefix(v), false), bounded: true}
+	}
 	prefix := func(p string) []Owner { return c.subjectOwners(t, p, false) }
 	read := c.confine(term, subject, value, prefix)
 	if set, present := term[subject]; present && read.owners == nil && !read.unread {
@@ -445,7 +497,7 @@ func (c classifier) subject(term eval.Term, t *Tenancy) confinement {
 // begins with, or is the beginning of, a start of the other, no subject
 // begins with both, and none is written. The starts are written as
 // shortest says.
-func (c classifier) ownerStarts(t *Tenancy, s eval.Shape, value, prefix func(string) []Owner) []string {
+func (c classifier) ownerStarts(t *Tenancy, s eval.Shape, value func(string) confinement, prefix func(string) []Owner) []string {
 	switch s.Kind {
 	case eval.ShapeGlob:
 		if start := c.writtenStart(t, eval.LiteralPrefix(s.Text)); start != "" {
@@ -565,6 +617,15 @@ func (c classifier) subjectOwners(t *Tenancy, text string, complete bool) []Owne
 		owners = append(owners, *owner)
 	}
 	return owners
+}
+
+// someFormReads reports whether a subject form can read v as a whole
+// subject.
+func (c classifier) someFormReads(t *Tenancy, v string) bool {
+	return slices.ContainsFunc(t.SubjectForms, func(f SubjectForm) bool {
+		_, _, fits := c.readForm(t, f, v, true)
+		return fits
+	})
 }
 
 // leads reports whether a subject led by lead can be text, or begin with

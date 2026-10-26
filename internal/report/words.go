@@ -702,8 +702,9 @@ func platformWords(r row) []Span {
 		return spans(who, " "+verb+" assume this role; ", others, " could.")
 	}
 	s := spans(who, " "+verb+" assume this role")
-	if basis, first, shared, _ := reason(r.populations()); shared && len(lead) == 1 {
-		if why := unconfined(basis, first.issuer); why != "" {
+	pops := r.populations()
+	if basis, first, shared, _ := reason(pops); shared && len(lead) == 1 {
+		if why := unconfined(basis, pops[0].Bounded, first.issuer); why != "" {
 			s = append(s, Span{Text: "; " + why})
 		}
 	}
@@ -712,8 +713,14 @@ func platformWords(r row) []Span {
 
 // unconfined is why no owner confines a platform's population, by the
 // basis that placed it there; an AWS principal's tenant is an account or an
-// organisation, and a token's an owner.
-func unconfined(basis ring.Basis, issuer trust.IssuerRef) string {
+// organisation, and a token's an owner. A population read as a bound is
+// there because the subject it admits, compared as written, names no owner
+// the engine reads, not because no condition confines it: its condition
+// admits only the text it spells, and the place is an upper bound.
+func unconfined(basis ring.Basis, bounded bool, issuer trust.IssuerRef) string {
+	if bounded {
+		return "the subject it admits is compared as written, and this place is an upper bound"
+	}
 	switch basis {
 	case ring.Unpinned:
 		if issuer == aws.AWSPrincipalIssuer {

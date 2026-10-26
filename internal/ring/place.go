@@ -178,6 +178,12 @@ type Population struct {
 	// which admits every name it would. Nil when the subject writes none,
 	// and for every other place.
 	OwnerStarts []string
+	// Bounded is set where the place rests on a value read only as a bound:
+	// a value on the subject that holds a * or a ?, which AWS compares as
+	// written under StringEquals, so the grant admits only a token whose
+	// subject is that text, and may admit nobody. The place is an upper
+	// bound, and its state unknown.
+	Bounded bool
 }
 
 // Placement is where a grant lands.

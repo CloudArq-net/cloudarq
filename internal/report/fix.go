@@ -529,7 +529,7 @@ func inWords(words []Span) *Fix {
 // engine can name would.
 func platformFix(g placed, pop ring.Population) *Fix {
 	if pop.Basis != ring.Unpinned && pop.Basis != ring.UnreadConstraint {
-		return unproven(checkCondition, spans(unconfined(pop.Basis, g.issuer)+", so no condition the engine can name would pin it."))
+		return unproven(checkCondition, spans(unconfined(pop.Basis, pop.Bounded, g.issuer)+", so no condition the engine can name would pin it."))
 	}
 	if g.issuer == aws.AWSPrincipalIssuer {
 		return inWords(spans("A condition on ", Span{Text: "aws:PrincipalAccount", Mark: "code"}, " naming your own account, or on ", Span{Text: "aws:PrincipalOrgID", Mark: "code"}, " naming your AWS Organization, would let in only that account or that Organization's accounts; the engine does not prove that change yet."))

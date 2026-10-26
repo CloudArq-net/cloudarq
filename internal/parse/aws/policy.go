@@ -36,6 +36,10 @@ const (
 	// because the document's Version does not resolve policy variables: the
 	// set is exact, and the condition may not do what it looks like it does.
 	VariableIsLiteral = "variable-is-literal"
+	// WildcardIsLiteral marks a * or a ? a StringEquals value on sub writes
+	// itself, which AWS compares as the character: the set is exact, and the
+	// condition may not do what it looks like it does.
+	WildcardIsLiteral = "wildcard-is-literal"
 )
 
 // Document is a trust policy read in full: every statement in document

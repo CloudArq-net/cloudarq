@@ -96,7 +96,7 @@ var ringsRules = map[string]map[string]string{
 
 // ringsCaseCount is how many cases testdata/rings holds: a case added or
 // lost changes what the rules were held over, and must be named above.
-const ringsCaseCount = 75
+const ringsCaseCount = 77
 
 // trustOne is a trust policy of one Allow statement: its principal, its
 // action and its Condition, as JSON, with no Condition when it is "".

@@ -1820,3 +1820,231 @@ func TestAsksNoParticularValueReadsTheCaveatsTheParserFiles(t *testing.T) {
 		}
 	}
 }
+
+// The subjects the immutable-format tests read. GitHub's OIDC reference
+// gives the immutable syntax repo:OWNER@OWNER-ID/REPO@REPO-ID:ref:refs/heads/BRANCH
+// and prints the environment and pull_request contexts in the name form
+// only; the immutable ones here put the ids in the repo segment, where the
+// reference says they always are.
+const (
+	immutableMain    = "repo:acme@123456/infra@456789:ref:refs/heads/main"
+	immutableDev     = "repo:acme@123456/infra@456789:ref:refs/heads/dev"
+	immutableTag     = "repo:acme@123456/infra@456789:ref:refs/tags/v1.0.0"
+	immutableProd    = "repo:acme@123456/infra@456789:environment:prod"
+	immutablePull    = "repo:acme@123456/infra@456789:pull_request"
+	immutableSibling = "repo:acme@123456/web@222222:ref:refs/heads/main"
+	// The names acme and infra registered again by someone else, under new
+	// ids: what the immutable form exists to keep out.
+	immutableRecycled = "repo:acme@999999/infra@111111:ref:refs/heads/main"
+	// An owner id that begins with acme's, and an owner whose name does.
+	immutableLongerID   = "repo:acme@1234567/infra@456789:ref:refs/heads/main"
+	immutableOtherOwner = "repo:acme-x@777777/infra@888888:ref:refs/heads/main"
+	legacyProd          = "repo:acme/infra:environment:prod"
+	legacyPull          = "repo:acme/infra:pull_request"
+	legacySibling       = "repo:acme/web:ref:refs/heads/main"
+)
+
+// subjectGrant is the one grant of a GitHub statement that pins the
+// audience and puts op on sub with values, written as JSON: a string or a
+// list.
+func subjectGrant(t *testing.T, op, values string) trust.Grant {
+	t.Helper()
+	if op == "StringEquals" {
+		return oneGrant(t, github(`{"StringEquals": {"`+gh("aud")+`": "sts.amazonaws.com", "`+gh("sub")+`": `+values+`}}`))
+	}
+	return oneGrant(t, github(`{"StringEquals": {"`+gh("aud")+`": "sts.amazonaws.com"}, "`+op+`": {"`+gh("sub")+`": `+values+`}}`))
+}
+
+// subjectsAdmitted holds g to an exact reading that admits every subject in
+// in and none in out, each on a token with the audience g pins.
+func subjectsAdmitted(t *testing.T, label string, g trust.Grant, in, out []string) {
+	t.Helper()
+	if !g.Exact() {
+		t.Errorf("%s: Admits = %s is not exact", label, g.Admits)
+	}
+	for _, sub := range in {
+		if !g.Admits.Admits(token{"aud": "sts.amazonaws.com", "sub": sub}) {
+			t.Errorf("%s: %s is not admitted; Admits = %s", label, sub, g.Admits)
+		}
+	}
+	for _, sub := range out {
+		if g.Admits.Admits(token{"aud": "sts.amazonaws.com", "sub": sub}) {
+			t.Errorf("%s: %s is admitted; Admits = %s", label, sub, g.Admits)
+		}
+	}
+}
+
+// TestLegacySubjectPatternsAdmitNoImmutableSubject: a role written for the
+// name form keeps admitting the name form and admits no immutable subject,
+// its own repository and branch included. AWS's StringLike is case-sensitive
+// with "*" any run and "?" one character, and StringEquals is exact
+// matching: "repo:acme/" is a literal prefix, and an immutable subject has
+// "@123456" where it has "/".
+func TestLegacySubjectPatternsAdmitNoImmutableSubject(t *testing.T) {
+	immutable := []string{immutableMain, immutableDev, immutableTag, immutableProd, immutablePull, immutableSibling, immutableRecycled}
+	cases := []struct {
+		name, op, values string
+		in, out          []string
+	}{
+		{"any context of one repository", "StringLike", `"repo:acme/infra:*"`,
+			[]string{mainBranch, legacyProd, legacyPull}, []string{legacySibling}},
+		{"one branch, equal", "StringEquals", `"` + mainBranch + `"`,
+			[]string{mainBranch}, []string{legacyProd, legacyPull, legacySibling}},
+		{"one branch, like", "StringLike", `"` + mainBranch + `"`,
+			[]string{mainBranch}, []string{legacyProd, legacyPull, legacySibling}},
+		{"any repository of one owner", "StringLike", `"repo:acme/*"`,
+			[]string{mainBranch, legacyProd, legacyPull, legacySibling}, nil},
+	}
+	for _, c := range cases {
+		subjectsAdmitted(t, c.name, subjectGrant(t, c.op, c.values), c.in, append(c.out, immutable...))
+	}
+}
+
+// TestConditionsAdvisedForImmutableSubjects: the conditions GitHub's pages
+// give for the immutable subject, each with all it admits. GitHub's OIDC
+// reference and AWS guide, and the README of AWS's credentials action, pin
+// one branch under StringEquals, which admits that one subject. GitHub's
+// Docker guide writes repo:my-org@OWNER-ID/* for an organisation, which
+// admits every repository, branch, tag, environment and pull request of
+// owner id 123456, and both patterns where an organisation's repositories
+// use both formats, which admits the name form of every repository under
+// the name acme besides. None admits the names registered again under new
+// ids, nor an owner id or name that only begins with acme's.
+func TestConditionsAdvisedForImmutableSubjects(t *testing.T) {
+	cases := []struct {
+		name, op, values string
+		in, out          []string
+	}{
+		{"one immutable branch", "StringEquals", `"` + immutableMain + `"`,
+			[]string{immutableMain},
+			[]string{mainBranch, immutableDev, immutableTag, immutableProd, immutablePull, immutableSibling, immutableRecycled, immutableLongerID}},
+		{"every repository of one owner id", "StringLike", `"repo:acme@123456/*"`,
+			[]string{immutableMain, immutableDev, immutableTag, immutableProd, immutablePull, immutableSibling},
+			[]string{mainBranch, legacySibling, immutableRecycled, immutableLongerID, immutableOtherOwner}},
+		{"both formats of one owner", "StringLike", `["repo:acme/*", "repo:acme@123456/*"]`,
+			[]string{mainBranch, legacyProd, legacyPull, legacySibling, immutableMain, immutableDev, immutableTag, immutableProd, immutablePull, immutableSibling},
+			[]string{immutableRecycled, immutableLongerID, immutableOtherOwner, "repo:acme-x/infra:ref:refs/heads/main"}},
+	}
+	for _, c := range cases {
+		subjectsAdmitted(t, c.name, subjectGrant(t, c.op, c.values), c.in, c.out)
+	}
+}
+
+// TestImmutableSubjectPatterns: StringLike and StringEquals over the
+// immutable form, read by AWS's operators table. "*" is any run and "?" one
+// character, either crossing "@", "/" and ":"; under StringEquals both are
+// the characters themselves, "Exact matching". Every comparison is
+// case-sensitive, and the GitHub pages read do not say how the token cases
+// the names, so a casing other than the policy's is not admitted.
+func TestImmutableSubjectPatterns(t *testing.T) {
+	cases := []struct {
+		name, op, values string
+		in, out          []string
+	}{
+		// The name with any id admits the names registered again under new
+		// ids, which the immutable form exists to keep out.
+		{"the owner's name and any id", "StringLike", `"repo:acme@*/*"`,
+			[]string{immutableMain, immutableProd, immutablePull, immutableSibling, immutableRecycled, immutableLongerID},
+			[]string{mainBranch, immutableOtherOwner, "repo:Acme@123456/infra@456789:ref:refs/heads/main"}},
+		{"a star under StringEquals after the id", "StringEquals", `"repo:acme@123456/*"`,
+			[]string{"repo:acme@123456/*"},
+			[]string{immutableMain, immutableSibling, immutablePull}},
+		{"a star under StringEquals for the id", "StringEquals", `"repo:acme@*/*"`,
+			[]string{"repo:acme@*/*"},
+			[]string{immutableMain, immutableRecycled, immutableSibling}},
+		{"one environment", "StringEquals", `"` + immutableProd + `"`,
+			[]string{immutableProd},
+			[]string{legacyProd, "repo:acme@123456/infra@456789:environment:Prod", "repo:acme@123456/infra@456789:environment:prod-eu", immutableMain, immutablePull}},
+		{"any environment", "StringLike", `"repo:acme@123456/infra@456789:environment:*"`,
+			[]string{immutableProd, "repo:acme@123456/infra@456789:environment:staging"},
+			[]string{immutableMain, immutablePull, immutableTag, legacyProd}},
+		{"branches only", "StringLike", `"repo:acme@123456/infra@456789:ref:refs/heads/*"`,
+			[]string{immutableMain, immutableDev},
+			[]string{immutablePull, immutableTag, immutableProd}},
+		{"pull requests", "StringEquals", `"` + immutablePull + `"`,
+			[]string{immutablePull},
+			[]string{legacyPull, immutableMain}},
+		// Six characters each: the ids registered again are admitted too.
+		{"ids of six characters", "StringLike", `"repo:acme@??????/infra@??????:ref:refs/heads/main"`,
+			[]string{immutableMain, immutableRecycled},
+			[]string{immutableLongerID, "repo:acme@12345/infra@456789:ref:refs/heads/main", immutableDev}},
+		// One character, any character: another owner's name is admitted.
+		{"one character after the owner's name", "StringLike", `"repo:acme?*"`,
+			[]string{mainBranch, immutableMain, immutableRecycled, immutableOtherOwner, "repo:acmex/infra:ref:refs/heads/main"},
+			[]string{"repo:acme", "repo:acm/infra:ref:refs/heads/main"}},
+		{"the owner's name in another casing", "StringLike", `"repo:Acme@123456/*"`,
+			[]string{"repo:Acme@123456/infra@456789:ref:refs/heads/main"},
+			[]string{immutableMain, "repo:ACME@123456/infra@456789:ref:refs/heads/main"}},
+		{"the token's names in another casing", "StringEquals", `"` + immutableMain + `"`,
+			[]string{immutableMain},
+			[]string{"repo:Acme@123456/Infra@456789:ref:refs/heads/main"}},
+	}
+	for _, c := range cases {
+		subjectsAdmitted(t, c.name, subjectGrant(t, c.op, c.values), c.in, c.out)
+	}
+}
+
+// TestAWildcardUnderStringEqualsIsTheCharacter: AWS's condition operators
+// table gives StringEquals as "Exact matching, case sensitive", so a * or a
+// ? in its value is the character, and the value admits the one subject
+// spelled so; a StringEquals written where StringLike was meant reads as a
+// pattern and does not work as one. Each such value on sub is noted, with
+// what AWS compares and the operator that reads wildcards. The same text
+// under StringLike is a pattern and is not noted, and neither are the
+// escapes ${*} and ${?}, which write the character on purpose, nor a star
+// on aud.
+func TestAWildcardUnderStringEqualsIsTheCharacter(t *testing.T) {
+	const kind = "wildcard-is-literal"
+	noted := func(g trust.Grant) []trust.Anomaly {
+		var out []trust.Anomaly
+		for _, a := range g.Anomalies {
+			if a.Kind == kind {
+				out = append(out, a)
+			}
+		}
+		return out
+	}
+	values := []string{
+		"repo:octo-org/*",
+		"repo:acme@*/*",
+		"repo:acme@??????/infra@??????:ref:refs/heads/main",
+		"repo:acme@*/infra@*:environment:prod",
+	}
+	for _, v := range values {
+		g := subjectGrant(t, "StringEquals", `"`+v+`"`)
+		subjectsAdmitted(t, v+" under StringEquals", g, []string{v}, []string{mainBranch, immutableMain, immutableProd, "repo:octo-org/octo-repo:ref:refs/heads/main"})
+		notes := noted(g)
+		if len(notes) != 1 || notes[0].Claim != "sub" || notes[0].Construct != "StringEquals" || notes[0].Source != "statement[0].Condition" {
+			t.Errorf("%s under StringEquals: notes %+v, want one %s on sub", v, notes, kind)
+		}
+	}
+	octo := noted(subjectGrant(t, "StringEquals", `"repo:octo-org/*"`))
+	if want := `the value "repo:octo-org/*" on sub is compared as written: AWS's condition operators table gives StringEquals as "Exact matching, case sensitive", so each "*" it holds is the character, not a wildcard, and the value matches only a sub that is exactly this text; StringLike is the operator that reads * and ? as wildcards`; len(octo) != 1 || octo[0].Message != want {
+		t.Errorf("notes = %+v\nwant the message %s", octo, want)
+	}
+	both := noted(subjectGrant(t, "StringEquals", `["repo:acme@??????/infra@*:ref:refs/heads/main", "`+mainBranch+`"]`))
+	if len(both) != 1 || !strings.Contains(both[0].Message, `so each "*" and "?" it holds is the character`) {
+		t.Errorf("a value holding both wildcards beside one holding none: notes %+v", both)
+	}
+	for _, op := range []string{"ForAnyValue:StringEquals", "ForAllValues:StringEquals", "StringEqualsIfExists"} {
+		if notes := noted(subjectGrant(t, op, `"repo:octo-org/*"`)); len(notes) != 1 || notes[0].Construct != op {
+			t.Errorf("%s: notes %+v, want one %s", op, notes, kind)
+		}
+	}
+	for _, v := range values {
+		g := subjectGrant(t, "StringLike", `"`+v+`"`)
+		if notes := noted(g); notes != nil || !g.Exact() {
+			t.Errorf("%s under StringLike: exact %v, notes %+v; want a pattern and no note", v, g.Exact(), notes)
+		}
+	}
+	for _, c := range []struct{ name, document string }{
+		{"escapes under StringEquals", github(`{"StringEquals": {"` + gh("aud") + `": "sts.amazonaws.com", "` + gh("sub") + `": ["repo:acme/${*}:ref:refs/heads/main", "repo:acme/infra${?}:ref:refs/heads/main"]}}`)},
+		{"a star on aud", github(`{"StringEquals": {"` + gh("aud") + `": "*", "` + gh("sub") + `": "` + mainBranch + `"}}`)},
+		{"a star under StringNotEquals", github(`{"StringEquals": {"` + gh("aud") + `": "sts.amazonaws.com"}, "StringNotEquals": {"` + gh("sub") + `": "repo:octo-org/*"}}`)},
+		{"a value that is not a string", github(`{"StringEquals": {"` + gh("aud") + `": "sts.amazonaws.com", "` + gh("sub") + `": ["repo:octo-org/*", 7]}}`)},
+	} {
+		if notes := noted(oneGrant(t, c.document)); notes != nil {
+			t.Errorf("%s: notes %+v, want none", c.name, notes)
+		}
+	}
+}

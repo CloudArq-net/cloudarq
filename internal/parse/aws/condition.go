@@ -410,6 +410,9 @@ func (c constraint) evaluate(p principal, effect trust.Effect, vocabulary ClaimV
 		facts = append(facts, valueFacts...)
 		notes = append(notes, valueNotes...)
 	}
+	if op.recognised && op.base == "StringEquals" && claim == subjectClaim && bad == nil {
+		notes = append(notes, literalWildcards(texts, c.operator, claim, src)...)
+	}
 	o := outcome{claim: claim, set: set, notes: notes}
 	if len(facts) == 0 {
 		return o
@@ -433,6 +436,39 @@ func (c constraint) severalValues(values KeyReading, on string, issuer trust.Iss
 		return fact{"multivalued key", trust.Unmodelled, c.key, on + " has no set prefix, and AWS documents the condition key " + quotedKey + " as multivalued, which a policy tests with condition set operators; what an operator without one does on such a key AWS does not document, so the claim is not constrained"}
 	}
 	return fact{"multi-valued claim", trust.Unmodelled, c.key, on + " has no set prefix, and a token of " + strconv.QuoteToASCII(string(issuer)) + " may carry several values in the claim AWS reads the condition key " + quotedKey + " from; how many of them AWS compares, and what an operator without a set prefix does on them, AWS does not document, so the claim is not constrained"}
+}
+
+// subjectClaim is the claim a web identity token names its subject by.
+const subjectClaim trust.ClaimKey = "sub"
+
+// literalWildcards is a note for every value on sub that writes a * or a ?
+// itself, under StringEquals in any of its forms, where AWS compares the
+// value as written: the slip of a StringEquals where StringLike was meant,
+// which reads as a pattern and admits the one subject spelled so. AWS's
+// condition operators table gives StringEquals as "Exact matching, case
+// sensitive", and StringLike as "Case-sensitive matching. The values can
+// include multi-character match wildcards (*) and single-character match
+// wildcards (?) anywhere in the string."
+// (https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_condition_operators.html).
+// The escapes ${*} and ${?} write the character on purpose, and are not
+// read as a slip. The note is held to sub, where a subject's wildcards
+// stand for an owner's repositories and branches.
+func literalWildcards(texts []string, operator string, claim trust.ClaimKey, src string) []trust.Anomaly {
+	var notes []trust.Anomaly
+	for _, text := range texts {
+		written := strings.NewReplacer("${*}", "", "${?}", "").Replace(text)
+		var held []string
+		for _, w := range []string{"*", "?"} {
+			if strings.Contains(written, w) {
+				held = append(held, strconv.QuoteToASCII(w))
+			}
+		}
+		if held == nil {
+			continue
+		}
+		notes = append(notes, trust.Anomaly{Kind: WildcardIsLiteral, Claim: claim, Construct: operator, Message: "the value " + strconv.QuoteToASCII(text) + " on " + spellClaim(claim) + ` is compared as written: AWS's condition operators table gives StringEquals as "Exact matching, case sensitive", so each ` + strings.Join(held, " and ") + " it holds is the character, not a wildcard, and the value matches only a " + spellClaim(claim) + " that is exactly this text; StringLike is the operator that reads * and ? as wildcards", Source: src})
+	}
+	return notes
 }
 
 // fact is one reason a constraint could not be evaluated: the Unknown's

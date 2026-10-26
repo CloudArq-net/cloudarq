@@ -1,0 +1,35 @@
+read as an aws trust policy · version 2012-10-17 · 530 bytes · 19 lines · 1 statement
+sha256 7a99b53e5a5d118ce1a33ac1d48b2035a5cfa4a5a62c294ba29ab921dab839c7
+
+A named outsider could assume this role.
+
+  Anyone                exact             No grant is placed with people who have no account anywhere.
+  Anyone on a platform  exact             No grant is placed at a whole platform.
+  A named outsider      unknown  grant 1  github:octo-org could assume this role and is not declared as yours.
+  Your pipelines        exact             No grant is confined to owners declared as yours.
+  Your people           exact             No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] "StarForTheOwnerIDUnderStringEquals" · Allow · https://token.actions.githubusercontent.com · outsider · unknown
+This role admits any token from token.actions.githubusercontent.com whose aud is sts.amazonaws.com and whose sub is repo:octo-org@*/*.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM            ADMITS               IN WORDS · AS WRITTEN
+aud              "sts.amazonaws.com"  exactly this audience · line 13 StringEquals
+sub              "repo:octo-org@*/*"  exactly this subject · line 14 StringEquals
+any other claim  any                  unconstrained · no condition names it
+
+notes
+  1  the value "repo:octo-org@*/*" on sub is compared as written: AWS's condition operators table gives StringEquals as "Exact matching, case sensitive", so each "*" it holds is the character, not a wildcard, and the value matches only a sub that is exactly this text; StringLike is the operator that reads * and ? as wildcards
+     anomaly · wildcard-is-literal · sub · StringEquals · statement[0].Condition
+
+a token this grant admits
+  {
+    "iss": "https://token.actions.githubusercontent.com",
+    "aud": "sts.amazonaws.com",
+    "sub": "repo:octo-org@*/*"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant, but for azp. It sets no azp: AWS reads aud from azp whenever a token sets one.
+
+statement[0] "StarForTheOwnerIDUnderStringEquals" · offset 50 · 473 bytes · lines 4-17 · issuer at line 8 Principal.Federated · sha256 bc5682c63459bf45b1e9adc5b3f3ca1d65d9448600d5dc67ce8a330c7447b99e

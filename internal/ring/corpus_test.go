@@ -354,6 +354,16 @@ var corpus = []corpusCase{
 	{"75-ssm-automation-service-role", []expectation{
 		at("", serviceIssuer("ssm.amazonaws.com"), Service, StateUnknown, ServiceIntermediary),
 	}},
+	// A star under StringEquals is the character: a value no subject form
+	// reads is placed no farther out than the owner its literal prefix
+	// closes, and one the name form reads keeps its place; neither exactly,
+	// since the grant admits only a token carrying that text.
+	{"76-literal-star-for-the-owner-id", []expectation{
+		at("StarForTheOwnerIDUnderStringEquals", githubIssuer, Outsider, StateUnknown, Pinned, githubName("octo-org")),
+	}},
+	{"77-literal-star-for-the-repository", []expectation{
+		at("StarForTheRepositoryUnderStringEquals", githubIssuer, Outsider, StateUnknown, Pinned, githubName("octo-org")),
+	}},
 }
 
 // readOn is the date a rationale says a quoted sentence was read.

@@ -475,8 +475,8 @@ var expectations = map[string]map[string][]want{
 	"06-aws-plan-actions": {
 		"aws_iam_role.kept": {exact(role("aws_iam_role.kept"), github, `{`+stsAud+`, sub="repo:acme/infra:ref:refs/heads/main"}`, PlanIncomplete)},
 		"aws_iam_role.old": {
-			exact(role("aws_iam_role.old"), github, `{`+stsAud+`, sub="repo:acme/old:*"}`, PlannedDelete, PlanIncomplete),
-			exact(role("aws_iam_role.old"), github, `{`+stsAud+`, sub="repo:acme/old:*"}`, PlannedDelete, PlanIncomplete),
+			exact(role("aws_iam_role.old"), github, `{`+stsAud+`, sub="repo:acme/old:*"}`, aws.WildcardIsLiteral, PlannedDelete, PlanIncomplete),
+			exact(role("aws_iam_role.old"), github, `{`+stsAud+`, sub="repo:acme/old:*"}`, aws.WildcardIsLiteral, PlannedDelete, PlanIncomplete),
 		},
 		"aws_iam_role.replaced":  {exact(role("aws_iam_role.replaced"), github, `{`+stsAud+`, sub="repo:acme/replaced:v2"}`, PlanIncomplete)},
 		"aws_iam_role.rotated":   {widened(role("aws_iam_role.rotated"), "", KnownAfterApply, PlanIncomplete)},

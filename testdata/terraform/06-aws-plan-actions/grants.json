@@ -49,6 +49,13 @@
     "caveats": [],
     "anomalies": [
       {
+        "Kind": "wildcard-is-literal",
+        "Claim": "sub",
+        "Construct": "StringEquals",
+        "Message": "the value \"repo:acme/old:*\" on sub is compared as written: AWS's condition operators table gives StringEquals as \"Exact matching, case sensitive\", so each \"*\" it holds is the character, not a wildcard, and the value matches only a sub that is exactly this text; StringLike is the operator that reads * and ? as wildcards",
+        "Source": "statement[0].Condition"
+      },
+      {
         "Kind": "planned-delete",
         "Claim": "",
         "Construct": "delete",
@@ -93,6 +100,13 @@
     "exact": true,
     "caveats": [],
     "anomalies": [
+      {
+        "Kind": "wildcard-is-literal",
+        "Claim": "sub",
+        "Construct": "StringEquals",
+        "Message": "the value \"repo:acme/old:*\" on sub is compared as written: AWS's condition operators table gives StringEquals as \"Exact matching, case sensitive\", so each \"*\" it holds is the character, not a wildcard, and the value matches only a sub that is exactly this text; StringLike is the operator that reads * and ? as wildcards",
+        "Source": "statement[0].Condition"
+      },
       {
         "Kind": "planned-delete",
         "Claim": "",

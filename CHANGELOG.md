@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.5.1
+
+A GitHub subject under `StringEquals` holding a `*` or a `?`, such as `repo:octo-org@*/*` or
+`repo:octo-org/*`, was placed exactly, and as open to anyone on GitHub where no subject form reads
+an owner in it; `StringEquals` compares it as written, so it admits only a token whose subject is
+that text, and every such value is now placed as `unknown`, an upper bound, no farther out than the
+owner its text names, or on the platform where it names none. Every `*` or `?` in a `StringEquals`
+value on `sub` carries the note `wildcard-is-literal`, which says `StringEquals` compares it as the
+character, so only a subject that is exactly that text matches.
+
 ## v0.5.0
 
 What the engine finds of each way in, by a rule with a permanent id.

@@ -468,7 +468,7 @@ func TestUnreadableForms(t *testing.T) {
 func TestShapesNoTermHolds(t *testing.T) {
 	pins := func(string) []Owner { return []Owner{githubName("acme")} }
 	for _, s := range []eval.StringSet{eval.Any(), eval.None()} {
-		if got := confineShape(eval.ShapeOf(s), pins, pins); got.owners != nil || got.unread {
+		if got := confineShape(eval.ShapeOf(s), exactly(pins), pins); got.owners != nil || got.unread {
 			t.Errorf("%s confines to %+v", s, got)
 		}
 	}
@@ -921,5 +921,126 @@ func TestOwnerStarts(t *testing.T) {
 		if pop.Place != Platform || pop.State != StateExact || pop.Basis != Unpinned || !slices.Equal(pop.OwnerStarts, c.want) {
 			t.Errorf("%s (shape kind %v): placed %s %s by %v with starts %q, want platform exact by unpinned with %q", c.name, eval.ShapeOf(c.sub).Kind, pop.Place, pop.State, pop.Basis, pop.OwnerStarts, c.want)
 		}
+	}
+}
+
+// TestSubjectPinsAcrossBothSubjectFormats: who the patterns a move to
+// GitHub's immutable subject leaves behind let in. A pattern of each format
+// pins the name and the id, so whoever registers the name again is let in
+// through the name form; ids written as runs of "?" close no id, so only
+// the name pins; a name written in another casing is pinned as written.
+func TestSubjectPinsAcrossBothSubjectFormats(t *testing.T) {
+	cases := []struct {
+		name string
+		sub  eval.StringSet
+		want []Owner
+	}{
+		{"the legacy and the immutable pattern of one owner", either(like("repo:acme/*"), like("repo:acme@123456/*")), []Owner{githubName("acme"), githubID("123456", "acme")}},
+		{"the legacy and the immutable branch, exactly", either(eval.Exact("repo:acme/infra:ref:refs/heads/main"), eval.Exact("repo:acme@123456/infra@456789:ref:refs/heads/main")), []Owner{githubName("acme"), githubID("123456", "acme")}},
+		{"ids of six characters", like("repo:acme@??????/infra@??????:ref:refs/heads/main"), []Owner{githubName("acme")}},
+		{"any environment of one repository", like("repo:acme@123456/infra@456789:environment:*"), []Owner{githubID("123456", "acme")}},
+		{"the owner's name in another casing", like("repo:Acme@123456/*"), []Owner{githubID("123456", "Acme")}},
+	}
+	for _, c := range cases {
+		p := Classify(grantOf(githubIssuer, eval.Term{"sub": c.sub}), githubFacts(), nil)
+		want := slices.SortedFunc(slices.Values(c.want), compareOwners)
+		if !slices.Equal(p.Places, []Place{Outsider}) || p.State != StateExact || ownersText(p.Owners) != ownersText(want) || p.Populations[0].Basis != Pinned {
+			t.Errorf("%s: sub %s placed %s (%v), want outsider exact pinned [%s]", c.name, c.sub, p, p.Populations[0].Basis, ownersText(want))
+		}
+	}
+}
+
+// TestALiteralIsNeverPlacedWiderThanItsPattern: under StringEquals a star
+// or a question mark is the character itself, so the one subject a value
+// admits is admitted by the same text under StringLike as well, and whoever
+// the value lets in, the pattern lets in too. A value is placed no farther
+// out than the pattern of its text, or nowhere.
+func TestALiteralIsNeverPlacedWiderThanItsPattern(t *testing.T) {
+	for _, text := range []string{
+		"repo:acme@*/*",
+		"repo:acme@??????/infra@??????:ref:refs/heads/main",
+		"repo:acme@*/infra@*:environment:prod",
+		"repo:acme@123456/*",
+		"repo:acme/infra:*",
+		"repo:acme?*",
+		"repo:/*",
+		"job_workflow_ref:octo-org/shared/.github/workflows/deploy.yml@refs/heads/*",
+	} {
+		literal := Classify(grantOf(githubIssuer, eval.Term{"sub": eval.Exact(text)}), githubFacts(), nil)
+		pattern := Classify(grantOf(githubIssuer, eval.Term{"sub": like(text)}), githubFacts(), nil)
+		if literal.Outcome == Nobody {
+			continue
+		}
+		if literal.Outcome != Placed || pattern.Outcome != Placed || len(literal.Places) == 0 || len(pattern.Places) == 0 {
+			t.Errorf("%s: under StringEquals %s, under StringLike %s; want both placed", text, literal, pattern)
+			continue
+		}
+		if literal.Places[0] < pattern.Places[0] {
+			t.Errorf("%s: under StringEquals placed %s, farther out than under StringLike, %s", text, literal, pattern)
+		}
+	}
+}
+
+// TestAWildcardUnderStringEqualsIsPlacedAsABound: under StringEquals a * or
+// a ? is the character, so the value is the one subject spelled so, and the
+// grant admits only a token that carries that text. Where a subject form
+// reads it, it is placed where the form reads it: under repo:octo-org/ a
+// star stands where a repository's name does, and GitHub's rule for a
+// repository's name allows neither character. Where no form can read it, as where a star or a
+// question mark stands for an id or follows a literal that never pins, it is
+// placed at the owners its literal prefix pins, the place the same text has
+// as a pattern, or on the platform where that prefix pins nobody, as an
+// empty owner does. Either way the place is an upper bound and never exact:
+// the owner it names may hold no token it admits. Under StringLike each text
+// is the pattern it looks like, placed exactly as before.
+func TestAWildcardUnderStringEqualsIsPlacedAsABound(t *testing.T) {
+	cases := []struct {
+		name  string
+		sub   eval.StringSet
+		place Place
+		state State
+		basis Basis
+		want  []Owner
+	}{
+		{"a star for a repository's name", eval.Exact("repo:octo-org/*"), Outsider, StateUnknown, Pinned, []Owner{githubName("octo-org")}},
+		{"a star for a repository's name after the ids", eval.Exact("repo:acme@123456/*"), Outsider, StateUnknown, Pinned, []Owner{githubID("123456", "acme")}},
+		{"a question mark in a repository's name", eval.Exact("repo:octo-org/infra?:ref:refs/heads/main"), Outsider, StateUnknown, Pinned, []Owner{githubName("octo-org")}},
+		{"a star for the workflow of an owner's custom subject", eval.Exact("repository_owner:acme:workflow:*"), Outsider, StateUnknown, Pinned, []Owner{githubName("acme")}},
+		{"a star for the owner's id", eval.Exact("repo:acme@*/*"), Outsider, StateUnknown, Pinned, []Owner{githubName("acme")}},
+		{"question marks for both ids", eval.Exact("repo:acme@??????/infra@??????:ref:refs/heads/main"), Outsider, StateUnknown, Pinned, []Owner{githubName("acme")}},
+		{"stars for both ids of an environment", eval.Exact("repo:acme@*/infra@*:environment:prod"), Outsider, StateUnknown, Pinned, []Owner{githubName("acme")}},
+		{"a question mark closing the owner", eval.Exact("repo:acme?*"), Platform, StateUnknown, Unpinned, nil},
+		{"a star after the leading literal", eval.Exact("repo:*"), Platform, StateUnknown, Unpinned, nil},
+		{"a star after an empty owner", eval.Exact("repo:/*"), Platform, StateUnknown, Unpinned, nil},
+		{"a star after a literal that never pins", eval.Exact("job_workflow_ref:acme/deploy/.github/workflows/deploy.yml@*"), Platform, StateUnknown, Unpinned, nil},
+		{"a star for the branch of a called workflow", eval.Exact("job_workflow_ref:octo-org/shared/.github/workflows/deploy.yml@refs/heads/*"), Platform, StateUnknown, Unpinned, nil},
+		{"a star right after a literal that never pins", eval.Exact("job_workflow_ref:*"), Platform, StateUnknown, Unpinned, nil},
+		{"a star in a repository property", eval.Exact("repo_property_env:*"), Platform, StateUnknown, Unpinned, nil},
+		{"a union of a branch and a bound", either(eval.Exact("repo:acme/infra:ref:refs/heads/main"), eval.Exact("repo:beta@*/*")), Outsider, StateUnknown, Pinned, []Owner{githubName("acme"), githubName("beta")}},
+		{"a union of a bound and an open pattern", either(eval.Exact("repo:acme@*/*"), like("repo:*")), Platform, StateExact, Unpinned, nil},
+		{"a union of a bound that pins nobody and a pin", either(eval.Exact("repo:acme?*"), like("repo:beta/*")), Platform, StateUnknown, Unpinned, nil},
+		{"a union of two bounds that pin nobody", either(eval.Exact("repo:*"), eval.Exact("repo:acme?*")), Platform, StateUnknown, Unpinned, nil},
+		{"a star for a repository's name, as a pattern", like("repo:octo-org/*"), Outsider, StateExact, Pinned, []Owner{githubName("octo-org")}},
+		{"a star for the owner's id, as a pattern", like("repo:acme@*/*"), Outsider, StateExact, Pinned, []Owner{githubName("acme")}},
+		{"question marks for both ids, as a pattern", like("repo:acme@??????/infra@??????:ref:refs/heads/main"), Outsider, StateExact, Pinned, []Owner{githubName("acme")}},
+		{"stars for both ids of an environment, as a pattern", like("repo:acme@*/infra@*:environment:prod"), Outsider, StateExact, Pinned, []Owner{githubName("acme")}},
+	}
+	for _, c := range cases {
+		p := Classify(grantOf(githubIssuer, eval.Term{"sub": c.sub}), githubFacts(), nil)
+		want := slices.SortedFunc(slices.Values(c.want), compareOwners)
+		if !slices.Equal(p.Places, []Place{c.place}) || p.State != c.state || ownersText(p.Owners) != ownersText(want) || p.Populations[0].Basis != c.basis {
+			t.Errorf("%s: sub %s placed %s (%v), want %s %s %s [%s]", c.name, c.sub, p, p.Populations[0].Basis, c.place, c.state, c.basis, ownersText(want))
+		}
+	}
+	// A bound on sub leaves a place another claim pins exactly unknown: the
+	// owner it pins may hold no token the subject admits.
+	term := eval.Term{"repository_owner": eval.Exact("acme"), "sub": eval.Exact("repo:acme@*/*")}
+	if p := Classify(grantOf(githubIssuer, term), githubFacts(), nil); !slices.Equal(p.Places, []Place{Outsider}) || p.State != StateUnknown || ownersText(p.Owners) != ownersText([]Owner{githubName("acme")}) {
+		t.Errorf("repository_owner acme beside a bound on sub placed %s, want outsider unknown [github:acme]", p)
+	}
+	// Declared, the owner a bound pins is the user's own, unknown all the same.
+	declared := []Declaration{{Namespace: NamespaceGitHub, Scope: ScopeOwner, Name: "acme"}}
+	if p := Classify(grantOf(githubIssuer, eval.Term{"sub": eval.Exact("repo:acme@*/*")}), githubFacts(), declared); !slices.Equal(p.Places, []Place{Yours}) || p.State != StateUnknown {
+		t.Errorf("a bound on a declared owner placed %s, want yours unknown", p)
 	}
 }

@@ -355,14 +355,14 @@ func (r row) platforms() (sure, unsure []string) {
 }
 
 // reason is why populations are placed where they are, for a sentence that
-// gives one: the basis they share, when they share one, and the grant of
-// the first, whose issuer that sentence names when every one of them is on
-// it.
+// gives one: the basis they share, when they share one and each is read as
+// a bound or none is, and the grant of the first, whose issuer that
+// sentence names when every one of them is on it.
 func reason(pops []population) (basis ring.Basis, first placed, shared, oneIssuer bool) {
 	basis, first = pops[0].Basis, pops[0].grant
 	shared, oneIssuer = true, true
 	for _, p := range pops {
-		shared = shared && p.Basis == basis
+		shared = shared && p.Basis == basis && p.Bounded == pops[0].Bounded
 		oneIssuer = oneIssuer && p.grant.issuer == first.issuer
 	}
 	return basis, first, shared, oneIssuer

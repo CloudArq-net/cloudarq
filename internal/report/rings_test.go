@@ -1331,6 +1331,39 @@ func TestOneGrantOnBothLines(t *testing.T) {
 	}
 }
 
+// TestABoundOnThePlatformSaysItIsOne: under StringEquals a * or a ? on sub
+// is the character, so the grant admits only a token whose subject is that
+// text, and where the text names no owner it is placed with the platform as
+// an upper bound: an empty owner, a literal that never pins, an owner's name
+// a star runs into. Its sentence says the subject is compared as written
+// and the place is an upper bound, never that no condition confines its
+// tokens to one owner: its own condition admits only the subject it spells.
+// The same text under StringLike is a pattern no owner confines, placed for
+// certain, and says so.
+func TestABoundOnThePlatformSaysItIsOne(t *testing.T) {
+	const bound = "Anyone on GitHub could assume this role; the subject it admits is compared as written, and this place is an upper bound."
+	for _, c := range []struct{ operator, sub, state, sentence string }{
+		{"StringEquals", "repo:ac*", "unknown", bound},
+		{"StringEquals", "repo:/*", "unknown", bound},
+		{"StringEquals", "job_workflow_ref:octo-org/shared/.github/workflows/deploy.yml@refs/heads/*", "unknown", bound},
+		{"StringEquals", "repo_property_env:*", "unknown", bound},
+		{"StringLike", "repo:ac*", "exact", "Anyone on GitHub can assume this role; no condition confines its tokens to one owner."},
+	} {
+		sub, err := json.Marshal(c.sub)
+		if err != nil {
+			t.Fatal(err)
+		}
+		a := ringsOf(t, Admits([]byte(`{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Federated":"token.actions.githubusercontent.com"},"Action":"sts:AssumeRoleWithWebIdentity","Condition":{"`+c.operator+`":{"token.actions.githubusercontent.com:sub":`+string(sub)+`}}}]}`)))
+		if len(a.Rings) != len(ringOrder) {
+			t.Fatalf("%s %s: %d rings", c.operator, c.sub, len(a.Rings))
+		}
+		platform := a.Rings[1]
+		if platform.State != c.state || platform.Sentence != c.sentence || !slices.Equal(platform.GrantNumbers, []int{1}) {
+			t.Errorf("%s %s: the platform ring is %s with %v, saying %q; want %s, %q", c.operator, c.sub, platform.State, platform.GrantNumbers, platform.Sentence, c.state, c.sentence)
+		}
+	}
+}
+
 // TestEveryOwnerIsNamedByTheEngine: every owner a population is pinned to
 // carries the words that name it, so that a renderer drawing who a term admits
 // never composes an owner's name: the declaration a user writes, for an
