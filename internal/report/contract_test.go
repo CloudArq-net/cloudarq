@@ -44,7 +44,8 @@ var sameNameAlready = map[string][]string{
 // document of the grants and policy corpora; a document and a token that
 // cannot be read; a declaration past its bound; and the answers a scan's
 // findings keep for roles trusting the account the scan read, which it
-// recognises, alone and beside an owner declared.
+// recognises, alone and beside an owner declared; and each case of
+// testdata/answers with its own declaration.
 func contractSamples(t *testing.T) [][]byte {
 	t.Helper()
 	token := []byte(`{"iss":"https://token.actions.githubusercontent.com","aud":"sts.amazonaws.com","sub":"repo:acme/infra:ref:refs/heads/main","repository_owner_id":"123456"}`)
@@ -71,6 +72,9 @@ func contractSamples(t *testing.T) [][]byte {
 			t.Fatal(err)
 		}
 		add(doc, nil)
+	}
+	for _, name := range answerCases(t) {
+		add(answerCase(t, name))
 	}
 	doc, _ := ringsCase(t, "01-branch-pin-and-owner-prefix")
 	out = append(out,

@@ -1,0 +1,6 @@
+cloudarq admits, who and how:
+  grant 1
+    who  aws:464622532012, declared as yours, which Datadog publishes as its own, can assume this role.
+         written arn:aws:iam::464622532012:root at line 7 Principal.AWS
+         listed aws:464622532012 · Datadog · AWS integration (role delegation) · https://raw.githubusercontent.com/DataDog/cloudformation-template/master/aws/datadog_integration_role.yaml · checked 2026-10-19
+    how  Statement 1, lines 4-15, names this account, on condition that sts:externalid is 3f1c9a7e2b8d4c6fa0e5d1b7c9f2a4e8.

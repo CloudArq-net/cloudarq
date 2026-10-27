@@ -147,7 +147,9 @@ export interface Way {
 
 /** One owner a population is pinned to. `scope` is owner, repository,
  *  enterprise, account, organisation, tenant or provider; `kind` is name or
- *  id. */
+ *  id. `listed` is written for an AWS account a vendor publishes as its
+ *  own, where the grant names it by an ARN in the partition the vendor
+ *  publishes it in, declared or not; it names the owner and moves no ring. */
 export interface Owner {
 	label: string;
 	declaration?: string;
@@ -158,6 +160,22 @@ export interface Owner {
 	declared: boolean;
 	recognised?: boolean;
 	recyclable: boolean;
+	listed?: Listed;
+}
+
+/** The vendor that publishes an AWS account as its own, and each page it
+ *  does so on, in the order of the engine's list. */
+export interface Listed {
+	vendor: string;
+	uses: ListedUse[];
+}
+
+/** One page that publishes an account: what the vendor uses the account
+ *  for, the page's address, and the date it was read, as YYYY-MM-DD. */
+export interface ListedUse {
+	use: string;
+	source: string;
+	checked: string;
 }
 
 /** One of whom a finding's way in lets in. `kind` is platform, everyone

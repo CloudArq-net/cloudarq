@@ -1,5 +1,53 @@
 # Changelog
 
+## v0.6.0
+
+The vendor that publishes an AWS account a role trusts, named beside the account; and a role
+whose one way in is one token subject, said in the headline as the policy writes it.
+
+- **The list.** `internal/vendors` holds 108 AWS accounts that vendors publish as their own, 100
+  in `aws`, 7 in `aws-us-gov` and 1 in `aws-cn`: for each, the vendor's own pages, or files in
+  repositories the vendor owns, that say so, what the vendor uses the account for on each, and
+  the date each was read. An account is found by its partition and its ID together; the same
+  twelve digits in another partition are another account, and the list does not name it.
+- **`listed`.** An owner that is an AWS account the list holds gains `listed`, where the grant's
+  principal is an ARN in that account's partition: its `vendor`, and its `uses`, each a `use`,
+  the `source` page and the date it was `checked`. It places nothing: the account stays an
+  outsider until it is declared, and one declared stays yours and still carries `listed`. A
+  principal written as the account's ID alone writes no partition, and names no vendor. An owner
+  the list does not hold writes no `listed`, and nothing in its answer changes for the list.
+- **In the text.** A sentence that names a listed account names its vendor after it, once
+  however many pages publish it: "aws:464622532012, which Datadog publishes as its own, can
+  assume this role and is not declared as yours.", and, declared, "aws:464622532012, declared as
+  yours, which Datadog publishes as its own, can assume this role." Of two owners named one by
+  one, the listed one is named first when no vendor publishes the other, so that the vendor is
+  said of it alone: "aws:464622532012, which Datadog publishes as its own, and aws:111122223333
+  can assume this role and are not declared as yours." Two vendors in one sentence are each named
+  after their own account. The headline, the questions and the fixes name no vendor.
+- **`--explain`** gives, under the principal as written, one line for each page that publishes
+  the account, as fields: the account, the vendor, the use, the page and the date it was read,
+  as in "listed aws:464622532012 · Datadog · AWS integration (role delegation) · <page> · checked
+  2026-10-19".
+- **One subject.** A role whose one way in is one web-identity grant, placed exactly and pinned
+  to one owner, whose `sub` is one value under `StringEquals`, or the subjects beginning with one
+  prefix under `StringLike`, a pattern whose one wildcard is a `*` at its end, opens on that
+  subject: "Only tokens whose subject is exactly repo:acme/api:ref:refs/heads/main can assume
+  this role." or "Only tokens whose subject begins repo:acme/api: can assume this role." The
+  subject is quoted as the policy writes it, marked `exact`, and nothing is read into it: the
+  owner is all the engine reads from `sub`, so the headline names no repository and no branch.
+  It is quoted only when it prints as written, every character of it one a policy may hold as
+  written, U+0020 to U+00FF, but for DEL, the C1 controls, the no-break space and the soft
+  hyphen: a subject holding a control, a direction mark or embedding, or any character past
+  U+00FF keeps the headline it had, and is not quoted escaped.
+  The ring's sentence and the question still say the owner is not declared. Beside anything else
+  that lets anyone in, in any ring, the headline is as it was, and so it is for two values, two
+  owners, any other wildcard, a `*` or a `?` that `StringEquals` compares as the character, and a
+  way in not placed exactly; a Deny, or a grant that admits no one, lets no one in and changes
+  nothing. With the owner declared, the answer opens on "Nothing outside your company can assume
+  this role." as before. Twelve answers of the corpus now open on their subject.
+- **Types.** `web/engine/answer.ts` types `listed`.
+- **The WebAssembly build** is 6,520 bytes larger, 394,209 bytes brotli.
+
 ## v0.5.1
 
 A GitHub subject under `StringEquals` holding a `*` or a `?`, such as `repo:octo-org@*/*` or

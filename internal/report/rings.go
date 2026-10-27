@@ -6,6 +6,7 @@ import (
 
 	"github.com/CloudArq-net/cloudarq/internal/parse/aws"
 	"github.com/CloudArq-net/cloudarq/internal/ring"
+	"github.com/CloudArq-net/cloudarq/internal/trust"
 )
 
 // rings sets what the answer says of the rings: the five rows, in order,
@@ -13,8 +14,9 @@ import (
 // that hold a grant; the grants in no ring; the owners declared; what was
 // not read that could narrow them; and the headline. The grants are listed
 // by number and never copied, so a row cannot say something of a grant
-// that the grant itself does not.
-func (a *Answer) rings(placed []placed, declared ring.Declarations) {
+// that the grant itself does not. grants are the ones placed, by number,
+// whose subject the headline may quote; nil quotes none.
+func (a *Answer) rings(placed []placed, grants []trust.Grant, declared ring.Declarations) {
 	// A document with no grant holds no statement, since the parser
 	// projects at least one grant from every statement, and IAM holds no
 	// such policy, so the paste is not the role's. Nothing was read to place
@@ -65,7 +67,7 @@ func (a *Answer) rings(placed []placed, declared ring.Declarations) {
 	for _, r := range lines {
 		a.Beside = append(a.Beside, r.answer())
 	}
-	a.Headline = sentence(headline(rows, lines))
+	a.Headline = sentence(headline(rows, lines, grants))
 	if len(refused) > 0 {
 		a.Refused = listing(refused, refusedWords(refused))
 	}
@@ -376,6 +378,7 @@ type named struct {
 	name       string
 	sure       bool
 	recognised bool
+	listed     *Listed
 }
 
 // owners are the owners the populations here are pinned to, each once, in
@@ -392,12 +395,18 @@ func (r row) owners() []named {
 				continue
 			}
 			name := ownerName(o)
+			listed := p.grant.listed(o)
 			if i := slices.IndexFunc(out, func(n named) bool { return n.name == name }); i >= 0 {
 				out[i].sure = out[i].sure || certain(p)
+				// One name written in two partitions is two accounts, and
+				// a vendor publishes at most one of them.
+				if !sameListed(out[i].listed, listed) {
+					out[i].listed = nil
+				}
 				continue
 			}
 			declared, recognised := p.grant.mine.marks(o, p.grant.facts)
-			out = append(out, named{Owner: o, name: name, sure: certain(p), recognised: recognised && !declared})
+			out = append(out, named{Owner: o, name: name, sure: certain(p), recognised: recognised && !declared, listed: listed})
 		}
 	}
 	return out

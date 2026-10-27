@@ -1,0 +1,30 @@
+read as an aws trust policy · version 2012-10-17 · 336 bytes · 17 lines · 1 statement
+sha256 3165dffc52f387e065a5e7cf6c2ffdd990d8c10bcaf774db34a76e9bac42fe48
+
+A named outsider can assume this role.
+
+  Anyone                exact           No grant is placed with people who have no account anywhere.
+  Anyone on a platform  exact           No grant is placed at a whole platform.
+  A named outsider      exact  grant 1  aws:464622532012 can assume this role and is not declared as yours.
+  Your pipelines        exact           No grant is confined to owners declared as yours.
+  Your people           exact           No grant trusts a SAML provider declared as yours.
+
+Each of these can narrow the rings and was not read: the organisation's resource control policies, the calling accounts' service control policies and this account's identity providers.
+
+grant 1 of 1 · statement[0] · Allow · aws:sts · outsider · exact
+This role admits any AWS principal whose aws:principalaccount is 464622532012 and whose sts:externalid is 3f1c9a7e2b8d4c6fa0e5d1b7c9f2a4e8.
+Who holds those identities now is not computed here: no network request is made.
+
+CLAIM                 ADMITS                              IN WORDS · AS WRITTEN
+aws:principalaccount  "464622532012"                      exactly this value · from Principal
+sts:externalid        "3f1c9a7e2b8d4c6fa0e5d1b7c9f2a4e8"  exactly this value · line 12 StringEquals
+any other claim       any                                 unconstrained · no condition names it
+
+a token this grant admits
+  {
+    "aws:principalaccount": "464622532012",
+    "sts:externalid": "3f1c9a7e2b8d4c6fa0e5d1b7c9f2a4e8"
+  }
+The decoded payload. A claim not shown is unconstrained by this grant.
+
+statement[0] · offset 50 · 279 bytes · lines 4-15 · issuer at line 6 Principal · sha256 35ab2912fe82a88e3e02117e0fa886d5e92376e4a42e3dcf78e52fb3a344e4ea

@@ -1,0 +1,5 @@
+cloudarq admits, who and how:
+  grant 1
+    who  github:acme, declared as yours, can assume this role.
+         written arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com at line 7 Principal.Federated
+    how  Statement 1, lines 4-18, names this provider, on condition that aud is sts.amazonaws.com and sub matches repo:acme/api:*.

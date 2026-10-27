@@ -526,6 +526,29 @@ func (e *encoder) grant(g *Grant) {
 	e.end(saved)
 }
 
+// listed writes the vendor that publishes an owner as its own account.
+func (e *encoder) listed(l *Listed) {
+	saved := e.begin()
+	e.str("vendor", l.Vendor)
+	e.key("uses")
+	if l.Uses == nil {
+		e.null()
+	} else {
+		e.b = append(e.b, '[')
+		for i := range l.Uses {
+			e.comma(i)
+			u := &l.Uses[i]
+			saved := e.begin()
+			e.str("use", u.Use)
+			e.str("source", u.Source)
+			e.str("checked", u.Checked)
+			e.end(saved)
+		}
+		e.b = append(e.b, ']')
+	}
+	e.end(saved)
+}
+
 func (e *encoder) population(p *Population) {
 	saved := e.begin()
 	e.num("term", p.Term)
@@ -552,6 +575,10 @@ func (e *encoder) population(p *Population) {
 				e.boolean("recognised", true)
 			}
 			e.boolean("recyclable", o.Recyclable)
+			if o.Listed != nil {
+				e.key("listed")
+				e.listed(o.Listed)
+			}
 			e.end(saved)
 		}
 		e.b = append(e.b, ']')

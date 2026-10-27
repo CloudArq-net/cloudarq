@@ -340,6 +340,7 @@ func (a Answer) ExplainWays(role string) []string {
 			for _, l := range p.Way.Principal {
 				lines = append(lines, "         written "+withoutControls(l.Text)+" at line "+strconv.Itoa(l.Line)+" "+withoutControls(l.Member))
 			}
+			lines = append(lines, listedLines(p.Owners)...)
 			if p.Way.How != nil {
 				lines = append(lines, "    how  "+plain(p.Way.How.Spans))
 			}

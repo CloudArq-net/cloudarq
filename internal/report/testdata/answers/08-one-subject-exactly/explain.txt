@@ -1,0 +1,7 @@
+cloudarq admits, who and how:
+  grant 1
+    who  github:acme can assume this role and is not declared as yours.
+         written arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com at line 7 Principal.Federated
+    how  Statement 1, lines 4-16, names this provider, on condition that aud is sts.amazonaws.com and sub is repo:acme/api:ref:refs/heads/main.
+    ask  github:acme · Is github:acme yours?
+    fix  No fix the engine can prove yet: github:acme is let in by a condition, not by a principal the statement names.

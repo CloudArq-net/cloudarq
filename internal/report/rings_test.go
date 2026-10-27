@@ -254,20 +254,22 @@ func TestEveryAnswerCarriesTheRings(t *testing.T) {
 
 // TestTheHeadlineNeverOmitsALine holds the headline to the populations
 // nobody read, over every answer: a line beside the rings that holds a
-// grant is named in the headline, "only" is never said, and the sentence
-// for an empty set of rings is said exactly when no ring outside the
-// user is reached, no line holds a grant, no row reached is unknown and
-// the document holds a statement to have read.
+// grant is named in the headline, "only" is said of nothing but a role
+// whose one way in is one subject, which the headline quotes, and the
+// sentence for an empty set of rings is said exactly when no ring outside
+// the user is reached, no line holds a grant, no row reached is unknown
+// and the document holds a statement to have read.
 func TestTheHeadlineNeverOmitsALine(t *testing.T) {
 	docs := corpus(t)
 	for _, name := range ringsCases(t) {
 		docs[name], _ = ringsCase(t, name)
 	}
 	const empty = "Nothing outside your company can assume this role."
-	saidEmpty, saidLines := 0, 0
+	saidEmpty, saidLines, saidOnly := 0, 0, 0
 	for name, doc := range docs {
 		for _, owners := range [][]byte{nil, []byte("saml:arn:aws:iam::123456789012:saml-provider/VendorSSO\ngithub:acme\n")} {
-			a := ringsOf(t, AdmitsFor(doc, owners))
+			answer := AdmitsFor(doc, owners)
+			a := ringsOf(t, answer)
 			if a.Error != "" {
 				continue
 			}
@@ -276,7 +278,10 @@ func TestTheHeadlineNeverOmitsALine(t *testing.T) {
 				t.Errorf("%s: the headline is %d words: %q", name, len(strings.Fields(h)), h)
 			}
 			if strings.Contains(" "+strings.ToLower(h)+" ", " only ") {
-				t.Errorf("%s: the headline says only: %q", name, h)
+				if subject, _, _ := whyNotOnly(answerOf(t, answer)); h != subject {
+					t.Errorf("%s: the headline says only: %q", name, h)
+				}
+				saidOnly++
 			}
 			// a line is named by its class beside a ring, and by its own
 			// population when it is the headline's whole subject
@@ -299,8 +304,8 @@ func TestTheHeadlineNeverOmitsALine(t *testing.T) {
 			}
 		}
 	}
-	if saidEmpty == 0 || saidLines == 0 {
-		t.Fatalf("the empty-rings sentence was said %d times and lines named %d times; the rule went unexamined", saidEmpty, saidLines)
+	if saidEmpty == 0 || saidLines == 0 || saidOnly == 0 {
+		t.Fatalf("the empty-rings sentence was said %d times, lines named %d times and a subject quoted %d times; the rule went unexamined", saidEmpty, saidLines, saidOnly)
 	}
 }
 
@@ -424,7 +429,7 @@ func TestAServiceLineLeavesAnyoneUnknown(t *testing.T) {
 	}
 	for _, c := range cases {
 		var a Answer
-		a.rings(c.grants, ring.Declarations{})
+		a.rings(c.grants, nil, ring.Declarations{})
 		if anyone := a.Rings[ring.Anyone]; anyone.Place != "anyone" || anyone.State != c.anyone {
 			t.Errorf("%s: the ring of anyone is %s %s, want %s", c.name, anyone.Place, anyone.State, c.anyone)
 		}
@@ -540,7 +545,9 @@ func TestWhatEachRingSays(t *testing.T) {
 			{"outsider", "A named outsider", "exact", "issuer:https://oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE can assume this role and is not declared as yours."},
 			{"anyone", "Anyone", "exact", "No grant is placed with people who have no account anywhere."},
 		}},
-		{"27-deny-for-anyone", "A named outsider can assume this role.", nil},
+		// the Deny refuses every subject the Allow does not admit, and lets
+		// no one in, so the subject is still the one way in
+		{"27-deny-for-anyone", "Only tokens whose subject begins repo:acme/ can assume this role.", nil},
 		{"28-no-assume-action", "Nothing outside your company can assume this role.", nil},
 		{"29-unsurveyed-issuer", "Anyone could assume this role.", []row{
 			{"anyone", "Anyone", "unknown", "Anyone could assume this role: whether ci.example.com requires an account was not surveyed."},
@@ -555,7 +562,7 @@ func TestWhatEachRingSays(t *testing.T) {
 		{"36-entra-tenants", "Anyone on login.microsoftonline.com can assume this role.", []row{
 			{"platform", "Anyone on login.microsoftonline.com", "exact", "Anyone on login.microsoftonline.com can assume this role."},
 		}},
-		{"38-repository-id-subject", "A named outsider can assume this role.", []row{
+		{"38-repository-id-subject", "Only tokens whose subject begins repository_id:456789: can assume this role.", []row{
 			{"outsider", "A named outsider", "exact", "Repository 456789 can assume this role and cannot be declared."},
 		}},
 		{"41-union-of-owners", "A named outsider can assume this role.", []row{

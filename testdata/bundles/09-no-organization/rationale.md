@@ -9,11 +9,12 @@ AWS Organization. Two roles, neither on AWS's path and neither trusting the scan
 - `deploy` at `/`, trusting GitHub's tokens for `repo:acme/infra:ref:refs/heads/main`.
 
 **Expected.** Exactly what each trust policy answers alone, and nothing said beside it: both
-`managed` are `null`. Both read *"A named outsider can assume this role."*, since nothing is
-declared: `OrganizationAccountAccessRole`'s answer asks *"Is aws:111122223333 yours?"*, and
-`deploy`'s, which admits one repository's main branch, asks *"Is github:acme yours?"*. The findings
-say the Organization was not read, `"organization": {"status": "not-read"}`, and ask nothing of
-it: `suggested` and every `would_move` are empty.
+`managed` are `null`. Nothing is declared: `OrganizationAccountAccessRole` reads *"A named
+outsider can assume this role."* and asks *"Is aws:111122223333 yours?"*, and `deploy`, which
+admits one repository's main branch, reads *"Only tokens whose subject is exactly
+repo:acme/infra:ref:refs/heads/main can assume this role."* and asks *"Is github:acme yours?"*.
+The findings say the Organization was not read, `"organization": {"status": "not-read"}`, and ask
+nothing of it: `suggested` and every `would_move` are empty.
 
 The account the scan read, `123456789012`, is recognised as yours in every bundle, this one too:
 the findings' `recognised` names it, and each answer's echo carries it under `recognitions`. No

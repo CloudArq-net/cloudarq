@@ -218,12 +218,13 @@ type corpusDocument struct {
 	path string
 	raw  []byte
 	// owners is the declaration the case keeps beside its document, for a
-	// case of testdata/rings that has one.
+	// case of testdata/rings or testdata/answers that has one.
 	owners string
 }
 
-// everyCorpusDocument is every distinct JSON file under testdata, by
-// content: the same bytes under two paths are one document.
+// everyCorpusDocument is every distinct JSON file under testdata, and the
+// policy of each case of testdata/answers, by content: the same bytes
+// under two paths are one document.
 func everyCorpusDocument(t *testing.T) []corpusDocument {
 	t.Helper()
 	var docs []corpusDocument
@@ -248,6 +249,13 @@ func everyCorpusDocument(t *testing.T) []corpusDocument {
 	})
 	if err != nil {
 		t.Fatal(err)
+	}
+	for _, name := range answerCases(t) {
+		raw, owners := answerCase(t, name)
+		if sum := sha256.Sum256(raw); !seen[sum] {
+			seen[sum] = true
+			docs = append(docs, corpusDocument{path: filepath.Join(answersDir, name, "aws.json"), raw: raw, owners: string(owners)})
+		}
 	}
 	return docs
 }
@@ -975,7 +983,7 @@ func admitsMeeting(t fataler, policy, owners []byte, met map[int][]eval.Admitted
 		a.Grants = append(a.Grants, grant)
 	}
 	a.fixes(r, &placing{read: r, declared: declared, placed: placed})
-	a.rings(placed, declared)
+	a.rings(placed, r.grants, declared)
 	e := &encoder{}
 	e.answer(a)
 	return e.b

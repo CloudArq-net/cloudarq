@@ -20,7 +20,8 @@ import (
 
 const testdata = "../../testdata"
 
-// corpus is every AWS document under testdata, by path.
+// corpus is every AWS document under testdata, and the policy of each case
+// of testdata/answers, by path.
 func corpus(t *testing.T) map[string][]byte {
 	t.Helper()
 	docs := map[string][]byte{}
@@ -36,6 +37,10 @@ func corpus(t *testing.T) map[string][]byte {
 			}
 			docs[p] = raw
 		}
+	}
+	for _, name := range answerCases(t) {
+		doc, _ := answerCase(t, name)
+		docs[filepath.Join(answersDir, name, "aws.json")] = doc
 	}
 	if len(docs) < 20 {
 		t.Fatalf("%d documents in the corpus; the tests would examine too little", len(docs))

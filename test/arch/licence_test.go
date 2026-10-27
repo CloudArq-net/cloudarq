@@ -76,7 +76,9 @@ const (
 // mention the Apache License, by file, each with whitespace collapsed to
 // one space: the future licence FSL-1.1-ALv2 grants, the licence the
 // releases before v0.4.0 shipped under, the licence contributions are
-// accepted under, which is not the engine's, and what this check holds.
+// accepted under, which is not the engine's, the licence of the list the
+// vendors' accounts were first gathered from as candidates, and what this
+// check holds.
 // This file, which states the rules and their fixtures, is the one file
 // of the engine's own the check does not read (licenceRules).
 var reviewed = map[string][]string{
@@ -95,6 +97,9 @@ var reviewed = map[string][]string{
 	},
 	"CONTRIBUTING.md": {
 		"Contributions are accepted under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0): by opening a pull request, you agree that your contribution is licensed under it, as that licence's \"Submission of Contributions\" clause says, and that it is published as part of CloudArq under the licence in [LICENSE](LICENSE).",
+	},
+	"NOTICE": {
+		"The AWS accounts in internal/vendors/aws-accounts.json were first gathered as candidates from known_aws_accounts, https://github.com/fwdcloudsec/known_aws_accounts (Apache-2.0).",
 	},
 }
 

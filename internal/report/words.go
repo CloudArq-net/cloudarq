@@ -502,8 +502,10 @@ func withoutControls(text string) string {
 // "can" assume the role, one whose place rests on a fact or a constraint
 // nobody read "could", each said of its own population and never lent from
 // another's, and no sentence says "only", which would read as reassurance
-// about a population nobody read. No row sentence counts or numbers grants:
-// a grant is the engine's unit, and a reader of the rings needs none.
+// about a population nobody read, but the headline of a role whose one way
+// in is one subject the policy writes, which says it of that subject alone.
+// No row sentence counts or numbers grants: a grant is the engine's unit,
+// and a reader of the rings needs none.
 
 // platformName is how a sentence names the platform an issuer's grants are
 // on, which is where its accounts are, not the product that mints its
@@ -764,24 +766,27 @@ func oneOrCount(platforms []string, what string) string {
 // named, declared or not, since a pin naming a declared owner beside an
 // outsider admits both; each is said to be let in for certain or not; and
 // the sentence says which cannot be declared, a repository or an
-// enterprise, which no answer to that question could move.
+// enterprise, which no answer to that question could move. An owner named
+// one by one that a vendor publishes as its own AWS account is followed by
+// the vendor, and named first beside one no vendor publishes.
 func outsiderWords(r row) []Span {
 	owners := r.owners()
 	sure, unsure := bySureness(owners)
 	mark := populationMark(r)
 	switch {
 	case len(sure) > 0 && len(unsure) > 0 && len(owners) == 2:
-		return spans(ownerSpan(sure[0], mark, true), " can assume this role, and ", ownerSpan(unsure[0], "unknown", false), " could", outsiderStatus(owners, false), ".")
+		return spans(ownerSpan(sure[0], mark, true), listedAside(sure[0])+" can assume this role, and ", ownerSpan(unsure[0], "unknown", false), listedAside(unsure[0])+" could", outsiderStatus(owners, false), ".")
 	case len(sure) > 0 && len(unsure) > 0:
-		return spans(ownersSpan(sure, mark), " can assume this role, ", Span{Text: strconv.Itoa(len(unsure)) + " more", Mark: "unknown"}, " could", outsiderStatus(owners, false), ".")
+		return spans(ownersSpan(sure, mark), namedAside(sure)+" can assume this role, ", Span{Text: strconv.Itoa(len(unsure)) + " more", Mark: "unknown"}, " could", outsiderStatus(owners, false), ".")
 	case len(owners) > 2:
 		return spans(ownersSpan(owners, mark), " "+verbOf(len(sure) > 0)+" assume this role", outsiderStatus(owners, false), ".")
 	}
-	s := []Span{ownerSpan(owners[0], mark, true)}
-	if len(owners) == 2 {
-		s = append(s, Span{Text: " and "}, ownerSpan(owners[1], mark, false))
+	said := listedFirst(owners)
+	s := []Span{ownerSpan(said[0], mark, true)}
+	if len(said) == 2 {
+		s = append(s, Span{Text: listedAside(said[0]) + " and "}, ownerSpan(said[1], mark, false))
 	}
-	return append(s, spans(" "+verbOf(len(sure) > 0)+" assume this role", outsiderStatus(owners, true), ".")...)
+	return append(s, spans(listedAside(said[len(said)-1])+" "+verbOf(len(sure) > 0)+" assume this role", outsiderStatus(owners, true), ".")...)
 }
 
 // bySureness splits owners into those a grant lets in for certain, which
@@ -871,7 +876,11 @@ const recognisedWords = "recognised: the account this scan read"
 
 // yoursWords names the owners declared as the user's, or recognised as
 // theirs, that the grants here are pinned to, each let in for certain or
-// not, and says of each which it is.
+// not, and says of each which it is. An owner named one by one that a
+// vendor publishes as its own AWS account is followed by what makes it the
+// user's and then by the vendor. Of two owners, one a vendor publishes is
+// named first, and said to be the user's on its own, as a declared owner
+// beside a recognised one is, so that the vendor is said of it alone.
 func yoursWords(r row) []Span {
 	owners := r.owners()
 	sure, unsure := bySureness(owners)
@@ -880,24 +889,25 @@ func yoursWords(r row) []Span {
 	if len(sure) > 0 && len(unsure) > 0 {
 		lead = sure
 	}
+	lead = listedFirst(lead)
 	var s []Span
 	switch {
 	case len(lead) > 2 && slices.ContainsFunc(lead, func(o named) bool { return o.recognised }):
 		s = spans(Span{Text: strconv.Itoa(len(lead)) + " owners declared or recognised as yours", Mark: mark}, " "+verb+" assume this role")
 	case len(lead) > 2:
 		s = spans(Span{Text: strconv.Itoa(len(lead)) + " owners declared as yours", Mark: mark}, " "+verb+" assume this role")
-	case len(lead) == 2 && lead[0].recognised != lead[1].recognised:
-		s = []Span{ownerSpan(lead[0], mark, true), {Text: ", " + yoursBy(lead[0]) + ", and "}, ownerSpan(lead[1], mark, false), {Text: ", " + yoursBy(lead[1]) + ", " + verb + " assume this role"}}
+	case len(lead) == 2 && (lead[0].recognised != lead[1].recognised || lead[0].listed != nil):
+		s = []Span{ownerSpan(lead[0], mark, true), {Text: ", " + yoursBy(lead[0]) + listedWords(lead[0]) + ", and "}, ownerSpan(lead[1], mark, false), {Text: ", " + yoursBy(lead[1]) + listedWords(lead[1]) + ", " + verb + " assume this role"}}
 	default:
 		s = []Span{ownerSpan(lead[0], mark, true)}
 		if len(lead) == 2 {
 			s = append(s, Span{Text: " and "}, ownerSpan(lead[1], mark, false))
 		}
-		s = append(s, Span{Text: ", " + yoursBy(lead[0]) + ", " + verb + " assume this role"})
+		s = append(s, Span{Text: ", " + yoursBy(lead[0]) + listedWords(lead[0]) + ", " + verb + " assume this role"})
 	}
 	switch {
 	case len(sure) > 0 && len(unsure) > 0 && len(owners) == 2:
-		s = append(s, Span{Text: ", and "}, ownerSpan(unsure[0], "unknown", false), Span{Text: " could"})
+		s = append(s, Span{Text: ", and "}, ownerSpan(unsure[0], "unknown", false), Span{Text: listedAside(unsure[0]) + " could"})
 	case len(sure) > 0 && len(unsure) > 0:
 		s = append(s, Span{Text: ", "}, Span{Text: strconv.Itoa(len(unsure)) + " more", Mark: "unknown"}, Span{Text: " could"})
 	}
@@ -1076,15 +1086,19 @@ func providerName(arn string) string {
 
 // headline is the sentence the answer opens on. With a ring outside the
 // user reached, it is the outermost one, and every line beside the
-// rings that holds a grant, never omitted. With none, the lines alone. With
+// rings that holds a grant, never omitted, unless the role's one way in is
+// one subject, which it quotes. With none, the lines alone. With
 // neither, a ring inside whose place is not established, which must be
 // named rather than let the sentence for an empty set of rings stand beside
 // it. Only when nothing outside the user is reached, no line holds a
 // grant and no Unknown remains is that sentence said.
-func headline(rows, lines []row) []Span {
+func headline(rows, lines []row, grants []trust.Grant) []Span {
 	saml, service := lineOf(lines, ring.SAML), lineOf(lines, ring.Service)
 	for _, r := range rows[:ring.Yours] {
 		if len(r.grants) > 0 {
+			if only := subjectHeadline(rows, lines, grants); only != nil {
+				return only
+			}
 			return append(append(headlineSubject(r), Span{Text: " " + can(r) + " assume this role"}), clause(saml, service)...)
 		}
 	}
@@ -1101,6 +1115,93 @@ func headline(rows, lines []row) []Span {
 		return spans(Span{Text: label(r), Mark: populationMark(r)}, " "+can(r)+" assume this role.")
 	}
 	return spans(Span{Text: "Nothing outside your company", Mark: "exact"}, " can assume this role.")
+}
+
+// subjectHeadline is the headline of a role whose one way in is one
+// subject: one web-identity grant, let in for certain and pinned to one
+// owner, whose sub is one value or the subjects beginning with one prefix,
+// a pattern whose one wildcard is a * at its end. "A named outsider" reads
+// the same of it as of a trust in every repository the owner has, so it
+// says how exact the subject is: "Only tokens whose subject is exactly
+// repo:acme/api:ref:refs/heads/main can assume this role." It quotes the
+// subject and reads nothing into it, since the owner is all the engine
+// reads from sub; the ring's sentence still says whether the owner is
+// declared. It quotes only a subject that prints as written. "Only" holds
+// only while nothing else lets anyone in, in a ring or beside them; a Deny
+// and a grant of nobody are in neither, and let no one in. The subject is
+// read from grants, the grant of the placement's number. Nil for every
+// other role, whose headline is the ring's.
+func subjectHeadline(rows, lines []row, grants []trust.Grant) []Span {
+	if len(lines) > 0 {
+		return nil
+	}
+	reached := -1
+	for i := range rows {
+		if len(rows[i].grants) == 0 {
+			continue
+		}
+		if reached >= 0 || len(rows[i].grants) != 1 {
+			return nil
+		}
+		reached = i
+	}
+	if reached < 0 {
+		return nil
+	}
+	g := rows[reached].grants[0]
+	if !webIdentity(g.issuer) || len(g.placement.Populations) != 1 || g.number < 1 || g.number > len(grants) || grants[g.number-1].Issuer != g.issuer {
+		return nil
+	}
+	pop := g.placement.Populations[0]
+	if pop.State != ring.StateExact || pop.Basis != ring.Pinned || len(pop.Owners) != 1 {
+		return nil
+	}
+	terms := grants[g.number-1].Admits.Terms()
+	if pop.Term < 0 || pop.Term >= len(terms) {
+		return nil
+	}
+	set, named := terms[pop.Term]["sub"]
+	if !named {
+		return nil
+	}
+	c, err := constraintOf(set)
+	if err != nil {
+		return nil
+	}
+	// A * or a ? in a value StringEquals compares is the character, and
+	// the grant is placed as a bound; a pattern with any wildcard but one *
+	// at its end is not one prefix.
+	prefix, endsInStar := strings.CutSuffix(c.Value, "*")
+	switch {
+	case c.Kind == kindExact && !strings.ContainsAny(c.Value, "*?") && printsAsWritten(c.Value):
+		return spans("Only tokens whose subject is exactly ", Span{Text: c.Value, Mark: "exact"}, " can assume this role.")
+	case c.Kind == kindLike && endsInStar && !strings.ContainsAny(prefix, "*?") && printsAsWritten(prefix):
+		return spans("Only tokens whose subject begins ", Span{Text: prefix, Mark: "exact"}, " can assume this role.")
+	}
+	return nil
+}
+
+// printsAsWritten is whether every character of a subject the headline
+// would quote shows as itself: each is one a policy document may hold as
+// written, U+0020 to U+00FF, but for DEL, the C1 controls, the no-break
+// space U+00A0, which cannot be told from U+0020, and the soft hyphen
+// U+00AD. A control is removed from the line the answer is printed on,
+// which would join what the policy writes on either side of it into a
+// subject it does not hold. A character past U+00FF is written in a policy
+// as an escape; the direction marks and embeddings among them reorder what
+// is shown, and which of the rest print is read from Unicode tables that
+// move between the toolchains that build the command and the WebAssembly
+// engine, so none is quoted. Within U+0000 to U+00FF this is
+// unicode.IsPrint, read by hand. The ring's headline is said of any other
+// subject, which the headline does not quote escaped either: the claim
+// table gives it so.
+func printsAsWritten(subject string) bool {
+	for _, r := range subject {
+		if r < ' ' || (0x7f <= r && r <= 0xa0) || r == 0xad || r > 0xff {
+			return false
+		}
+	}
+	return true
 }
 
 // headlineSubject names a reached ring's population in the headline, as

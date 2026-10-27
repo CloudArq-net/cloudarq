@@ -16,7 +16,11 @@
 // life of the instance instead of ending with main.
 package main
 
-import "github.com/CloudArq-net/cloudarq/internal/report"
+import (
+	"runtime"
+
+	"github.com/CloudArq-net/cloudarq/internal/report"
+)
 
 // inbox holds the caller's bytes, one input after another: the policy and
 // the token; the bundle and the owners; or an answer, the owners and the
@@ -31,6 +35,9 @@ var (
 	outbox []byte
 )
 
+// heap is what reserve reads of the heap before it takes in an input.
+var heap runtime.MemStats
+
 // version is the engine's version the findings name, and the one an answer
 // given to remark must have been written by, set by the linker
 // (web/engine/build.sh).
@@ -38,8 +45,22 @@ var version = "0.0.0-dev"
 
 // reserve makes room for n bytes of input and returns where to write them.
 //
+// It collects first when less than half the heap is free. Between two calls
+// nothing of the last is reachable but its answer, so a collection here
+// frees every block that call used. One the allocator runs in the middle of
+// a call finds the call's own objects spread across the heap, and when no
+// free run is left long enough for the copy of the document the reader
+// makes, the heap doubles though most of it is free: on the 50-statement
+// policy, 200 calls ended at 20 MB on 8 of 100 fresh instances without this
+// collection, and at 10 MB or less on 100 of 100 with it.
+//
 //go:wasmexport reserve
 func reserve(n int32) *byte {
+	inbox = nil
+	runtime.ReadMemStats(&heap)
+	if heap.HeapIdle < heap.HeapSys/2 {
+		runtime.GC()
+	}
 	inbox = make([]byte, n)
 	if n == 0 {
 		return nil

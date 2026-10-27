@@ -554,7 +554,7 @@ func (p *placing) moves(asked []Suggestion) []Move {
 			continue
 		}
 		var a Answer
-		a.rings(placed, yes)
+		a.rings(placed, p.read.grants, yes)
 		spans := stripped(wouldReadWords(s.Declaration, a.Headline.Spans))
 		out = append(out, Move{Declaration: s.Declaration, Question: s.Question, Sentence: plain(spans), Spans: spans})
 	}

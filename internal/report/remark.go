@@ -174,7 +174,7 @@ func remark(a Answer, declared ring.Declarations, recognised []ring.Declaration)
 	for i, grant := range grants {
 		g := &a.Grants[i]
 		facts, platform := factsOf(grant.Issuer, g.Populations)
-		placements[i] = placed{number: g.Number, issuer: grant.Issuer, facts: facts, platform: platform, placement: ring.Classify(grant, facts, mine.all()), mine: mine}
+		placements[i] = placed{number: g.Number, issuer: grant.Issuer, facts: facts, platform: platform, placement: ring.Classify(grant, facts, mine.all()), mine: mine, principal: keptPrincipal(g.Populations)}
 		kept := g.Populations
 		g.Placement, g.PlacementState, g.Populations = placements[i].stated(grant, refusals)
 		if !onlyOwnersMoved(kept, g.Populations) || !placements[i].wayAgain(g.Populations, kept) || !keysAgain(g.Populations, kept) {
@@ -184,14 +184,14 @@ func remark(a Answer, declared ring.Declarations, recognised []ring.Declaration)
 	}
 	for i := range a.Grants {
 		for j := range placements[i].placement.Populations {
-			if !fixAgain(a.Grants[i].Populations[j].Way, placements, declared) {
+			if !fixAgain(a.Grants[i].Populations[j].Way, placements, grants, declared) {
 				return Answer{}, false
 			}
 		}
 	}
 	a.locate(where)
 	a.Headline, a.Rings, a.Beside, a.Refused, a.Nobody, a.Declarations, a.Bounds = nil, nil, nil, nil, nil, nil, nil
-	a.rings(placements, declared)
+	a.rings(placements, grants, declared)
 	return a, true
 }
 
@@ -270,7 +270,7 @@ func (p placed) wayAgain(placed, kept []Population) bool {
 // policy alone and is kept, whatever the owners were (fixes). ok is false
 // for a population that kept no fix, or kept a proven one without its
 // edit, neither of which this build writes.
-func fixAgain(w *Way, placements []placed, declared ring.Declarations) bool {
+func fixAgain(w *Way, placements []placed, grants []trust.Grant, declared ring.Declarations) bool {
 	switch {
 	case w.Fix == nil:
 		return false
@@ -293,7 +293,7 @@ func fixAgain(w *Way, placements []placed, declared ring.Declarations) bool {
 		}
 	}
 	var after Answer
-	after.rings(left, declared)
+	after.rings(left, grants, declared)
 	fix.After = after.Headline
 	w.Fix = &fix
 	return true
@@ -490,8 +490,9 @@ func onlyOwnersMoved(kept, placed []Population) bool {
 	return slices.EqualFunc(kept, placed, func(k, p Population) bool {
 		return k.Term == p.Term && k.State == p.State && k.Basis == p.Basis &&
 			slices.EqualFunc(k.Owners, p.Owners, func(a, b Owner) bool {
-				a.Declared, b.Declared = false, false
-				return a == b
+				same := sameListed(a.Listed, b.Listed)
+				a.Declared, b.Declared, a.Listed, b.Listed = false, false, nil, nil
+				return a == b && same
 			})
 	})
 }

@@ -1,0 +1,11 @@
+cloudarq admits, who and how:
+  grant 1
+    who  aws:464622532012, which Datadog publishes as its own, can assume this role and is not declared as yours.
+         written arn:aws:iam::464622532012:root at line 7 Principal.AWS
+         listed aws:464622532012 · Datadog · AWS integration (role delegation) · https://raw.githubusercontent.com/DataDog/cloudformation-template/master/aws/datadog_integration_role.yaml · checked 2026-10-19
+    how  Statement 1, lines 4-10, names this account, with no condition.
+    ask  aws:464622532012 · Is aws:464622532012 yours?
+    fix  Replace the whole trust policy with one that lets no one in: statement 1, lines 4-10, is its only statement, the only principal it names is "arn:aws:iam::464622532012:root", and IAM refuses a trust policy with no statement. This stops aws:464622532012 from getting in. If you still work with them, don't apply it. Anyone already in keeps their access until their session ends, which can take hours. The role's "Revoke active sessions" ends those sessions now. Deleting the role instead also removes what its permissions allow.
+         Grant 1 is taken out, and no grant left lets anyone in.
+         after it: Nothing outside your company can assume this role.
+         sha256 of the policy after it: 7fdb6ace1f4ecda9c7bb878ab6bbc2cd620f6eb7d7093b0016c18d1930d24052

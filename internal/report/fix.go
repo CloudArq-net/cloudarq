@@ -276,7 +276,7 @@ func (r reading) check(i int, targets []ring.Owner, p *placing, edited []byte, r
 		}
 	}
 	var after Answer
-	after.rings(placedAgain, p.declared)
+	after.rings(placedAgain, again.grants, p.declared)
 	edit := r.made(i, removed, edited, gone)
 	instruction := sentence(editWords(*edit, string(r.raw[w.Start:w.End])))
 	return &Fix{
@@ -321,7 +321,7 @@ func (r reading) checkReplaced(i int, targets []ring.Owner, p *placing, replacem
 		return unproven(checkGrants, replacedGrantWords())
 	}
 	var after Answer
-	after.rings(placedAgain, p.declared)
+	after.rings(placedAgain, again.grants, p.declared)
 	edit := r.made(i, removedPolicy, replacement, gone)
 	instruction := sentence(replacedWords(*edit, string(r.raw[w.Start:w.End]), targets))
 	return &Fix{

@@ -1,0 +1,12 @@
+cloudarq admits, who and how:
+  grant 1
+    who  aws:595280932656, which Segment (Twilio) publishes as its own, can assume this role and is not declared as yours.
+         written arn:aws:iam::595280932656:root at line 7 Principal.AWS
+         listed aws:595280932656 · Segment (Twilio) · AWS S3 with IAM Role Support storage destination · https://www.twilio.com/docs/segment/connections/storage/catalog/aws-s3 · checked 2026-10-19
+         listed aws:595280932656 · Segment (Twilio) · Amazon Kinesis destination · https://www.twilio.com/docs/segment/connections/destinations/catalog/amazon-kinesis · checked 2026-10-19
+    how  Statement 1, lines 4-15, names this account, on condition that sts:externalid is 3f1c9a7e2b8d4c6fa0e5d1b7c9f2a4e8.
+    ask  aws:595280932656 · Is aws:595280932656 yours?
+    fix  Replace the whole trust policy with one that lets no one in: statement 1, lines 4-15, is its only statement, the only principal it names is "arn:aws:iam::595280932656:root", and IAM refuses a trust policy with no statement. This stops aws:595280932656 from getting in. If you still work with them, don't apply it. Anyone already in keeps their access until their session ends, which can take hours. The role's "Revoke active sessions" ends those sessions now. Deleting the role instead also removes what its permissions allow.
+         Grant 1 is taken out, and no grant left lets anyone in.
+         after it: Nothing outside your company can assume this role.
+         sha256 of the policy after it: 7fdb6ace1f4ecda9c7bb878ab6bbc2cd620f6eb7d7093b0016c18d1930d24052

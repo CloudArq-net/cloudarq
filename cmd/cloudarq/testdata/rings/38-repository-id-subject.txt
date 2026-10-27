@@ -1,7 +1,7 @@
 read as an aws trust policy · version 2012-10-17 · 549 bytes · 21 lines · 1 statement
 sha256 6ed97f05a32d915cf4a70b3ba29070a43f49562f3fb0e12fb8be4bc1206e589e
 
-A named outsider can assume this role.
+Only tokens whose subject begins repository_id:456789: can assume this role.
 
   Anyone                exact           No grant is placed with people who have no account anywhere.
   Anyone on a platform  exact           No grant is placed at a whole platform.

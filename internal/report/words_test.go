@@ -309,7 +309,7 @@ func TestTheWordBudgets(t *testing.T) {
 	}
 	headlines := 0
 	check := func(rings, lines []row) string {
-		h := plain(headline(rings, lines))
+		h := plain(headline(rings, lines, nil))
 		budget := headlineBudget
 		if h == "Nothing outside your company can assume this role." {
 			budget = emptyRingsBudget
@@ -489,7 +489,7 @@ func TestTheHeadlineCountsWhatTheLabelCounts(t *testing.T) {
 		}
 		rings := empty()
 		rings[ring.Platform] = r
-		h := headline(rings, nil)
+		h := headline(rings, nil, nil)
 		sure := map[string]bool{}
 		all := map[string]bool{}
 		for _, p := range r.populations() {
@@ -538,7 +538,7 @@ func TestALineIsNamedOnceForHeadlineAndRow(t *testing.T) {
 		if r.place.Ring() {
 			continue
 		}
-		h, own := headline(empty, []row{r}), rowWords(r)
+		h, own := headline(empty, []row{r}, nil), rowWords(r)
 		if h[0].Text != own[0].Text || h[0].Mark != own[0].Mark {
 			t.Errorf("%s: the headline names %+v, the row %+v", r.place, h[0], own[0])
 		}

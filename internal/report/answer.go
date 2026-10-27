@@ -384,6 +384,11 @@ type Owner struct {
 	// what they said from what the scan did.
 	Recognised bool `json:"recognised,omitempty"`
 	Recyclable bool `json:"recyclable"`
+	// Listed is the vendor that publishes the owner as its own AWS
+	// account, where the grant names it by an ARN in the partition the
+	// vendor publishes it in; nil for every other owner. It names the owner
+	// and moves no ring.
+	Listed *Listed `json:"listed,omitempty"`
 }
 
 // Claim is one row of a term: the claim, what the engine holds for it, the
@@ -500,7 +505,7 @@ func answerPlaced(policy, owners []byte, recognised []ring.Declaration) (Answer,
 		a.Grants = append(a.Grants, grant)
 	}
 	a.fixes(r, p)
-	a.rings(p.placed, declared)
+	a.rings(p.placed, r.grants, declared)
 	return a, p
 }
 
@@ -527,6 +532,7 @@ func (r reading) place(declared []ring.Declaration, recognised ...ring.Declarati
 		p.facts.Issuerless = s.IssuerlessPopulation()
 		p.facts.PrincipalModelled = s.ModelsPrincipalOf(g)
 		p.number, p.placement = i+1, ring.Classify(g, p.facts, everyOwner)
+		p.principal = principalOf(r.lay.statements[r.statements[i]].principalLeaves(r.written[i]))
 		out[i] = p
 	}
 	return out
@@ -542,6 +548,7 @@ type placed struct {
 	platform  string
 	placement ring.Placement
 	mine      ownership
+	principal string // as the statement writes it, which names a listed account's partition
 }
 
 // ownership is the owners a grant is placed with as the reader's: those
@@ -581,6 +588,7 @@ func (p placed) stated(g trust.Grant, refusals []trust.Grant) ([]string, string,
 	for i, pop := range p.placement.Populations {
 		for j, o := range pop.Owners {
 			populations[i].Owners[j].Declared, populations[i].Owners[j].Recognised = p.mine.marks(o, p.facts)
+			populations[i].Owners[j].Listed = p.listed(o)
 		}
 		populations[i].Finding = findingOf(wayIn{grant: g, pop: pop, owners: populations[i].Owners, refusals: refusals})
 	}

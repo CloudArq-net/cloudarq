@@ -1,0 +1,1351 @@
+[
+	{
+		"vendor": "Airbyte",
+		"account": "094410056844",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Airbyte Cloud IAM role access (S3 Data Lake destination with Glue catalog)",
+				"url": "https://docs.airbyte.com/integrations/destinations/s3-data-lake",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Alert Logic",
+		"account": "239734009475",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "IAM role for CloudTrail and S3 log collection",
+				"url": "https://docs.alertlogic.com/prepare/iam-role-creation.htm",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Alert Logic",
+		"account": "733251395267",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "IAM role for all other scenarios (US data center)",
+				"url": "https://docs.alertlogic.com/prepare/iam-role-creation.htm",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Alert Logic",
+		"account": "857795874556",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "IAM role for all other scenarios (EU data center)",
+				"url": "https://docs.alertlogic.com/prepare/iam-role-creation.htm",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Anyscale",
+		"account": "525325868955",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Anyscale cloud control plane access role (Production)",
+				"url": "https://github.com/anyscale/terraform-aws-anyscale-cloudfoundation-modules/blob/main/modules/aws-anyscale-iam/variables.tf",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Aqua Security (CloudSploit)",
+		"account": "057012691312",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "CSPM cross-account role",
+				"url": "https://raw.githubusercontent.com/aquasecurity/cloudsploit/master/docs/notes.md",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Archera",
+		"account": "202754554539",
+		"partition": "aws-us-gov",
+		"sources": [
+			{
+				"use": "AWS GovCloud account",
+				"url": "https://docs.archera.ai/help-center/aws-onboarding/aws-account-id.md",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Archera",
+		"account": "967800896805",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "AWS standard account",
+				"url": "https://docs.archera.ai/help-center/aws-onboarding/aws-account-id.md",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "BigPanda",
+		"account": "103749124141",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "KMS key policy for S3 replication of analytics data",
+				"url": "https://docs.bigpanda.io/en/etl-sync",
+				"checked": "2026-10-19",
+				"dated": "2025-10-15"
+			}
+		]
+	},
+	{
+		"vendor": "Buildkite",
+		"account": "032379705303",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Pipelines private job log archiving",
+				"url": "https://buildkite.com/docs/pipelines/governance/job-log-archiving",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "ChaosSearch",
+		"account": "079363773741",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Trust principal for all environments",
+				"url": "https://docs.chaossearch.io/docs/prerequisites",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "ChaosSearch",
+		"account": "268357474475",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Trust principal for trial and proof-of-value environments",
+				"url": "https://docs.chaossearch.io/docs/prerequisites",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "ChaosSearch",
+		"account": "291240392334",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Trust principal for production environments",
+				"url": "https://docs.chaossearch.io/docs/prerequisites",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "ChaosSearch",
+		"account": "515570774723",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Cross-account read role, all environments",
+				"url": "https://docs.chaossearch.io/docs/prerequisites",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Cloudflare",
+		"account": "391854517948",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Logpush to Amazon S3",
+				"url": "https://developers.cloudflare.com/logs/logpush/logpush-job/enable-destinations/aws-s3/",
+				"checked": "2026-10-19",
+				"dated": "2026-10-08"
+			}
+		]
+	},
+	{
+		"vendor": "CloudZero",
+		"account": "061190967865",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "AWS Resources (member) account role",
+				"url": "https://docs.cloudzero.com/docs/manual-setup-cur-2",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "CloudZero",
+		"account": "559846027439",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "AWS Billing (payer) account role, CUR 2.0",
+				"url": "https://docs.cloudzero.com/docs/manual-setup-cur-2",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Coralogix",
+		"account": "025066248247",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "S3 archive bucket and KMS key policy (ap3)",
+				"url": "https://coralogix.com/docs/user-guides/data-flow/s3-archive/connect-s3-archive/",
+				"checked": "2026-10-19",
+				"dated": "2026-09-15"
+			}
+		]
+	},
+	{
+		"vendor": "Coralogix",
+		"account": "309801239943",
+		"partition": "aws-us-gov",
+		"sources": [
+			{
+				"use": "S3 archive bucket and KMS key policy (gov1 FedRAMP)",
+				"url": "https://coralogix.com/docs/user-guides/data-flow/s3-archive/connect-s3-archive/",
+				"checked": "2026-10-19",
+				"dated": "2026-09-15"
+			}
+		]
+	},
+	{
+		"vendor": "Coralogix",
+		"account": "625240141681",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "S3 archive bucket and KMS key policy (us1, eu1, eu2, ap1, ap2)",
+				"url": "https://coralogix.com/docs/user-guides/data-flow/s3-archive/connect-s3-archive/",
+				"checked": "2026-10-19",
+				"dated": "2026-09-15"
+			}
+		]
+	},
+	{
+		"vendor": "Coralogix",
+		"account": "739076534691",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "S3 archive bucket and KMS key policy (us2)",
+				"url": "https://coralogix.com/docs/user-guides/data-flow/s3-archive/connect-s3-archive/",
+				"checked": "2026-10-19",
+				"dated": "2026-09-15"
+			}
+		]
+	},
+	{
+		"vendor": "Databricks",
+		"account": "044793339203",
+		"partition": "aws-us-gov",
+		"sources": [
+			{
+				"use": "Classic workspace credential and storage (AWS GovCloud)",
+				"url": "https://docs.databricks.com/aws/en/admin/workspace/create-uc-workspace",
+				"checked": "2026-10-19",
+				"dated": "2026-09-11"
+			}
+		]
+	},
+	{
+		"vendor": "Databricks",
+		"account": "170644377855",
+		"partition": "aws-us-gov",
+		"sources": [
+			{
+				"use": "Serverless compute role, GovCloud (US-DoD)",
+				"url": "https://docs.databricks.com/aws/en/admin/sql/data-access-configuration",
+				"checked": "2026-10-19",
+				"dated": "2026-09-11"
+			}
+		]
+	},
+	{
+		"vendor": "Databricks",
+		"account": "170655000336",
+		"partition": "aws-us-gov",
+		"sources": [
+			{
+				"use": "Serverless compute role, GovCloud (US)",
+				"url": "https://docs.databricks.com/aws/en/admin/sql/data-access-configuration",
+				"checked": "2026-10-19",
+				"dated": "2026-09-11"
+			}
+		]
+	},
+	{
+		"vendor": "Databricks",
+		"account": "170661010020",
+		"partition": "aws-us-gov",
+		"sources": [
+			{
+				"use": "Classic workspace credential and storage (AWS GovCloud DoD)",
+				"url": "https://docs.databricks.com/aws/en/admin/workspace/create-uc-workspace",
+				"checked": "2026-10-19",
+				"dated": "2026-09-11"
+			}
+		]
+	},
+	{
+		"vendor": "Databricks",
+		"account": "414351767826",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Classic workspace credential and storage (cross-account role)",
+				"url": "https://docs.databricks.com/aws/en/admin/workspace/create-uc-workspace",
+				"checked": "2026-10-19",
+				"dated": "2026-09-11"
+			}
+		]
+	},
+	{
+		"vendor": "Databricks",
+		"account": "790110701330",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Serverless compute role, commercial regions",
+				"url": "https://docs.databricks.com/aws/en/admin/sql/data-access-configuration",
+				"checked": "2026-10-19",
+				"dated": "2026-09-11"
+			}
+		]
+	},
+	{
+		"vendor": "Datadog",
+		"account": "464622532012",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "AWS integration (role delegation)",
+				"url": "https://raw.githubusercontent.com/DataDog/cloudformation-template/master/aws/datadog_integration_role.yaml",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Descope",
+		"account": "312892722078",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "AWS S3 audit connector (role-based)",
+				"url": "https://docs.descope.com/connectors/connector-configuration-guides/audit-and-troubleshooting/aws-s3",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Doppler",
+		"account": "299900769157",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Dynamic secrets: AWS IAM managing role",
+				"url": "https://docs.doppler.com/docs/aws-iam",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Drata",
+		"account": "269135526815",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Autopilot (cross-account read-only role)",
+				"url": "https://github.com/drata/terraform-aws-drata-autopilot-role/blob/main/variables.tf",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Dynatrace",
+		"account": "509560245411",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "AWS monitoring (role-based access, ActiveGate template)",
+				"url": "https://github.com/dynatrace-oss/cloud-snippets/blob/main/aws/role-based-access/role_based_access_monitored_account_template.yml",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "emnify",
+		"account": "884047677700",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Data Streamer to AWS Kinesis",
+				"url": "https://www.emnify.com/integration-guides/emnify-datastreamer-integration-into-aws-kinesis",
+				"checked": "2026-10-19",
+				"dated": "2020-12-04"
+			}
+		]
+	},
+	{
+		"vendor": "env zero (env0)",
+		"account": "913128560467",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Cost monitoring (AWS cost role)",
+				"url": "https://docs.envzero.com/guides/cost-monitoring/aws-costs",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Ermetic (Tenable Cloud Security)",
+		"account": "081802104111",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Control Tower CloudFormation template default account",
+				"url": "https://raw.githubusercontent.com/ermetic/utilities/main/AWS/ControlTower/cloudformation/ermetic-controltower.yaml",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Expel",
+		"account": "012205512454",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "CloudTrail onboarding Terraform module trusted user",
+				"url": "https://raw.githubusercontent.com/expel-io/terraform-aws-cloudtrail/main/variables.tf",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Fastly",
+		"account": "717331877981",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Log streaming to Amazon S3 and Kinesis",
+				"url": "https://www.fastly.com/documentation/guides/integrations/streaming-logs/creating-an-aws-iam-role-for-fastly-logging/",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Finout",
+		"account": "277411487094",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "AWS billing and metrics read-only role",
+				"url": "https://docs.finout.io/billing-integrations/cloud-providers/connect-to-aws",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Fivetran",
+		"account": "341876425553",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Activations (formerly Census) S3 source",
+				"url": "https://fivetran.com/docs/activations/sources/available-sources/s3",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Fivetran",
+		"account": "834469178297",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "External logs to AWS CloudWatch",
+				"url": "https://fivetran.com/docs/logs/external-logs/cloudwatch/setup-guide",
+				"checked": "2026-10-19"
+			},
+			{
+				"use": "Activations (formerly Census) S3 source",
+				"url": "https://fivetran.com/docs/activations/sources/available-sources/s3",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Funnel",
+		"account": "071303700930",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Amazon S3 export, app.funnel.io service",
+				"url": "https://help.funnel.io/en/articles/1494351-amazon-s3-export-bucket-configuration",
+				"checked": "2026-10-19",
+				"dated": "2026-09-08"
+			}
+		]
+	},
+	{
+		"vendor": "Funnel",
+		"account": "924192298621",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Amazon S3 export, app.eu.funnel.io service",
+				"url": "https://help.funnel.io/en/articles/1494351-amazon-s3-export-bucket-configuration",
+				"checked": "2026-10-19",
+				"dated": "2026-09-08"
+			}
+		]
+	},
+	{
+		"vendor": "Hightouch",
+		"account": "324528010823",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Cross-account role (S3, Athena, storage)",
+				"url": "https://hightouch.com/docs/security/aws",
+				"checked": "2026-10-19",
+				"dated": "2024-11-14"
+			}
+		]
+	},
+	{
+		"vendor": "Honeycomb",
+		"account": "702835727665",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "S3 archive rehydration role trust (US instance)",
+				"url": "https://docs.honeycomb.io/send-data/telemetry-pipeline/enhance/aws-console-setup/",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Honeycomb",
+		"account": "919259170365",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "S3 archive rehydration role trust (EU instance)",
+				"url": "https://docs.honeycomb.io/send-data/telemetry-pipeline/enhance/aws-console-setup/",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Humanitec",
+		"account": "360308478938",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Platform Orchestrator aws-role cloud account (resource pack example)",
+				"url": "https://developer.humanitec.com/platform-orchestrator/examples/resource-packs/aws/sqs/",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Improvado",
+		"account": "716309063777",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Main server, S3 bucket and KMS key policy",
+				"url": "https://improvado.io/docs/aws-s3-destination",
+				"checked": "2026-10-19",
+				"dated": "2026-09-11"
+			}
+		]
+	},
+	{
+		"vendor": "Improvado",
+		"account": "787401325475",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "EU server, S3 bucket and KMS key policy",
+				"url": "https://improvado.io/docs/aws-s3-destination",
+				"checked": "2026-10-19",
+				"dated": "2026-09-11"
+			}
+		]
+	},
+	{
+		"vendor": "Improvado",
+		"account": "939673193049",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "US server, S3 bucket and KMS key policy",
+				"url": "https://improvado.io/docs/aws-s3-destination",
+				"checked": "2026-10-19",
+				"dated": "2026-09-11"
+			}
+		]
+	},
+	{
+		"vendor": "JFrog",
+		"account": "377488441568",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "JFrog ML: accessing AWS resources with IAM role",
+				"url": "https://docs.jfrog.com/ai-ml/docs/accessing-aws-resources-with-iam-role",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Lacework",
+		"account": "434813966438",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "IAM role trust for Lacework platform (Terraform module)",
+				"url": "https://raw.githubusercontent.com/lacework/terraform-aws-iam-role/main/variables.tf",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "LaunchDarkly",
+		"account": "554582317989",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Persistent store integration for segments (DynamoDB role)",
+				"url": "https://launchdarkly.com/docs/home/flags/segment-config",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Mixpanel",
+		"account": "485438090326",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Data pipelines export to AWS S3",
+				"url": "https://docs.mixpanel.com/docs/data-pipelines/integrations/aws-s3",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Netlify",
+		"account": "128866310339",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Log Drains to Amazon S3",
+				"url": "https://docs.netlify.com/manage/monitoring/log-drains/",
+				"checked": "2026-10-19",
+				"dated": "2026-09-25"
+			}
+		]
+	},
+	{
+		"vendor": "New Relic",
+		"account": "754728514883",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "AWS polling integrations (infrastructure)",
+				"url": "https://docs.newrelic.com/docs/infrastructure/amazon-integrations/connect/set-up-aws-api-polling/",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "OpsLevel",
+		"account": "746108190720",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Infrastructure catalog AWS integration",
+				"url": "https://docs.opslevel.com/docs/import-infrastructure-objects-via-aws",
+				"checked": "2026-10-19",
+				"dated": "2026-07-13"
+			}
+		]
+	},
+	{
+		"vendor": "Pinecone",
+		"account": "713131977538",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Amazon S3 integration (import and audit logs)",
+				"url": "https://docs.pinecone.io/guides/operations/integrations/integrate-with-amazon-s3",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Postman",
+		"account": "258201882842",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "API Gateway integration (v11 docs, IAM role option)",
+				"url": "https://learning.postman.com/v11/docs/integrations/available-integrations/aws-api-gateway/deploying-an-api-aws.md",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Prisma Cloud (Palo Alto Networks)",
+		"account": "188619942792",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "AWS account onboarding",
+				"url": "https://knowledgebase.paloaltonetworks.com/KCSArticleDetail?id=kA14u0000004OD3CAM",
+				"checked": "2026-10-19",
+				"dated": "2026-10-06"
+			}
+		]
+	},
+	{
+		"vendor": "Prisma Cloud (Palo Alto Networks)",
+		"account": "211784309483",
+		"partition": "aws-cn",
+		"sources": [
+			{
+				"use": "AWS account onboarding (China)",
+				"url": "https://knowledgebase.paloaltonetworks.com/KCSArticleDetail?id=kA14u0000004OD3CAM",
+				"checked": "2026-10-19",
+				"dated": "2026-10-06"
+			}
+		]
+	},
+	{
+		"vendor": "Prisma Cloud (Palo Alto Networks)",
+		"account": "342570144056",
+		"partition": "aws-us-gov",
+		"sources": [
+			{
+				"use": "AWS account onboarding (GovCloud)",
+				"url": "https://knowledgebase.paloaltonetworks.com/KCSArticleDetail?id=kA14u0000004OD3CAM",
+				"checked": "2026-10-19",
+				"dated": "2026-10-06"
+			}
+		]
+	},
+	{
+		"vendor": "Qleet",
+		"account": "983530947477",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Add AWS account (cross-account access)",
+				"url": "https://docs.qleet.io/guides/add-aws-account/",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Red Hat",
+		"account": "710019948333",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "OpenShift Service on AWS: OCM role and user role trust",
+				"url": "https://access.redhat.com/articles/6961686",
+				"checked": "2026-10-19",
+				"dated": "2024-01-17"
+			}
+		]
+	},
+	{
+		"vendor": "RudderStack",
+		"account": "422074288268",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "IAM role for AWS destinations (S3, Kinesis, Redshift and others)",
+				"url": "https://www.rudderstack.com/docs/destinations/aws-iam-role-for-rudderstack/",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Scale AI",
+		"account": "307185671274",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Data hosting: IAM delegated access role ScaleAI-Integration",
+				"url": "https://scale.com/docs/aws-s3",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Scalr",
+		"account": "919814621061",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "AWS provider configuration: Scalr account trusted entity",
+				"url": "https://docs.scalr.io/docs/aws",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Segment (Twilio)",
+		"account": "595280932656",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "AWS S3 with IAM Role Support storage destination",
+				"url": "https://www.twilio.com/docs/segment/connections/storage/catalog/aws-s3",
+				"checked": "2026-10-19"
+			},
+			{
+				"use": "Amazon Kinesis destination",
+				"url": "https://www.twilio.com/docs/segment/connections/destinations/catalog/amazon-kinesis",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Snowplow",
+		"account": "793733611312",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Private Managed Cloud setup (SnowplowAdmin and SnowplowDeployment roles)",
+				"url": "https://docs.snowplow.io/docs/get-started/private-managed-cloud/setup-guide-aws/",
+				"checked": "2026-10-19",
+				"dated": "2026-10-16"
+			}
+		]
+	},
+	{
+		"vendor": "Spacelift",
+		"account": "324880187172",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "AWS cloud integration",
+				"url": "https://docs.spacelift.io/integrations/cloud-providers/aws",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Spacelift",
+		"account": "577638371743",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "AWS cloud integration",
+				"url": "https://docs.spacelift.io/integrations/cloud-providers/aws",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "StackGuardian",
+		"account": "163602625436",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "RBAC connector: second account in trust policy",
+				"url": "https://docs.stackguardian.io/docs/connectors/csp/aws",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "StackGuardian",
+		"account": "476299211833",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "RBAC connector: first account in trust policy",
+				"url": "https://docs.stackguardian.io/docs/connectors/csp/aws",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Starburst Galaxy",
+		"account": "179619298502",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "AWS PrivateLink for RDS (resource share)",
+				"url": "https://docs.starburst.io/starburst-galaxy/security-and-compliance/manage-cluster-connectivity/private-connections/aws-privatelink-for-rds.html",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Stitch (Qlik Talend)",
+		"account": "218546966473",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Amazon S3 destination, North America pipeline (us-east-1)",
+				"url": "https://www.stitchdata.com/docs/destinations/amazon-s3/connecting-an-amazon-s3-data-warehouse-to-stitch",
+				"checked": "2026-10-19",
+				"dated": "2026-10-15"
+			},
+			{
+				"use": "Amazon S3 destination, Europe pipeline (eu-central-1)",
+				"url": "https://www.stitchdata.com/docs/destinations/amazon-s3/connecting-an-amazon-s3-data-warehouse-to-stitch",
+				"checked": "2026-10-19",
+				"dated": "2026-10-15"
+			}
+		]
+	},
+	{
+		"vendor": "StrongDM",
+		"account": "910226215634",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Log Stream to Amazon S3",
+				"url": "https://docs.strongdm.com/admin/audit/logs/log-stream",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Sumo Logic",
+		"account": "926226587429",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Hosted collector sources (S3, CloudWatch Metrics, CloudTrail, ELB, CloudFront)",
+				"url": "https://www.sumologic.com/help/docs/send-data/hosted-collectors/amazon-aws/grant-access-aws-product/",
+				"checked": "2026-10-19",
+				"dated": "2026-09-09"
+			}
+		]
+	},
+	{
+		"vendor": "Tableau Cloud (Salesforce)",
+		"account": "005102551263",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Activity Log, Singapore (ap-southeast-1)",
+				"url": "https://help.tableau.com/current/online/en-us/activity_log_setup.htm",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Tableau Cloud (Salesforce)",
+		"account": "061095916136",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Activity Log, previous (pre-Hyperforce) role",
+				"url": "https://help.tableau.com/current/online/en-us/activity_log_setup.htm",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Tableau Cloud (Salesforce)",
+		"account": "075540750887",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Activity Log, Canada (ca-central-1)",
+				"url": "https://help.tableau.com/current/online/en-us/activity_log_setup.htm",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Tableau Cloud (Salesforce)",
+		"account": "112108976196",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Activity Log, UK (eu-west-2)",
+				"url": "https://help.tableau.com/current/online/en-us/activity_log_setup.htm",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Tableau Cloud (Salesforce)",
+		"account": "119877853097",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Activity Log, India (ap-south-2)",
+				"url": "https://help.tableau.com/current/online/en-us/activity_log_setup.htm",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Tableau Cloud (Salesforce)",
+		"account": "337853574888",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Activity Log, Germany (eu-central-1)",
+				"url": "https://help.tableau.com/current/online/en-us/activity_log_setup.htm",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Tableau Cloud (Salesforce)",
+		"account": "349070092441",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Activity Log, Japan (ap-northeast-1)",
+				"url": "https://help.tableau.com/current/online/en-us/activity_log_setup.htm",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Tableau Cloud (Salesforce)",
+		"account": "623102672691",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Activity Log, Switzerland (eu-central-2)",
+				"url": "https://help.tableau.com/current/online/en-us/activity_log_setup.htm",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Tableau Cloud (Salesforce)",
+		"account": "667498515984",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Activity Log, Australia (ap-southeast-2)",
+				"url": "https://help.tableau.com/current/online/en-us/activity_log_setup.htm",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Tableau Cloud (Salesforce)",
+		"account": "675003682462",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Activity Log, US West Oregon (us-west-2)",
+				"url": "https://help.tableau.com/current/online/en-us/activity_log_setup.htm",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Tableau Cloud (Salesforce)",
+		"account": "792479604904",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Activity Log, US East Virginia (us-east-1)",
+				"url": "https://help.tableau.com/current/online/en-us/activity_log_setup.htm",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Tableau Cloud (Salesforce)",
+		"account": "892386869973",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Activity Log, Indonesia (ap-southeast-3)",
+				"url": "https://help.tableau.com/current/online/en-us/activity_log_setup.htm",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Tableau Cloud (Salesforce)",
+		"account": "943538517075",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Activity Log, South Korea (ap-northeast-2)",
+				"url": "https://help.tableau.com/current/online/en-us/activity_log_setup.htm",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Tailscale",
+		"account": "235487987553",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Tailscale PAM session recordings in S3",
+				"url": "https://tailscale.com/docs/privileged-access-management/how-to/session-recordings-s3",
+				"checked": "2026-10-19",
+				"dated": "2026-08-21"
+			}
+		]
+	},
+	{
+		"vendor": "Tanzu CloudHealth",
+		"account": "454464851268",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "CloudHealth AWS integration",
+				"url": "https://help.cloudhealthtech.com/quickstart/config-linked-aws-account",
+				"checked": "2026-10-19",
+				"dated": "2025-01-07"
+			}
+		]
+	},
+	{
+		"vendor": "Telestream",
+		"account": "078992246105",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Cloud customer private cloud on AWS",
+				"url": "https://docs.telestream.dev/docs/aws-private-cloud",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Tenable",
+		"account": "012615275169",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Vulnerability Management AWS keyless connector (discovery only)",
+				"url": "https://docs.tenable.com/vulnerability-management/Content/Settings/cloud-connectors/AWS/ConfigureAWSKeylessDiscovery.htm",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Tenable",
+		"account": "939095807864",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Attack Surface Management AWS keyless integration",
+				"url": "https://docs.tenable.com/attack-surface-management/Content/Topics/Integrations/ConfigureAWSKeyless.htm",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Testable",
+		"account": "220197662125",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Self-hosted AWS test runner cross-account role",
+				"url": "https://docs.testable.io/guides/self-hosted-aws.html",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Tines",
+		"account": "825838939522",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Stories AWS credential: Stories account for HTTP request actions",
+				"url": "https://www.tines.com/stories/docs/credentials/aws/",
+				"checked": "2026-10-19",
+				"dated": "2026-10-09"
+			}
+		]
+	},
+	{
+		"vendor": "Tines",
+		"account": "857223745291",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Stories AWS credential: Lambda account for run script actions",
+				"url": "https://www.tines.com/stories/docs/credentials/aws/",
+				"checked": "2026-10-19",
+				"dated": "2026-10-09"
+			}
+		]
+	},
+	{
+		"vendor": "Trend Micro",
+		"account": "147995105371",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Cloud One Workload Security cross-account role",
+				"url": "https://docs.trendmicro.com/en-us/documentation/article/trend-micro-cloud-one-workload-security-aws-add-cross-account",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Trend Micro",
+		"account": "717210094962",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Cloud One Conformity SNS topic policy and KMS key policy",
+				"url": "https://docs.trendmicro.com/en-us/documentation/article/trend-micro-cloud-one-conformity-amazon-sns-communication",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Upwind",
+		"account": "340457201789",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Organization onboarding trusted account (Terraform module)",
+				"url": "https://raw.githubusercontent.com/upwindsecurity/terraform-aws-onboarding/main/variables.tf",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Vanta",
+		"account": "654654195764",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "AWS integration (vanta-auditor role)",
+				"url": "https://help.vanta.com/en/articles/11345698-porting-aws-integrations-across-regions",
+				"checked": "2026-10-19",
+				"dated": "2025-10-16"
+			}
+		]
+	},
+	{
+		"vendor": "Vanta",
+		"account": "850507053895",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "AWS integration (vanta-auditor role)",
+				"url": "https://help.vanta.com/en/articles/11345698-porting-aws-integrations-across-regions",
+				"checked": "2026-10-19",
+				"dated": "2025-10-16"
+			}
+		]
+	},
+	{
+		"vendor": "Vanta",
+		"account": "956993596390",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "AWS integration (vanta-auditor role)",
+				"url": "https://help.vanta.com/en/articles/11345698-porting-aws-integrations-across-regions",
+				"checked": "2026-10-19",
+				"dated": "2025-10-16"
+			}
+		]
+	},
+	{
+		"vendor": "Vercel",
+		"account": "977805900156",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Audit Log Drains to S3",
+				"url": "https://vercel.com/docs/drains/audit-logs-to-s3",
+				"checked": "2026-10-19",
+				"dated": "2026-06-29"
+			}
+		]
+	},
+	{
+		"vendor": "Weights & Biases",
+		"account": "725579432336",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Bring your own bucket: Multi-tenant Cloud principal",
+				"url": "https://docs.coreweave.com/products/wandb/platform/hosting/data-security/secure-storage-connector",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Weights & Biases",
+		"account": "830241207209",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "Bring your own bucket: Dedicated Cloud principal",
+				"url": "https://docs.coreweave.com/products/wandb/platform/hosting/data-security/secure-storage-connector",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "Workato",
+		"account": "353360065216",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "IAM role-based authentication for AWS services",
+				"url": "https://docs.workato.com/security/data-protection/secrets-management/iam-role-based-authentication-for-aws.html",
+				"checked": "2026-10-19"
+			}
+		]
+	},
+	{
+		"vendor": "WP Engine",
+		"account": "902500896138",
+		"partition": "aws",
+		"sources": [
+			{
+				"use": "LargeFS media offload and log backup to S3",
+				"url": "https://wpengine.com/support/configuring-largefs-store-transfer-unlimited-data/",
+				"checked": "2026-10-19",
+				"dated": "2025-07-28"
+			}
+		]
+	}
+]
